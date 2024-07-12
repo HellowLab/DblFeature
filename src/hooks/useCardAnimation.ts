@@ -7,7 +7,11 @@ import {
   runOnJS,
 } from "react-native-reanimated";
 import { useWindowDimensions } from "react-native";
-import { ROTATION, SWIPE_VELOCITY } from "../utils/constants";
+import {
+  ROTATION,
+  SWIPE_THRESHOLD_Y,
+  SWIPE_VELOCITY,
+} from "../utils/constants";
 
 /**
  * Custom hook to handle card animations including dragging and swiping.
@@ -107,27 +111,44 @@ const useCardAnimation = (updateIndexAfterSwipeAway: () => void) => {
       }
     };
 
+    // Helper function to animate translationX
+    const animateTranslateX = (value: number, callback: () => void) => {
+      translateX.value = withSpring(value, {}, (isFinished) => {
+        if (isFinished) callback();
+      });
+    };
+
+    // Helper function to animate translationY
+    const animateTranslateY = (value: number, callback: () => void) => {
+      translateY.value = withSpring(value, {}, (isFinished) => {
+        if (isFinished) callback();
+      });
+    };
+
     // If swipe velocity is slow, return card to the center
     if (Math.abs(velocityX) < SWIPE_VELOCITY) {
       translateX.value = withSpring(0);
       translateY.value = withSpring(0);
     } else {
-      // Otherwise, swipe away in the appropriate direction based on translation values
-      // Note: Math.sign() return 1 or -1 based on the positive/negative value of translateX/translateY
-      translateX.value = withSpring(
-        hiddenTranslateX * Math.sign(translateX.value),
-        {},
-        (isFinished) => {
-          if (isFinished) checkAndUpdateIndex();
-        }
-      );
-      translateY.value = withSpring(
-        hiddenTranslateY * Math.sign(translateY.value),
-        {},
-        (isFinished) => {
-          if (isFinished) checkAndUpdateIndex();
-        }
-      );
+      // Check if the change in translateY is significant
+      if (Math.abs(translateY.value) < SWIPE_THRESHOLD_Y) {
+        animationsCompleted.value += 1;
+        // Only update translateX (swipe off just to the left and not up or down)
+        animateTranslateX(
+          hiddenTranslateX * Math.sign(translateX.value),
+          checkAndUpdateIndex
+        );
+      } else {
+        // Otherwise, update both translateX and translateY
+        animateTranslateX(
+          hiddenTranslateX * Math.sign(translateX.value),
+          checkAndUpdateIndex
+        );
+        animateTranslateY(
+          hiddenTranslateY * Math.sign(translateY.value),
+          checkAndUpdateIndex
+        );
+      }
     }
   };
 
