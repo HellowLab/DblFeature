@@ -1,99 +1,89 @@
-import { View, StyleSheet, useWindowDimensions } from "react-native";
-import Card from "@/src/components/MovieCard";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, Image } from "react-native";
+import { usePanGesture, useCardAnimation } from "@/src/hooks";
+import MovieCard from "@/src/components/MovieCard";
+import Animated from "react-native-reanimated";
+import { GestureDetector } from "react-native-gesture-handler";
 import movies from "../src/assets/data/users";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedGestureHandler,
-  useDerivedValue,
-  interpolate,
-  withSpring,
-} from "react-native-reanimated";
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
-import { useState } from "react";
+//@ts-ignore
+import LIKE from "../src/assets/images/LIKE.png";
+//@ts-ignore
+import nope from "../src/assets/images/nope.png";
 
-// Define the context type for gesture handling (to satisfy typescript requirements)
-interface GestureContext extends Record<string, unknown> {
-  startX: number;
-  startY: number;
-}
-
-export default function Index() {
-  // Screen height and width
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  // State to keep track of which card in the stack we have selected
+/**
+ * Main application component that displays movie cards with pan gestures.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
+const App = () => {
+  // State to keep track of which card in the stack is currently selected, and whats next
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [nextIndex, setNextIndex] = useState(currentIndex + 1);
+
+  // Get the current and next movies from the movies array
   const currentMovie = movies[currentIndex];
+  const nextMovie = movies[nextIndex];
 
-  /**
-   * Multiplying screenWidth by 2 allows the max rotation of +-35deg to be reached
-   * when the entire card is off the screen. Otherwise, max rotation is reached when
-   * the card is about halfway off the screen.
-   */
-  const hiddenTranslateX = 2 * screenWidth;
+  // Callback function to grant setCurrentIndex access to useCardAnimation
+  const updateIndexAfterSwipeAway = () => {
+    setCurrentIndex(currentIndex + 1);
+  };
 
-  // Shared value for horizontal translation
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const rotate = useDerivedValue(
-    () => interpolate(translateX.value, [0, hiddenTranslateX], [0, -35]) + "deg"
-  );
+  // Retrieve animated styles and animation handlers from custom hook useCardAnimation
+  const {
+    cardStyle,
+    nextCardStyle,
+    likeStyle,
+    nopeStyle,
+    handleCardDrag,
+    handleCardSwipeEnd,
+    translateX,
+    translateY,
+  } = useCardAnimation(updateIndexAfterSwipeAway);
 
-  // Animated style for the card, applying the translation value
-  const cardStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateX: translateX.value,
-      },
-      {
-        translateY: translateY.value,
-      },
-      {
-        rotate: rotate.value,
-      },
-    ],
-  }));
+  // Retrieve custom panGesture based on animation handlers from custom hook usePanGesture
+  const panGesture = usePanGesture(handleCardDrag, handleCardSwipeEnd);
 
-  // Gesture handler for pan gestures (card swipes)
-  const gestureHandler = useAnimatedGestureHandler<
-    PanGestureHandlerGestureEvent,
-    GestureContext
-  >({
-    // When the gesture starts, store the current translateX value in the context
-    onStart: (_, context) => {
-      context.startX = translateX.value;
-      context.startY = translateY.value;
-    },
-    // When the gesture is active, update the translateX value based on the gesture movement
-    onActive: (event, context) => {
-      translateX.value = context.startX + event.translationX;
-      translateY.value = context.startY + event.translationY;
-    },
-    // When the gesture ends, spring the card back to center
-    onEnd: (context) => {
-      //
-      (translateX.value = withSpring(0)), (translateY.value = withSpring(0));
-    },
-  });
+  // Every time currentIndex is updated, ensure we also update nextIndex
+  useEffect(() => {
+    translateX.value = 0;
+    translateY.value = 0;
+    setNextIndex(currentIndex + 1);
+  }, [currentIndex, translateX]);
 
   return (
     <View style={styles.pageContainer}>
-      {/* PanGestureHandler to handle horizontal drag gestures */}
-      <PanGestureHandler onGestureEvent={gestureHandler}>
-        {/* Animated view that applies the cardStyle for smooth animation */}
-        <Animated.View style={[styles.animatedCard, cardStyle]}>
-          {/* Render the card component with movie data */}
-          <Card movie={currentMovie} />
+      {/* Next movie card in the stack, styled with animated styles */}
+      {nextMovie && (
+        <Animated.View style={[styles.nextCardContainer, nextCardStyle]}>
+          <MovieCard movie={nextMovie} />
         </Animated.View>
-      </PanGestureHandler>
+      )}
+      {/* Top movie card on stack, enabled with swipe gestures */}
+      {currentMovie && (
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={[styles.animatedCard, cardStyle]}>
+            {/* Like png */}
+            <Animated.Image
+              source={LIKE}
+              style={[styles.png, { left: 10 }, likeStyle]}
+              resizeMode="contain"
+            />
+            {/* Nope png */}
+            <Animated.Image
+              source={nope}
+              style={[styles.png, { right: 10 }, nopeStyle]}
+              resizeMode="contain"
+            />
+            <MovieCard movie={currentMovie} />
+          </Animated.View>
+        </GestureDetector>
+      )}
     </View>
   );
-}
+};
 
-// StyleSheet for styling the components
+// Styles for the components
 const styles = StyleSheet.create({
   pageContainer: {
     justifyContent: "center",
@@ -101,8 +91,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   animatedCard: {
-    width: "100%",
+    width: "90%",
+    height: "70%",
     justifyContent: "center",
     alignItems: "center",
   },
+  nextCardContainer: {
+    width: "95%",
+    height: "75%",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+  },
+  png: {
+    width: 150,
+    height: 150,
+    position: "absolute",
+    top: 0,
+    zIndex: 1,
+    elevation: 1,
+  },
 });
+
+export default App;
