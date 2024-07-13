@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import movies from "../src/assets/data/users";
 import AnimatedStack from "@/src/components/AnimatedStack";
+import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
 import { styles } from "./index.styles";
 
 /**
@@ -12,7 +13,11 @@ import { styles } from "./index.styles";
 const App = () => {
   return (
     <View style={styles.pageContainer}>
-      <AnimatedStack data={movies} />
+      <AnimatedStack
+        data={movies}
+        onSwipeRight={onSwipeRight}
+        onSwipeLeft={onSwipeLeft}
+      />
     </View>
   );
 };

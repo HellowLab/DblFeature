@@ -12,15 +12,23 @@ import {
   SWIPE_THRESHOLD_Y,
   SWIPE_VELOCITY,
 } from "../utils/constants";
+import { MovieCardProps } from "../components/MovieCard";
 
 /**
  * Custom hook to handle card animations including dragging and swiping.
  *
  * @param {function} updateIndexAfterSwipeAway - Function to increment currentIndex in Movies array
- *
+ * @param {function} onSwipeRight - Function to handle the 'like' action on a card swipe
+ * @param {function} onSwipeLeft - Function to handle the 'nope' action on a card swipe
+
  * @returns {Object} An object containing animated styles, drag handler, swipe end handler, and shared values.
  */
-const useCardAnimation = (updateIndexAfterSwipeAway: () => void) => {
+const useCardAnimation = (
+  updateIndexAfterSwipeAway: () => void,
+  onSwipeRight: (movie: MovieCardProps) => void,
+  onSwipeLeft: (movie: MovieCardProps) => void,
+  currentMovie: MovieCardProps
+) => {
   // Get the dimensions of the window to calculate hidden positions
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
@@ -149,6 +157,10 @@ const useCardAnimation = (updateIndexAfterSwipeAway: () => void) => {
           checkAndUpdateIndex
         );
       }
+
+      // Activate Like or Nope logic based on swipe left or right
+      const onSwipe = velocityX > 0 ? onSwipeRight : onSwipeLeft;
+      onSwipe && runOnJS(onSwipe)(currentMovie);
     }
   };
 

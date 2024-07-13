@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 10,
+    backgroundColor: "#fefefe",
 
     // Used React Native Shadow Creator to get these shadow styles
     shadowColor: "#000",

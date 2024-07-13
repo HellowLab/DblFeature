@@ -14,6 +14,8 @@ import { MovieCardProps } from "../MovieCard/MovieCard";
 // Card component props types
 export interface AnimatedStackProps {
   data: MovieCardProps[];
+  onSwipeRight: (movie: MovieCardProps) => void;
+  onSwipeLeft: (movie: MovieCardProps) => void;
 }
 
 /**
@@ -21,10 +23,18 @@ export interface AnimatedStackProps {
  *
  * @param {Object} data - An array of movies to be displayed in the animated stack. Each movie is of type MovieCardProps
  */
-const AnimatedStack: React.FC<AnimatedStackProps> = ({ data }) => {
+const AnimatedStack: React.FC<AnimatedStackProps> = ({
+  data,
+  onSwipeRight,
+  onSwipeLeft,
+}) => {
   // State to keep track of which card in the stack is currently selected, and whats next
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currentIndex + 1);
+
+  // Get the current and next movies from the movies array if it exists
+  const currentMovie = data[currentIndex] ?? null;
+  const nextMovie = data[nextIndex] ?? null;
 
   // Callback function to grant setCurrentIndex access to useCardAnimation
   const updateIndexAfterSwipeAway = () => {
@@ -41,7 +51,12 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({ data }) => {
     handleCardSwipeEnd,
     translateX,
     translateY,
-  } = useCardAnimation(updateIndexAfterSwipeAway);
+  } = useCardAnimation(
+    updateIndexAfterSwipeAway,
+    onSwipeRight,
+    onSwipeLeft,
+    currentMovie
+  );
 
   // Every time currentIndex is updated, ensure we also update nextIndex
   useEffect(() => {
@@ -49,10 +64,6 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({ data }) => {
     translateY.value = 0;
     setNextIndex(currentIndex + 1);
   }, [currentIndex, translateX]);
-
-  // Get the current and next movies from the movies array
-  const currentMovie = data[currentIndex] ?? null;
-  const nextMovie = data[nextIndex] ?? null;
 
   // Retrieve custom panGesture based on animation handlers from custom hook usePanGesture
   const panGesture = usePanGesture(handleCardDrag, handleCardSwipeEnd);
