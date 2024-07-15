@@ -17,10 +17,11 @@ import { MovieCardProps } from "../components/MovieCard";
 /**
  * Custom hook to handle card animations including dragging and swiping.
  *
- * @param {function} updateIndexAfterSwipeAway - Function to increment currentIndex in Movies array
- * @param {function} onSwipeRight - Function to handle the 'like' action on a card swipe
- * @param {function} onSwipeLeft - Function to handle the 'nope' action on a card swipe
-
+ * @param {function} updateIndexAfterSwipeAway - Function to increment currentIndex in the movies array.
+ * @param {function} onSwipeRight - Function to handle the 'like' action on a card swipe.
+ * @param {function} onSwipeLeft - Function to handle the 'nope' action on a card swipe.
+ * @param {MovieCardProps} currentMovie - The current movie being displayed.
+ *
  * @returns {Object} An object containing animated styles, drag handler, swipe end handler, and shared values.
  */
 const useCardAnimation = (

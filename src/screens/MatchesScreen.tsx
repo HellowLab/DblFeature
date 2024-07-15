@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView, Image } from "react-native";
 import movies from "../assets/data/users";
 
 /**
- * Matches screen that displays the movie matches.
+ * MatchesScreen component that displays the movie matches.
  *
  * @returns {JSX.Element} The rendered screen.
  */
@@ -10,9 +10,7 @@ const MatchesScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <Text style={{ fontWeight: "bold", fontSize: 24, color: "#F63A6E" }}>
-          New Matches
-        </Text>
+        <Text style={styles.headerText}>New Matches</Text>
         <View style={styles.movies}>
           {movies.map((movie) => (
             <View key={movie.id} style={styles.movie}>
@@ -24,6 +22,8 @@ const MatchesScreen = () => {
     </SafeAreaView>
   );
 };
+
+// Define the styles for the MatchesScreen component
 const styles = StyleSheet.create({
   root: {
     width: "100%",
@@ -32,6 +32,11 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 10,
+  },
+  headerText: {
+    fontWeight: "bold",
+    fontSize: 24,
+    color: "#F63A6E",
   },
   movie: {
     width: 100,

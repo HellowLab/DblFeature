@@ -1,7 +1,7 @@
 import { Text, View, ImageBackground } from "react-native";
 import { styles } from "./MovieCard.styles";
 
-// Card component props types
+// Define the props for the MovieCard component
 export interface MovieCardProps {
   name: string;
   image: string;
@@ -9,23 +9,22 @@ export interface MovieCardProps {
 }
 
 /**
- * Card component that displays a profile card with an image, name, and bio.
+ * MovieCard component that displays a profile card with an image, name, and bio.
  *
  * @param {Object} props - The props for the component.
  * @param {MovieCardProps} props.movie - The movie object containing name, image, and bio.
+ * @returns {JSX.Element} The MovieCard component.
  */
-const Card: React.FC<{ movie: MovieCardProps }> = (props) => {
+const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   const { name, image, bio } = props.movie;
   return (
     <View style={styles.card}>
-      <ImageBackground
-        source={{
-          uri: image,
-        }}
-        style={styles.image}
-      >
+      {/* Display the movie image as a background */}
+      <ImageBackground source={{ uri: image }} style={styles.image}>
         <View style={styles.cardInner}>
+          {/* Display the movie name */}
           <Text style={styles.name}>{name}</Text>
+          {/* Display the movie bio */}
           <Text style={styles.bio}>{bio}</Text>
         </View>
       </ImageBackground>
@@ -33,4 +32,4 @@ const Card: React.FC<{ movie: MovieCardProps }> = (props) => {
   );
 };
 
-export default Card;
+export default MovieCard;
