@@ -44,4 +44,7 @@ then
     watchman watch-project "$(pwd)"
 fi
 
-echo "Setup complete. You can now run 'npx expo start' to start the development server."
+echo -e "\033[33m Note: Occasionally the ./setup.sh script will not properly set your global node version.\033[0m"
+echo -e "\033[33m Run 'node -v' to ensure you are on the correct node version. If you are not, then run 'nvm use 20' before starting the development server.\033[0m"
+echo ""
+echo -e "\033[32m You can now run 'npx expo start' to start the development server.\033[0m"

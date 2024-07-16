@@ -24,7 +24,7 @@ DblFeature is a fun and engaging app designed for people to find the perfect mov
 Ensure you have the following installed:
 
 - [Node Version Manager (nvm)](https://github.com/nvm-sh/nvm)
-- Node.js (v22.2 or later)
+- Node.js (v20 or later)
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
 - [EAS CLI](https://docs.expo.dev/eas/cli/)
 - [Android Studio](https://developer.android.com/studio) (for Android development)
@@ -37,8 +37,8 @@ Clone the repository and install the dependencies:
 ```bash
 git clone https://github.com/hellowlab/DblFeature.git
 cd DblFeature
-nvm install 22.2
-nvm use 22.2
+nvm install 20
+nvm use 20
 npm install -g expo-cli eas-cli
 npm install
 ```
@@ -59,6 +59,10 @@ This script will:
 - Install project dependencies.
 - Update specific dependencies to the latest versions.
 - Fix Watchman recrawl warnings.
+
+#### NOTE:
+
+- Occasionally the ./setup.sh script will not properly set your global node version. Run `node -v` after running ./setup.sh to ensure you are on the correct node version. If you are not, then run `nvm use 20` before starting the development server.
 
 ### Running the App
 
