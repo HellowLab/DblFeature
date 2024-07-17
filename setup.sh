@@ -41,6 +41,20 @@ then
     watchman watch-project "$(pwd)"
 fi
 
+# Check if CocoaPods is installed, and install it if not
+if ! command -v pod &> /dev/null
+then
+    echo "CocoaPods not found. Installing CocoaPods..."
+    sudo gem install cocoapods
+fi
+
+# Install CocoaPods dependencies for iOS
+if [ -d "ios" ]; then
+    echo "Running pod install in the iOS directory..."
+    cd ios && pod install && cd ..
+fi
+
+echo ""
 echo -e "\033[33m Note: Occasionally the ./setup.sh script will not properly set your global node version.\033[0m"
 echo -e "\033[33m Run 'node -v' to ensure you are on the correct node version. If you are not, then run 'nvm use 20' before starting the development server.\033[0m"
 echo ""

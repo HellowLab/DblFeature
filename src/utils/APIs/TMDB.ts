@@ -15,9 +15,8 @@ export interface Movie {
   overview: string; // Short description of the movie
 }
 
-// Import the TMDB access token from the environment variables
-//@ts-ignore
-import { TMDB_ACCESS_TOKEN } from "@env";
+// Access the TMDB access token from the environment variables
+const TMDB_ACCESS_TOKEN = process.env.EXPO_PUBLIC_TMDB_ACCESS_TOKEN;
 
 /**
  * Fetch a list of movies from TMDB
