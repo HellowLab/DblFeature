@@ -34,9 +34,6 @@ else
     npm install
 fi
 
-# Update specific dependencies to latest versions
-npm install expo@latest expo-dev-client@latest jest-expo@latest
-
 # Fix Watchman recrawl warning
 if command -v watchman &> /dev/null
 then
