@@ -13,10 +13,39 @@ export interface Movie {
   title: string;
   poster_path: string | null; // Movie poster path, can be null
   overview: string; // Short description of the movie
+  release_date: string;
+  vote_average: number;
 }
 
 // Access the TMDB access token from the environment variables
 const TMDB_ACCESS_TOKEN = process.env.EXPO_PUBLIC_TMDB_ACCESS_TOKEN;
+
+/**
+ * Search for movies by query
+ *
+ * @param {string} query - The search query
+ * @returns {Promise<Movie[]>} A promise that resolves to an array of Movie objects matching the query
+ */
+export const searchMovies = async (query: string): Promise<Movie[]> => {
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/search/movie`,
+      {
+        headers: {
+          Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
+        },
+        params: {
+          query,
+        },
+      }
+    );
+    return response.data.results;
+  } catch (error) {
+    // Log any errors that occur during the search request
+    console.error("Error searching movies:", error);
+    return [];
+  }
+};
 
 /**
  * Fetch a list of movies from TMDB
@@ -62,4 +91,29 @@ export const fetchMovies = async (page: number): Promise<Movie[]> => {
  */
 export const getImageUrl = (path: string): string => {
   return `${IMAGE_BASE_URL}${path}`;
+};
+
+/**
+ * Fetch detailed information about a movie
+ *
+ * @param {number} movieId - The ID of the movie to fetch details for
+ * @returns {Promise<Movie>} A promise that resolves to the Movie object with detailed information
+ */
+export const getMovieDetails = async (movieId: number): Promise<Movie> => {
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    // Log any errors that occur during the request for movie details
+    console.error("Error fetching movie details:", error);
+    // Rethrow the error to be handled by the caller
+    throw error;
+  }
 };

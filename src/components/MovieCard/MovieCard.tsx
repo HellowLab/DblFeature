@@ -3,6 +3,7 @@ import { styles } from "./MovieCard.styles";
 
 // Define the props for the MovieCard component
 export interface MovieCardProps {
+  id: number;
   name: string;
   image: string;
   bio: string;
@@ -16,7 +17,9 @@ export interface MovieCardProps {
  * @returns {JSX.Element} The MovieCard component.
  */
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
+  // Destructure movie properties from props
   const { name, image, bio } = props.movie;
+
   return (
     <View style={styles.card}>
       {/* Display the movie image as a background */}

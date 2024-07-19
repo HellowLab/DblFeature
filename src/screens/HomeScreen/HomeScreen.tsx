@@ -3,7 +3,7 @@ import AnimatedStack from "@/src/components/AnimatedStack";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
 import { fetchMovies, Movie } from "@/src/utils/APIs/TMDB";
 import { MovieCardProps } from "@/src/components/MovieCard";
-import LoadingIndicator from "../components/LoadingIndicator";
+import LoadingIndicator from "../../components/LoadingIndicator";
 
 const HomeScreen = () => {
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
@@ -11,7 +11,9 @@ const HomeScreen = () => {
 
   // Effect hook to fetch movies when the component mounts
   useEffect(() => {
-    // Async function to fetch and format movies data
+    /**
+     * Async function to fetch and format movies data
+     */
     const getMovies = async () => {
       try {
         // Fetch the movies data from the API (currently just getting the 1st page)
