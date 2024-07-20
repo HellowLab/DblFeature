@@ -8,6 +8,7 @@ import { myStyles } from '@/src/utils/constants/styles';
 import Loader from '@/src/components/loaders/Loader'
 import {AppLogoLightMode, AppLogoDarkMode} from '@/src/components/images/AppLogo';
 import CustomTextInput from '@/src/components/TextInput/TextInput';
+import SubmitButton from '@/src/components/Buttons/SubmitButton';
 
 // Import your global CSS file
 import "@/global.css"
@@ -35,7 +36,8 @@ export default function Index() {
         <CustomTextInput placeholder="Username" autoCapitalize="none" />
         <CustomTextInput placeholder="Password" autoCapitalize="none" secureTextEntry />
         {/* <Button title="Submit" onPress={() => alert('Logged In')} /> */}
-        <Button title="Login" onPress={() => router.replace('/(drawer)')} />
+        {/* <Button title="Login" onPress={() => router.replace('/(drawer)')} /> */}
+        <SubmitButton buttonText='Login' onButtonClick={() => router.replace('/(drawer)')}/>
       </ScrollView>
     </KeyboardAvoidingView>
   );

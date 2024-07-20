@@ -6,6 +6,8 @@ import { AppLogoDarkMode, AppLogoLightMode } from '@/src/components/images/AppLo
 import { myStyles } from '@/src/utils/constants/styles';
 import { useColorScheme } from 'react-native';
 
+import SubmitButton from '@/src/components/Buttons/SubmitButton';
+
 export default function Layout() {
   return (
     // GestureHandlerRootView is required to enable gesture handling in the app
@@ -43,7 +45,8 @@ function CustomDrawerContent(props) {
           {colorScheme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
       </View>
       <DrawerItemList {...props} />
-      <Button title="Logout" onPress={() => router.replace('/(login)')}/>
+      {/* <Button title="Logout" onPress={() => router.replace('/(login)')}/> */}
+        <SubmitButton buttonText='Logout' onButtonClick={() => router.replace('/(login)')}/>
     </DrawerContentScrollView>
   );
 }

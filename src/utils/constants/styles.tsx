@@ -16,19 +16,16 @@ export const myStyles = StyleSheet.create({
   //     color: colors.colorname.text, // text color
   //     borderColor: colors.backgrounds.inverted, 
   // },
-  // buttonStyle: {
-  //     backgroundColor: colors.backgrounds.primary,
-  //     borderWidth: 0,
-  //     // color: '#FFFFFF',
-  //     // borderColor: '#7DE24E',
-  //     height: 40,
-  //     alignItems: 'center',
-  //     borderRadius: 30,
-  //     marginLeft: 35,
-  //     marginRight: 35,
-  //     marginTop: 20,
-  //     marginBottom: 20,
-  //   },
+  buttonStyle: {
+      // backgroundColor: colors.backgrounds.primary,
+      backgroundColor: '#0284c7',
+      borderWidth: 0,
+      // color: '#FFFFFF',
+      // borderColor: '#7DE24E',
+      height: 40,
+      alignItems: 'center',
+      borderRadius: 3,
+    },
   // activityIndicator: {
   //   alignItems: 'center',
   //   height: 80,
@@ -67,11 +64,11 @@ export const myStyles = StyleSheet.create({
   //   color: colors.text,
   //   fontSize: 25
   // },
-  // buttonTextStyle: {
-  //   color: colors.textLight,
-  //   paddingVertical: 10,
-  //   fontSize: 16,
-  // },
+  buttonTextStyle: {
+    color: 'white',
+    paddingVertical: 10,
+    fontSize: 16,
+  },
   // registerTextStyle: {
   //   color: colors.text,
   //   textAlign: 'center',
