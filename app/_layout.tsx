@@ -10,6 +10,7 @@ import { useColorScheme } from '@/src/components/useColorScheme';
 
 // Import your global CSS file
 import "@/global.css"
+import { Colors } from '@/src/utils/constants/Colors';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -50,9 +51,12 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const customDarkTheme = { ...DarkTheme, colors:Colors.dark}
+  const customLightTheme = { ...DefaultTheme, colors:Colors.light}
+
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? customDarkTheme : customLightTheme}>
       <Stack screenOptions={{headerShown:false}}>
         <Stack.Screen name="(login)"/>
         <Stack.Screen name="(drawer)" />

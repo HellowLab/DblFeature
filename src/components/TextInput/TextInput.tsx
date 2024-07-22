@@ -1,7 +1,7 @@
 // CustomTextInput.tsx
 import React from 'react';
 import { View, TextInput, StyleSheet, TextInputProps } from 'react-native';
-import { DarkTheme, Theme } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 
 interface CustomTextInputProps extends TextInputProps {
   value?: string;
@@ -9,34 +9,33 @@ interface CustomTextInputProps extends TextInputProps {
   placeholder?: string;
 }
 
+
 const CustomTextInput: React.FC<CustomTextInputProps> = ({ value, onChangeText, placeholder, ...props }) => {
+  const { colors } = useTheme();
+
   return (
-    // <View style={styles.container}>
       <TextInput
-        style={styles.input}
+        style={[styles.input, {backgroundColor: colors.card, color: colors.text, borderColor: colors.border}]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#999"
-        
+        placeholderTextColor={colors.text}
         {...props}
       />
-    // </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   input: {
-    height: 40,
-    borderColor: '#151718',
+    height: 48,
     borderWidth: 1,
     borderRadius: 3,
     paddingHorizontal: 10,
-    backgroundColor: '#151718',
+    
   },
 });
 
