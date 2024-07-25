@@ -1,12 +1,17 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-import { Text, Button, View } from 'react-native'
-import { Link, useRouter } from 'expo-router';
-import { AppLogoDarkMode, AppLogoLightMode } from '@/src/components/images/AppLogo';
-import { myStyles } from '@/src/utils/constants/styles';
-import { useColorScheme } from 'react-native';
+import { View } from 'react-native'
+import { useRouter } from 'expo-router';
 
+// Import Custom Components
+import { AppLogoDarkMode, AppLogoLightMode } from '@/src/components/images/AppLogo';
 import SubmitButton from '@/src/components/Buttons/SubmitButton';
+
+// Import Styles
+import { myStyles } from '@/src/utils/constants/styles';
+
+// Import Stores
+import useThemeStore from '@/src/utils/store/ThemeStore';
 
 export default function Layout() {
   return (
@@ -44,19 +49,19 @@ export default function Layout() {
 
 import {DrawerContentScrollView, DrawerItemList,} from '@react-navigation/drawer';
 
-function CustomDrawerContent(props) {
+function CustomDrawerContent(props: any) {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { theme, toggleTheme } = useThemeStore();
+  
   
   return (
-    // <Text>Hello</Text>
     <DrawerContentScrollView {...props}>
       <View style={myStyles.LogoStyle}>
-          {colorScheme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
+          {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
       </View>
       <DrawerItemList {...props} />
-      {/* <Button title="Logout" onPress={() => router.replace('/(login)')}/> */}
         <SubmitButton buttonText='Logout' onButtonClick={() => router.replace('/(login)')}/>
+        <SubmitButton buttonText='Toggle Theme' onButtonClick={toggleTheme} />
     </DrawerContentScrollView>
   );
 }
