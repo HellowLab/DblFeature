@@ -1,18 +1,59 @@
 import { create } from 'zustand';
 import { useColorScheme } from 'react-native';
+import { ColorSchemeName } from 'react-native';
+import { MMKV } from 'react-native-mmkv';
 
-type Theme = 'light' | 'dark';
+// Create an MMKV instance
+const storage = new MMKV();
 
 interface ThemeState {
-  theme: Theme;
+  theme: ColorSchemeName;
   toggleTheme: () => void;
+  setTheme: (theme: ColorSchemeName) => void;
 }
 
-// const theme = useColorScheme();
+// Helper functions to read and write the theme from MMKV
+// If MMKV does not have theme saved, use system theme
+const getStoredTheme = (): ColorSchemeName => {
+  const storedTheme = storage.getString('theme');
+  if (storedTheme) {
+    return storedTheme === 'dark' ? 'dark' : 'light';
+  }
+  else {
+    // default to light mode? or should we use system theme?
+    // const systemTheme: ColorSchemeName = useColorScheme(); // can't use this hook here
+    return "light"
+  }
+};
 
+const setStoredTheme = (theme: ColorSchemeName) => {
+  storage.set('theme', theme);
+};
+
+// Zustand store with MMKV persistence
 const useThemeStore = create<ThemeState>((set) => ({
-  theme: 'dark',
-  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+  theme: getStoredTheme(),
+  toggleTheme: () =>
+    set((state) => {
+      const newTheme = state.theme === 'light' ? 'dark' : 'light';
+      setStoredTheme(newTheme);
+      return { theme: newTheme };
+    }),
+  setTheme: (theme: ColorSchemeName) => {
+    setStoredTheme(theme);
+    set({ theme });
+  },
 }));
+
+
+// const useThemeStore = () =>
+//   {
+
+//     return create<ThemeState>((set) => ({
+//       theme: 'light',
+//       toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+//     }));
+
+//   } 
 
 export default useThemeStore;
