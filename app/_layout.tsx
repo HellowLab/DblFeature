@@ -1,5 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,8 +11,7 @@ import useThemeStore from '@/src/utils/store/ThemeStore';
 
 // Import your global CSS file
 import "@/global.css"
-import { Colors } from '@/src/utils/constants/Colors'; // used to import the colors into the theme (could just create a new custom theme component, but its the same)
-
+import { lightTheme, darkTheme } from '@/src/utils/theme/theme';
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -47,8 +46,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const customDarkTheme = { ...DarkTheme, colors:Colors.dark}
-  const customLightTheme = { ...DefaultTheme, colors:Colors.light}
+  // const customDarkTheme = { ...DarkTheme, colors:Colors.dark}
+  // const customLightTheme = { ...DefaultTheme, colors:Colors.light}
 
   // Set the theme to the current device theme
   // TODO: Update this to pull the theme from storage, once we add that feature. For now it resets when the app is launched
@@ -56,7 +55,7 @@ function RootLayoutNav() {
   const { theme } = useThemeStore();
 
   return (
-    <ThemeProvider value={theme === 'dark' ? customDarkTheme : customLightTheme}>
+    <ThemeProvider value={theme === 'dark' ? darkTheme : lightTheme}>
       <Stack screenOptions={{headerShown:false}}>
         <Stack.Screen name="(login)"/>
         <Stack.Screen name="(drawer)" />
