@@ -9,9 +9,9 @@ import { useEffect, useState } from 'react';
 // Import zustand store
 import useThemeStore from '@/src/utils/store/ThemeStore';
 
-// Import your global CSS file
-import "@/global.css"
+// Import themes
 import { lightTheme, darkTheme } from '@/src/utils/theme/theme';
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,

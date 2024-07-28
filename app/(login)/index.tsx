@@ -10,8 +10,6 @@ import {AppLogoLightMode, AppLogoDarkMode} from '@/src/components/images/AppLogo
 import CustomTextInput from '@/src/components/TextInput/TextInput';
 import SubmitButton from '@/src/components/Buttons/SubmitButton';
 
-// Import your global CSS file
-import "@/global.css"
 import useThemeStore from '@/src/utils/store/ThemeStore';
 
 export default function Index() {
