@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 // Import Custom Components
 import { AppLogoDarkMode, AppLogoLightMode } from '@/src/components/images/AppLogo';
 import SubmitButton from '@/src/components/Buttons/SubmitButton';
+import MyButton from '@/src/components/Buttons/Button';
 
 // Import Styles
 import { myStyles } from '@/src/utils/constants/styles';
@@ -60,8 +61,10 @@ function CustomDrawerContent(props: any) {
           {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
       </View>
       <DrawerItemList {...props} />
-        <SubmitButton buttonText='Logout' onButtonClick={() => router.replace('/(login)')}/>
-        <SubmitButton buttonText='Toggle Theme' onButtonClick={toggleTheme} />
+      <View style={{flex: 1, alignContent: 'center', alignItems: 'center', gap:8}}>
+        <MyButton width="full" color='primary' textcolor='white' rounded={false} onPress={() => router.replace('/(login)')}> Logout </MyButton>
+        <MyButton width="full" onPress={toggleTheme} rounded={false}> Toggle Theme </MyButton>
+      </View>
     </DrawerContentScrollView>
   );
 }

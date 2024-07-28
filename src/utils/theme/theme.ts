@@ -7,22 +7,30 @@ const p3 = '#349cd2';
 const p4 = '#4da8d7';
 const p5 = '#67b5dd';
 const p6 = '#80c1e3';
+const light = '#f2f2f2';
+const white = '#fff';
+const dark = '#1e2125';
+const black = '#000';
 
 export const Colors = {
   light: {
+    light: light,
+    dark: dark,
+    white: white,
+    black: black,
     primary: p1,
     p2: p2,
     p3: p3,
     p4: p4,
     p5: p5,
     p6: p6,
-    background: 'rgb(242, 242, 242)',
+    background: light,
     b2: '#eceff1',
     b3: '#cfd8dc',
     b4: '#b0bec5',
     b5: '#90a4ae',
     b6: '#78909c',
-    card: 'rgb(255, 255, 255)',
+    card: '#fff',
     text: '#222',
     textmuted: '#6b7280',
     textinverted: '#fff',
@@ -30,20 +38,24 @@ export const Colors = {
     success: success,
     border: '#d1d5db',
     inverted: '#121212',
-    notification: 'rgb(255, 69, 58)',
+    notification: 'FF453A',
     tint: '#0a7ea4',
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: '#0a7ea4',
   },
   dark: {
-    primary: '#0284c7',
+    light: light,
+    dark: dark,
+    white: white,
+    black: black,
+    primary: p1,
     p2: p2,
     p3: p3,
     p4: p4,
     p5: p5,
     p6: p6,
-    background: '#1e2125',
+    background: dark,
     b2: '#23272b',
     b3: '#292e33',
     b4: '#575757',
@@ -57,7 +69,7 @@ export const Colors = {
     success: success,
     border: '#394148',
     inverted: '#fff',
-    notification: 'rgb(255, 69, 58)',
+    notification: 'FF453A',
     tint: '#fff',
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',

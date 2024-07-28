@@ -9,7 +9,9 @@ import Loader from '@/src/components/loaders/Loader'
 import {AppLogoLightMode, AppLogoDarkMode} from '@/src/components/images/AppLogo';
 import CustomTextInput from '@/src/components/TextInput/TextInput';
 import SubmitButton from '@/src/components/Buttons/SubmitButton';
+import MyButton from '@/src/components/Buttons/Button';
 
+// Import theme
 import useThemeStore from '@/src/utils/store/ThemeStore';
 
 export default function Index() {
@@ -27,14 +29,14 @@ export default function Index() {
           gap: 12,
           margin: 0,
           padding: 0,
-          width: '100%',
+          // width: '100%',
       }}>
         <View style={myStyles.LogoStyle}>
           {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
         </View>
           <CustomTextInput placeholder="Username" autoCapitalize="none"/>
           <CustomTextInput placeholder="Password" autoCapitalize="none" secureTextEntry />
-          <SubmitButton buttonText='Login' onButtonClick={() => router.replace('/(drawer)')}/>
+          <MyButton width="small" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => router.replace('/(drawer)')}> Login </MyButton>
       </ScrollView>
     </KeyboardAvoidingView>
   );
