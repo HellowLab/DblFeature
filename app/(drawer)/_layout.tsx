@@ -2,10 +2,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { View } from 'react-native'
 import { useRouter } from 'expo-router';
+import {DrawerContentScrollView, DrawerItemList,} from '@react-navigation/drawer';
 
 // Import Custom Components
-import { AppLogoDarkMode, AppLogoLightMode } from '@/src/components/images/AppLogo';
-import SubmitButton from '@/src/components/Buttons/SubmitButton';
+import { AppLogo } from '@/src/components/images/AppLogo';
 import MyButton from '@/src/components/Buttons/Button';
 
 // Import Styles
@@ -13,6 +13,9 @@ import { myStyles } from '@/src/utils/constants/styles';
 
 // Import Stores
 import useThemeStore from '@/src/utils/store/ThemeStore';
+import { useUserStore } from '@/src/utils/store/UserStore'; 
+import { deleteToken } from '@/src/utils/store/TokenStore';
+import MyText from '@/src/components/TextOutput/TextOutput';
 
 export default function Layout() {
   return (
@@ -41,28 +44,37 @@ export default function Layout() {
         <Drawer.Screen
           name="(tabs)" 
           options={{title:"Show Tab Navigator"}}
-
         />
       </Drawer>
     </GestureHandlerRootView>
   );
 }
 
-import {DrawerContentScrollView, DrawerItemList,} from '@react-navigation/drawer';
+
 
 function CustomDrawerContent(props: any) {
+  const { toggleTheme } = useThemeStore();
+  const { clearUser, user } = useUserStore();
   const router = useRouter();
-  const { theme, toggleTheme } = useThemeStore();
-  
+
+  // handle logout press
+  const handleLogoutPress = () => {
+    clearUser();
+    deleteToken();
+    router.replace('/(login)');
+  }
   
   return (
     <DrawerContentScrollView {...props}>
       <View style={myStyles.LogoStyle}>
-          {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
+          <AppLogo />
+      </View>
+      <View style={{alignItems: "center", marginBottom: 8}}>
+        <MyText size='large' >Welcome {user?.username}</MyText>
       </View>
       <DrawerItemList {...props} />
       <View style={{flex: 1, alignContent: 'center', alignItems: 'center', gap:8}}>
-        <MyButton width="full" color='primary' textcolor='white' rounded={false} onPress={() => router.replace('/(login)')}> Logout </MyButton>
+        <MyButton width="full" color='primary' textcolor='white' rounded={false} onPress={handleLogoutPress}> Logout </MyButton>
         <MyButton width="full" onPress={toggleTheme} rounded={false}> Toggle Theme </MyButton>
       </View>
     </DrawerContentScrollView>

@@ -2,10 +2,11 @@
 import { create } from 'zustand';
 
 interface User {
-  id: number;
-  name: string;
+  pk: number;
+  username: string;
   email: string;
-  token: string;
+  first_name: string;
+  last_name: string; 
 }
 
 interface UserState {

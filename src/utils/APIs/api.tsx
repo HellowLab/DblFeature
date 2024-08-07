@@ -21,7 +21,9 @@ export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", 
 
   // console.log("POST: ", (API_BASE_URL + url));
   if (fetchtype == "POST") {
-    return axios.post((API_BASE_URL + url), params);
+    return axios.post((API_BASE_URL + url), params, {
+      timeout: 5000, // Timeout set to 5000 milliseconds (5 seconds)
+    });
   }
 
   // try {
@@ -68,6 +70,7 @@ export const login = async (username: string, password: string) => {
   const data = {username: username, password: password};
   try {
     const response = await myfetch('auth/login/', "POST", data, false);
+    console.log("response: ", response?.data)
     return response;
   } 
   catch (error) {

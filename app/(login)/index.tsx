@@ -11,15 +11,19 @@ import Loader from '@/src/components/loaders/Loader'
 import {AppLogo} from '@/src/components/images/AppLogo';
 import MyButton from '@/src/components/Buttons/Button';
 import MyTextInput from '@/src/components/TextInput/TextInput';
+import MyText from '@/src/components/TextOutput/TextOutput';
+
+// Import Store / Context
 import { getToken, saveToken } from '@/src/utils/store/TokenStore';
+import { useUserStore} from '@/src/utils/store/UserStore'; 
 
 // Import API
 import { login } from '@/src/utils/APIs/api';
-import MyText from '@/src/components/TextOutput/TextOutput';
 
 export default function Index() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { user, setUser, clearUser } = useUserStore();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -38,16 +42,20 @@ export default function Index() {
     try {
       const res = await login(username, password)
 
-      // if the login is successful
-      if (res?.status == 200) {
-        saveToken(res.data.access)
-        const token = await getToken()
-        console.log("token: ", token)
-        router.replace('/(drawer)');
-        return
+      // if the login is unsuccessful
+      if (res.status != 200) {
+        setErrorText(res?.data.non_field_errors[0])
+        setLoading(false);
+        return;
       }
-      setErrorText(res?.data.non_field_errors[0])
-      setLoading(false);
+      // if the login is successful
+      if (res.status == 200) {
+        saveToken(res.data.access);
+        setUser(res.data.user);
+        setLoading(false);
+        router.replace('/(drawer)');
+      }
+
     }
     catch (error) {
       console.error(error);
