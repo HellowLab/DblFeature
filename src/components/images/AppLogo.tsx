@@ -1,5 +1,6 @@
 import React from 'react';
 import {Image, View} from 'react-native';
+import useThemeStore from '@/src/utils/store/ThemeStore';
 
 // Import Custom Styles
 import { myStyles } from '@/src/utils/constants/styles';
@@ -13,16 +14,24 @@ import logoblack from '@/src/assets/images/logo/mainlogo_512_black.png'
 //   text: string,
 // }
 
-export const AppLogoLightMode: React.FC = () => {
+const AppLogoLightMode: React.FC = () => {
   return (
     <Image style={myStyles.logo} source={logoblack} />
   )
 };
 
-export const AppLogoDarkMode: React.FC = () => {
+const AppLogoDarkMode: React.FC = () => {
   return (
     <Image style={myStyles.logo} source={logowhite} />
   )
 };
 
+export const AppLogo: React.FC = () => {
+  const { theme } = useThemeStore();
 
+  return (
+    <View>
+      {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
+    </View>
+  )
+}
