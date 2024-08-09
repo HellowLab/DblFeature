@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { API_BASE_URL } from '../constants/constants';
+// import { API_BASE_URL } from '../constants/constants';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 interface DataResponse {
   // Define the structure of your expected data here

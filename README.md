@@ -142,7 +142,8 @@ Note: Building for iOS requires a macOS environment.
 Make sure to set up your `.env` file with your TMDb access token:
 
 ```plaintext
-TMDB_ACCESS_TOKEN=your_tmdb_access_token
+EXPO_PUBLIC_TMDB_ACCESS_TOKEN=your_tmdb_access_token
+EXPO_PUBLIC_API_BASE_URL="http://10.0.2.2:8000/" 
 ```
 
 ## Learn More
