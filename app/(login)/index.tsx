@@ -14,7 +14,7 @@ import MyTextInput from '@/src/components/TextInput/TextInput';
 import MyText from '@/src/components/TextOutput/TextOutput';
 
 // Import Store / Context
-import { getToken, saveToken } from '@/src/utils/store/TokenStore';
+import { getToken, saveToken, deleteToken } from '@/src/utils/store/TokenStore';
 import { useUserStore} from '@/src/utils/store/UserStore'; 
 
 // Import API
@@ -40,6 +40,7 @@ export default function Index() {
 
     setLoading(true);
     try {
+      deleteToken();
       const res = await login(username, password)
 
       // if the login is unsuccessful

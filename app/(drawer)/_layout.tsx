@@ -17,6 +17,7 @@ import { useUserStore } from '@/src/utils/store/UserStore';
 import { deleteToken } from '@/src/utils/store/TokenStore';
 import MyText from '@/src/components/TextOutput/TextOutput';
 
+import { updateMovieResult } from '@/src/utils/APIs/api';
 export default function Layout() {
   return (
     // GestureHandlerRootView is required to enable gesture handling in the app
@@ -31,7 +32,10 @@ export default function Layout() {
         <Drawer.Screen
           name='(home)'
           options={{title:"Home"}}
-
+        />
+        <Drawer.Screen
+          name="mymovies/index"
+          options={{title:"My Movies"}}
         />
         <Drawer.Screen
           name="(matches)"
@@ -76,6 +80,7 @@ function CustomDrawerContent(props: any) {
       <View style={{flex: 1, alignContent: 'center', alignItems: 'center', gap:8}}>
         <MyButton width="full" color='primary' textcolor='white' rounded={false} onPress={handleLogoutPress}> Logout </MyButton>
         <MyButton width="full" onPress={toggleTheme} rounded={false}> Toggle Theme </MyButton>
+        <MyButton width="full" onPress={() =>   updateMovieResult(69, "diehard", false)} rounded={false}> swipe api </MyButton>
       </View>
     </DrawerContentScrollView>
   );
