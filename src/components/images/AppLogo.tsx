@@ -1,5 +1,7 @@
-import React from "react";
-import { Image } from "react-native";
+
+import React from 'react';
+import {Image, View} from 'react-native';
+import useThemeStore from '@/src/utils/store/ThemeStore';
 
 // Import custom styles
 import { myStyles } from "@/src/utils/constants/styles";
@@ -10,20 +12,29 @@ import logowhite from "@/src/assets/images/logo/mainlogo_512_white.png";
 // @ts-ignore
 import logoblack from "@/src/assets/images/logo/mainlogo_512_black.png";
 
+
+const AppLogoLightMode: React.FC = () => {
+  return (
+    <Image style={myStyles.logo} source={logoblack} />
+  )
+};
+
+const AppLogoDarkMode: React.FC = () => {
+  return (
+    <Image style={myStyles.logo} source={logowhite} />
+  )
+};
 /**
- * A functional component that renders the application logo in light mode.
+ * A functional component that renders the application logo in light / dark mode.
  *
  * @returns {JSX.Element} - The rendered light mode logo.
  */
-export const AppLogoLightMode: React.FC = () => {
-  return <Image style={myStyles.logo} source={logoblack} />;
-};
+export const AppLogo: React.FC = () => {
+  const { theme } = useThemeStore();
 
-/**
- * A functional component that renders the application logo in dark mode.
- *
- * @returns {JSX.Element} - The rendered dark mode logo.
- */
-export const AppLogoDarkMode: React.FC = () => {
-  return <Image style={myStyles.logo} source={logowhite} />;
-};
+  return (
+    <View>
+      {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
+    </View>
+  )
+}

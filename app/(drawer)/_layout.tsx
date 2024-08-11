@@ -1,24 +1,24 @@
-import React from "react";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Drawer } from "expo-router/drawer";
-import { Text, View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { useColorScheme } from "react-native";
-import {
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerContentComponentProps,
-} from "@react-navigation/drawer";
-import {
-  AppLogoDarkMode,
-  AppLogoLightMode,
-} from "@/src/components/images/AppLogo";
-import { myStyles } from "@/src/utils/constants/styles";
-import SubmitButton from "@/src/components/Buttons/SubmitButton";
-import appConfig from "@/appConfig";
-import { styles } from "./drawer.styles";
 
-// Main layout component for the drawer
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Drawer } from 'expo-router/drawer';
+import { View } from 'react-native'
+import { useRouter } from 'expo-router';
+import {DrawerContentScrollView, DrawerItemList,} from '@react-navigation/drawer';
+
+// Import Custom Components
+import { AppLogo } from '@/src/components/images/AppLogo';
+import MyButton from '@/src/components/Buttons/Button';
+
+// Import Styles
+import { myStyles } from '@/src/utils/constants/styles';
+
+// Import Stores
+import useThemeStore from '@/src/utils/store/ThemeStore';
+import { useUserStore } from '@/src/utils/store/UserStore'; 
+import { deleteToken } from '@/src/utils/store/TokenStore';
+import MyText from '@/src/components/TextOutput/TextOutput';
+
+import { updateMovieResult } from '@/src/utils/APIs/api';
 export default function Layout() {
   return (
     // GestureHandlerRootView is required to enable gesture handling in the app
@@ -35,40 +35,55 @@ export default function Layout() {
         <Drawer.Screen name="(matches)" options={{ title: "My Matches" }} />
         <Drawer.Screen name="(search)" options={{ title: "Search" }} />
         <Drawer.Screen
-          name="(tabs)"
-          options={{ title: "Show Tab Navigator" }}
+          name='(home)'
+          options={{title:"Home"}}
+        />
+        <Drawer.Screen
+          name="(mymovies)"
+          options={{title:"My Movies"}}
+        />
+        <Drawer.Screen
+          name="(matches)"
+          options={{title:"My Matches"}}
+        />
+        <Drawer.Screen
+          name="(search)"
+          options={{title:"Search"}}
+        />
+        <Drawer.Screen 
+          name="(tabs)" 
+          options={{title:"Show Tab Navigator"}}
         />
       </Drawer>
     </GestureHandlerRootView>
   );
 }
 
-// Custom drawer content component
-function CustomDrawerContent(props: DrawerContentComponentProps) {
+function CustomDrawerContent(props: any) {
+  const { toggleTheme } = useThemeStore();
+  const { clearUser, user } = useUserStore();
   const router = useRouter();
-  const colorScheme = useColorScheme();
 
+  // handle logout press
+  const handleLogoutPress = () => {
+    clearUser();
+    deleteToken();
+    router.replace('/(login)');
+  }
+  
   return (
-    <DrawerContentScrollView
-      {...props}
-      contentContainerStyle={{ flex: 1, justifyContent: "space-between" }}
-    >
-      <View>
-        {/* Display the app logo based on the color scheme */}
-        <View style={myStyles.LogoStyle}>
-          {colorScheme === "dark" ? <AppLogoDarkMode /> : <AppLogoLightMode />}
-        </View>
-        {/* Display the list of drawer items */}
-        <DrawerItemList {...props} />
+    <DrawerContentScrollView {...props}>
+      <View style={myStyles.LogoStyle}>
+          <AppLogo />
       </View>
-      <View style={styles.bottomSection}>
-        {/* Logout button */}
-        <SubmitButton
-          buttonText="Logout"
-          onButtonClick={() => router.replace("/(login)")}
-        />
-        {/* Display the app version */}
-        <Text style={styles.versionText}>Version {appConfig.version}</Text>
+      <View style={{alignItems: "center", marginBottom: 8}}>
+        <MyText size='large' >Welcome {user?.username}</MyText>
+      </View>
+      <DrawerItemList {...props} />
+      <View style={{flex: 1, alignContent: 'center', alignItems: 'center', gap:8}}>
+        <MyButton width="full" color='primary' textcolor='white' rounded={false} onPress={handleLogoutPress}> Logout </MyButton>
+        <MyButton width="full" onPress={toggleTheme} rounded={false}> Toggle Theme </MyButton>
+        <MyButton width="full" onPress={() =>   updateMovieResult(69, "diehard", false)} rounded={false}> swipe api </MyButton>
       </View>
     </DrawerContentScrollView>
   );
