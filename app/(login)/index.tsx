@@ -1,9 +1,17 @@
-import {StyleSheet, KeyboardAvoidingView, Alert, View, ScrollView, Text} from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import {
+  Text,
+  KeyboardAvoidingView,
+  Alert,
+  View,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { Link, useRouter } from "expo-router";
+
 import React, {useState} from 'react';
 
 // Import custom style
-import { myStyles } from '@/src/utils/constants/styles';
+import { myStyles } from "@/src/utils/constants/styles";
 
 // Import Custom Components 
 import Loader from '@/src/components/loaders/Loader'

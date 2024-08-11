@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, Image, ScrollView } from "react-native";
+import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
 import FlipCard from "react-native-flip-card";
 import { Movie } from "@/src/utils/APIs/TMDB";
 import { styles } from "./MovieFlipCard.styles";
+import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
@@ -27,28 +28,33 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie }) => {
         clickable={true}
       >
         {/* Face Side of the Card */}
-        <View style={[styles.card, styles.cardFront]}>
-          <Image
+        <View style={styles.cardShadow}>
+          <ImageBackground
             source={{
               uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
             }}
-            style={styles.movieImage}
-          />
-          <Text style={styles.movieTitle}>{movie.title}</Text>
+            style={styles.cardImageBackground}
+            imageStyle={styles.backgroundImage}
+          >
+            <View style={styles.footer}>
+              <Text style={styles.movieTitle}>{movie.title}</Text>
+              <TouchableOpacity style={styles.addButton}>
+                <Ionicons name="add-circle" size={24} color="green" />
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
         </View>
         {/* Back Side of the Card */}
         <View style={[styles.card, styles.cardBack]}>
-          <ScrollView contentContainerStyle={styles.movieDetails}>
-            <Text style={styles.movieTitle}>{movie.title}</Text>
-            <Text style={styles.movieOverview}>{movie.overview}</Text>
-            <Text style={styles.movieDetailText}>
-              Release Date: {movie.release_date}
-            </Text>
-            <Text style={styles.movieDetailText}>
-              Rating: {movie.vote_average}
-            </Text>
-            {/* Additional movie details can be added here */}
-          </ScrollView>
+          <Text style={styles.movieTitle}>{movie.title}</Text>
+          <Text style={styles.movieOverview}>{movie.overview}</Text>
+          <Text style={styles.movieDetailText}>
+            Release Date: {movie.release_date}
+          </Text>
+          <Text style={styles.movieDetailText}>
+            Rating: {movie.vote_average}
+          </Text>
+          {/* Additional movie details can be added here */}
         </View>
       </FlipCard>
     </View>

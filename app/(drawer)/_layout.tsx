@@ -1,3 +1,4 @@
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { View } from 'react-native'
@@ -24,11 +25,15 @@ export default function Layout() {
     // Flex 1 ensures that the component takes up the full height of its parent
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
-        drawerContent={(props) => {  
-          return <CustomDrawerContent drawerPosition={undefined} {...props} />
+        drawerContent={(props) => {
+          return <CustomDrawerContent {...props} />;
         }}
         screenOptions={{ headerShown: false }}
       >
+        {/* Define the screens available in the drawer navigator */}
+        <Drawer.Screen name="(home)" options={{ title: "Home" }} />
+        <Drawer.Screen name="(matches)" options={{ title: "My Matches" }} />
+        <Drawer.Screen name="(search)" options={{ title: "Search" }} />
         <Drawer.Screen
           name='(home)'
           options={{title:"Home"}}
@@ -53,8 +58,6 @@ export default function Layout() {
     </GestureHandlerRootView>
   );
 }
-
-
 
 function CustomDrawerContent(props: any) {
   const { toggleTheme } = useThemeStore();

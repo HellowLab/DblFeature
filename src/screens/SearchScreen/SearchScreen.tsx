@@ -1,15 +1,10 @@
 import React, { useState } from "react";
-import {
-  SafeAreaView,
-  FlatList,
-  ActivityIndicator,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { SafeAreaView, FlatList, ActivityIndicator } from "react-native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
 import MovieFlipCard from "@/src/components/MovieFlipCard";
 import { searchMovies, getMovieDetails, Movie } from "@/src/utils/APIs/TMDB";
+import SearchItem from "@/src/components/SearchItem";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState<string>("");
@@ -27,8 +22,20 @@ const SearchScreen = () => {
     if (text.length > 2) {
       setLoading(true);
       try {
-        // Fetch movies based on the search query
-        const movies = await searchMovies(text);
+        let movies = await searchMovies(text);
+        // Sort by relevance to the query (closest match)
+        movies = movies.sort((a, b) => {
+          const aTitle = a.title.toLowerCase();
+          const bTitle = b.title.toLowerCase();
+          const queryLower = text.toLowerCase();
+          const aRelevance = aTitle.includes(queryLower) ? 0 : 1;
+          const bRelevance = bTitle.includes(queryLower) ? 0 : 1;
+          if (aRelevance !== bRelevance) {
+            return aRelevance - bRelevance;
+          }
+          // Then sort by popularity in descending order
+          return b.popularity - a.popularity;
+        });
         setResults(movies);
       } catch (error) {
         console.error("Error fetching search results:", error);
@@ -36,7 +43,6 @@ const SearchScreen = () => {
         setLoading(false);
       }
     } else {
-      // Clear results if the query is too short
       setResults([]);
     }
   };
@@ -68,13 +74,7 @@ const SearchScreen = () => {
    * @returns {JSX.Element} The rendered movie item.
    */
   const renderMovieItem = ({ item }: { item: Movie }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => handleSelectMovie(item)}
-    >
-      {/* Display movie title */}
-      <Text style={styles.itemText}>{item.title}</Text>
-    </TouchableOpacity>
+    <SearchItem movie={item} onPress={() => handleSelectMovie(item)} />
   );
 
   return (

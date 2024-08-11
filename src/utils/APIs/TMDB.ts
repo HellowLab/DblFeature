@@ -13,8 +13,10 @@ export interface Movie {
   title: string;
   poster_path: string | null; // Movie poster path, can be null
   overview: string; // Short description of the movie
-  release_date: string;
-  vote_average: number;
+  release_date: string; // Release date of the movie
+  vote_average: number; // Average rating of the movie out of 10
+  vote_count: number; // Number of votes (ratings) a movie has
+  popularity: number; // Popularity rating of a movie (the higher, the more popular a movie is) - used for search relevance
 }
 
 // Access the TMDB access token from the environment variables
