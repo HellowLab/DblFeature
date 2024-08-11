@@ -114,8 +114,6 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
     intent
   });
 
-  // TODO add secureTextEntry if intent == 'password'
-  // TODO add eyeBall to toggle secureTextEntry when eye is pressed
   if (intent == "password") {
     const [showPassword, setShowPassword] = useState(false);
 

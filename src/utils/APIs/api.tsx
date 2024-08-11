@@ -1,18 +1,12 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosInstance  } from 'axios';
 import { getToken } from '../store/TokenStore';
-// import { API_BASE_URL } from '../constants/constants';
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-interface DataResponse {
-  // Define the structure of your expected data here
-  id: number;
-  name: string;
-}
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 interface ErrorResponse {
   message: string;
   statusCode: number;
-  // Additional error fields as needed
 }
 
 // Create an Axios instance
@@ -28,7 +22,7 @@ api.interceptors.request.use(
       const token = await getToken();
       // If a token exists, add it to the Authorization header
       if (token) {
-          console.log("token: ", token)
+          // console.log("token: ", token)
           config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
@@ -39,22 +33,22 @@ api.interceptors.request.use(
 );
 
 // NOTE -- URL MUST END WITH A SLASH OR ELSE IT WILL NOT WORK
-// standard GET request
+// my fetch function to handle all api calls using Axios
 export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", params?: object, useAuth?: boolean,) => {
   console.log(fetchtype +": " + (API_BASE_URL + url));
   console.log(JSON.stringify(params));
 
-  if (fetchtype =="POST") {
+  if (fetchtype == "POST") {
     return api.post(url,params)
   }
 
-  // if (fetchtype == "POST") {
-  //   return axios.post((API_BASE_URL + url), params, {
-  //     timeout: 5000, // Timeout set to 5000 milliseconds (5 seconds)
-  //   });
-  // }
+  if (fetchtype == "PATCH") {
+    return api.patch(url,params)
+  }
 
-
+  if (fetchtype == "GET") {
+    return api.get(url, params=params)
+  }
 };
 
 // handle axios errors
@@ -126,13 +120,34 @@ export const registerUser = async (email: string, password1: string, password2: 
 }
 
 // Update Movie Swipe
-export const updateMovieResult = async (movieId: number, movieName: string, liked: boolean) => {
+export const updateMovieResult = async (movieId: number, movieName: string, liked: boolean, poster: string) => {
   const data = {
     tmdb_id: movieId, 
-    movie_name: movieName, 
-    liked: liked};
+    name: movieName, 
+    liked: liked,
+    poster: poster,  
+  };
   try {
     const response = await myfetch('dblfeature/movieresult/', "POST", data, true);
+    return response;
+  } 
+  catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);
+      return errorResponse
+    } else {
+      // Non-Axios error
+      console.error('Error:', error);
+      // setError('Error: An unexpected error occurred.');
+    }
+  }
+}
+
+// Get Movie Results
+export const getMovieResults = async () => {
+  try {
+    const response = await myfetch('dblfeature/movieresult/', "GET", undefined, true);
     return response;
   } 
   catch (error) {

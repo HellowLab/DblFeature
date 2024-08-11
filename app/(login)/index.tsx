@@ -1,7 +1,6 @@
 import {StyleSheet, KeyboardAvoidingView, Alert, View, ScrollView, Text} from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import React, {useState} from 'react';
-import { useTheme } from '@react-navigation/native';
 
 // Import custom style
 import { myStyles } from '@/src/utils/constants/styles';
@@ -22,7 +21,6 @@ import { login } from '@/src/utils/APIs/api';
 
 export default function Index() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { user, setUser, clearUser } = useUserStore();
 
   const [username, setUsername] = useState<string>('');
@@ -93,8 +91,8 @@ export default function Index() {
           <MyTextInput width='large' intent='password' placeholder='Password' onChangeText={setPassword} autoCapitalize='none' />
           <MyButton width="large" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => handleLogin()}> Login </MyButton>
           <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
-            <Text style={{color:colors.text}} onPress={selectRegister}>New User?</Text>
-            <Text style={{color:colors.text}} onPress={selectForgotPassword}>Forgot Password?</Text>
+            <MyText onPress={selectRegister}>New User?</MyText>
+            <MyText onPress={selectForgotPassword}>Forgot Password?</MyText>
           </View>
           {errorText != '' ? (
             <MyText color='error'> {errorText} </MyText>

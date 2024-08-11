@@ -34,7 +34,7 @@ export default function Layout() {
           options={{title:"Home"}}
         />
         <Drawer.Screen
-          name="mymovies/index"
+          name="(mymovies)"
           options={{title:"My Movies"}}
         />
         <Drawer.Screen
@@ -45,7 +45,7 @@ export default function Layout() {
           name="(search)"
           options={{title:"Search"}}
         />
-        <Drawer.Screen
+        <Drawer.Screen 
           name="(tabs)" 
           options={{title:"Show Tab Navigator"}}
         />
