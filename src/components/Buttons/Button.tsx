@@ -3,8 +3,6 @@ import React from 'react';
 import sv, { VariantProps } from 'style-variants';
 import { useTheme } from '@react-navigation/native';
 
-// type ButtonVariantsProps = VariantProps<typeof button>;
-
 type ButtonVariantsProps = {
   color?: 'primary' | 'card' | 'error';
   width?: 'full' | "nearfull" | 'auto' | 'small' | 'medium' | 'large';
@@ -59,12 +57,10 @@ const MyButton = ({
           width: 'auto',
         },
         small: {
-          paddingVertical: 8,
-          paddingHorizontal: 16,
+          width: 180,
         },
         medium: {
-          paddingVertical: 12,
-          paddingHorizontal: 24,
+          width: 240,
         },
         large: {
           width: 300,

@@ -23,17 +23,19 @@
       },
       "package": "com.hellowlab.dblfeature",
       "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "newArchEnabled": true
-          },
-          "android": {
-            "newArchEnabled": true
+        [
+          "expo-build-properties",
+          {
+            "ios": {
+              "newArchEnabled": true
+            },
+            "android": {
+              "newArchEnabled": true,
+              "usesClearTextTraffic": true
+            }
           }
-        }
-      ]]    
+        ]
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -42,7 +44,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-build-properties"
+      "expo-build-properties",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
