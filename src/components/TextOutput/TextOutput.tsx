@@ -24,6 +24,7 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, ...props }) => {
 
   const textsv = sv({
     base: {
+      textAlign: 'center',
       // borderRadius: BORDERRADIUS,
       // borderWidth: 1,
       // borderColor: colors.border,

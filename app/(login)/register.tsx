@@ -1,15 +1,12 @@
 // Import React and Component
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
-  StyleSheet,
   View,
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
 import { saveToken } from "@/src/utils/store/TokenStore";
 import { useRouter } from "expo-router";
-
-// Import Custom Styles
 
 // Import Custom Components
 import MyButton from "@/src/components/Buttons/Button";
@@ -70,7 +67,6 @@ const RegisterScreen = () => {
         console.log("registration success");
         saveToken(res.data.access);
         setIsRegistraionSuccess(true);
-        // router.replace('/(drawer)');
         return;
       } else {
         // handle failed registration
@@ -116,8 +112,17 @@ const RegisterScreen = () => {
       </View>
     );
   }
+  
   return (
-    <KeyboardAvoidingView enabled style={styles.container}>
+    <KeyboardAvoidingView enabled style={{    
+      flex: 1,
+      flexDirection: "column",
+      margin: 0,
+      padding: 0,
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+    }}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
@@ -169,17 +174,5 @@ const RegisterScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    margin: 0,
-    padding: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-});
 
 export default RegisterScreen;

@@ -116,6 +116,28 @@ const MovieResultsScreen = (): JSX.Element => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+  // Show a message if there are no movie results
+  if (!movieResults.length) {
+    return (
+      <ScrollView
+      style={{ flex: 1, padding: 8, marginBottom: 50 }}
+      contentContainerStyle={{justifyContent: 'center', alignItems: 'center' }} // Use contentContainerStyle
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+      }
+    >
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 8 }}>
+        <MyText size="large">
+          You don't have any matches yet
+        </MyText>
+        <MyText size="large" >
+          Swipe right on movies to like them and find your matches here
+        </MyText>
+      </View>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.container}
