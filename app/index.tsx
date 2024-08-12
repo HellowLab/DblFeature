@@ -1,6 +1,5 @@
-import React,  { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { router } from "expo-router";
-
 import { getToken } from "@/src/utils/store/TokenStore";
 import { View } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
@@ -9,6 +8,7 @@ import Loader from "@/src/components/loaders/Loader";
 // This can be used as the splash screen to perform any api calls or other async tasks
 // and then redirect to the login screen or any other screen if the user is already logged in.
 const Index = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * Check if the user is logged in by checking if a token exists in the store
@@ -17,29 +17,35 @@ const Index = () => {
   const isLoggedIn = async () => {
     try {
       const token = await getToken();
+      console.log("token: ", token);
+
       if (token) {
-        console.log("token: ", token)
-        router.replace("/(drawer)");
-      }
-      else {
-        console.log("no token")
-        router.replace("/(login)");
+        router.push("/(drawer)");
+      } else {
+        router.push("/(login)");
       }
     } catch (error) {
-      console.error(error);
-    } 
+      console.error("Error in isLoggedIn:", error);
+    } finally {
+      setIsLoading(false); // Stop showing the loader after navigation
+    }
   };
 
   useEffect(() => {
     isLoggedIn(); // Check for stored token when the component mounts
   }, []);
-  
-  // Display the app logo and a loading spinner while the user's login status is checked -- acts as a splash screen
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <AppLogo />
-      <Loader />
-    </View>
-  );
+
+  if (isLoading) {
+    // Display the app logo and a loading spinner while the user's login status is checked -- acts as a splash screen
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <AppLogo />
+        <Loader />
+      </View>
+    );
+  }
+
+  return null; // Return nothing once the loading is done to prevent loader from staying
 };
+
 export default Index;
