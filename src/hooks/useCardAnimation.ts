@@ -117,6 +117,8 @@ const useCardAnimation = (
       if (animationsCompleted.value === 2) {
         // Only update the index after both x and y animations have been completed
         runOnJS(updateIndexAfterSwipeAway)();
+        translateX.value = 0;
+        translateY.value = 0;
       }
     };
 

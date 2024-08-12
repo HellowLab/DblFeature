@@ -1,5 +1,6 @@
 import { Text, View, ImageBackground } from "react-native";
 import { styles } from "./MovieCard.styles";
+import React from "react";
 
 // Define the props for the MovieCard component
 export interface MovieCardProps {

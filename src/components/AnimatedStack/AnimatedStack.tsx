@@ -12,6 +12,7 @@ import LIKE from "../../assets/images/LIKE.png";
 //@ts-ignore
 import nope from "../../assets/images/nope.png";
 import { MovieCardProps } from "../MovieCard/MovieCard";
+import React from "react";
 
 // Define the props for the AnimatedStack component
 export interface AnimatedStackProps {
@@ -69,23 +70,19 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
     translateX.value = 0;
     translateY.value = 0;
     setNextIndex(currentIndex + 1);
-  }, [currentIndex, translateX]);
+  }, [currentIndex, translateX, translateY]);
 
   // Retrieve custom panGesture based on animation handlers from custom hook usePanGesture
   const panGesture = usePanGesture(handleCardDrag, handleCardSwipeEnd);
 
   return (
     <>
-      {/* Render the next movie card in the stack with animated styles */}
-      {nextMovie && (
-        <Animated.View style={[styles.nextCardContainer, nextCardStyle]}>
-          <MovieCard movie={nextMovie} />
-        </Animated.View>
-      )}
       {/* Render the current movie card with swipe gestures */}
       {currentMovie && (
         <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.animatedCard, cardStyle]}>
+          <Animated.View
+            style={[styles.animatedCard, cardStyle, { zIndex: 1 }]}
+          >
             {/* Display the "Like" image */}
             <Animated.Image
               source={LIKE}
@@ -101,6 +98,15 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
             <MovieCard movie={currentMovie} />
           </Animated.View>
         </GestureDetector>
+      )}
+
+      {/* Render the next movie card in the stack with animated styles */}
+      {nextMovie && (
+        <Animated.View
+          style={[styles.nextCardContainer, nextCardStyle, { zIndex: 0 }]}
+        >
+          <MovieCard movie={nextMovie} />
+        </Animated.View>
       )}
     </>
   );
