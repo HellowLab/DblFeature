@@ -1,7 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-
-import MyMoviesScreen from "@/src/screens/MyMoviesScreen";
+import SearchScreen from "@/src/screens/SearchScreen";
 
 /**
  * Main application component that displays movie cards with pan gestures.
@@ -9,7 +8,17 @@ import MyMoviesScreen from "@/src/screens/MyMoviesScreen";
  * @returns {JSX.Element} The rendered component.
  */
 const App = () => {
-  return <MyMoviesScreen />;
+  return (
+    <View
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        flex: 1,
+      }}
+    >
+      <SearchScreen />
+    </View>
+  );
 };
 
 export default App;

@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
+import { useTheme } from "@react-navigation/native"; // Import useTheme
 import { styles } from "./SearchItem.styles";
 import { Movie } from "@/src/utils/APIs/TMDB";
 
@@ -33,8 +34,13 @@ const formatDate = (dateString: string) => {
  * @returns {JSX.Element} - The rendered SearchItem component.
  */
 const SearchItem: React.FC<SearchItemProps> = ({ movie, onPress }) => {
+  const { colors } = useTheme(); // Access theme colors
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.container, { backgroundColor: colors.card }]}
+      onPress={onPress}
+    >
       {/* Display movie poster image */}
       <Image
         source={{ uri: `https://image.tmdb.org/t/p/w92${movie.poster_path}` }}
@@ -42,15 +48,23 @@ const SearchItem: React.FC<SearchItemProps> = ({ movie, onPress }) => {
       />
       <View style={styles.textContainer}>
         {/* Display movie title */}
-        <Text style={styles.title}>{movie.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {movie.title}
+        </Text>
         {/* Display formatted release date */}
-        <Text style={styles.releaseDate}>{formatDate(movie.release_date)}</Text>
+        <Text style={[styles.releaseDate, { color: colors.text }]}>
+          {formatDate(movie.release_date)}
+        </Text>
       </View>
       <View style={styles.voteContainer}>
         {/* Display movie vote average */}
-        <Text style={styles.voteAverage}>{movie.vote_average} / 10</Text>
+        <Text style={[styles.voteAverage, { color: colors.text }]}>
+          {movie.vote_average} / 10
+        </Text>
         {/* Display movie vote count */}
-        <Text style={styles.voteCount}>({movie.vote_count} ratings)</Text>
+        <Text style={[styles.voteCount, { color: colors.text }]}>
+          ({movie.vote_count} ratings)
+        </Text>
       </View>
     </TouchableOpacity>
   );
