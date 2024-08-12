@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { router } from "expo-router";
-import { getToken } from "@/src/utils/store/TokenStore";
+import { getToken, getRefreshToken } from "@/src/utils/store/TokenStore";
 import { View } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
 import Loader from "@/src/components/loaders/Loader";
+
+import { isTokenValid } from "@/src/utils/APIs/api";
 
 // This can be used as the splash screen to perform any api calls or other async tasks
 // and then redirect to the login screen or any other screen if the user is already logged in.
@@ -17,18 +19,24 @@ const Index = () => {
   const isLoggedIn = async () => {
     try {
       const token = await getToken();
+      const refreshToken = await getRefreshToken();
       console.log("token: ", token);
-
+      console.log("refreshToken: ", refreshToken);
       if (token) {
-        router.push("/(drawer)");
-      } else {
+        const res = await isTokenValid(token);
+        console.log("res: ", res);
+        if (res) {
+            router.push("/(drawer)");
+          } // Check if the token is still valid
+      }
+      else {
+        // if the token cannot be found or refreshed, redirect to the login screen
         router.push("/(login)");
       }
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
-    } finally {
-      setIsLoading(false); // Stop showing the loader after navigation
-    }
+      router.push("/(login)");
+    } 
   };
 
   useEffect(() => {

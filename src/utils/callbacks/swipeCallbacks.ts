@@ -7,7 +7,7 @@ import { updateMovieResult } from "../APIs/api";
  * @param {MovieCardProps} movie - The movie card that was swiped left.
  */
 export const onSwipeLeft = (movie: MovieCardProps) => {
-  console.warn("swipe left", movie);
+  // console.warn("swipe left", movie);
   // Call the API to update the movie swipe result
   updateMovieResult(movie.id, movie.name, false, movie.image);        
 };
@@ -18,7 +18,7 @@ export const onSwipeLeft = (movie: MovieCardProps) => {
  * @param {MovieCardProps} movie - The movie card that was swiped right.
  */
 export const onSwipeRight = (movie: MovieCardProps) => {
-  console.warn("swipe right", movie);
+  // console.warn("swipe right", movie);
   // Call the API to update the movie swipe result
   updateMovieResult(movie.id, movie.name, true, movie.image);
 };
