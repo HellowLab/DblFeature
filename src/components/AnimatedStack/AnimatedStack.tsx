@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import TinderCard from "react-tinder-card";
+import Swiper from "../Swiper";
 import { View, Image, Animated } from "react-native";
 import MovieCard from "../MovieCard";
 import { styles } from "./AnimatedStack.styles";
@@ -82,7 +82,7 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
 
       {/* Render the current swipeable card if it exists */}
       {currentMovie && (
-        <TinderCard key={currentIndex} onSwipe={handleSwipe}>
+        <Swiper key={currentIndex} onSwipe={handleSwipe}>
           <View style={styles.currentCardContainer}>
             {/* To be implemented: like/dislike indicators */}
             {/* 
@@ -99,7 +99,7 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
             */}
             <MovieCard movie={currentMovie} />
           </View>
-        </TinderCard>
+        </Swiper>
       )}
     </View>
   );
