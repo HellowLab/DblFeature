@@ -1,9 +1,10 @@
 import React from "react";
 import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
 import FlipCard from "react-native-flip-card";
-import { Movie } from "@/src/utils/APIs/TMDB";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
+
+import { Movie, MovieResult } from "@/src/utils/types/types";
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {

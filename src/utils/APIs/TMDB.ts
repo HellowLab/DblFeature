@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Movie } from "../types/types";
 
 // API endpoint to get popular movies from TMDB
 const API_URL_POPULAR_MOVIES = "https://api.themoviedb.org/3/movie/popular";
@@ -7,17 +8,7 @@ const API_URL_ALL_MOVIES = "https://api.themoviedb.org/3/discover/movie";
 // Base URL for movie poster images
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-// Define the Movie interface to type the movie data
-export interface Movie {
-  id: number;
-  title: string;
-  poster_path: string | null; // Movie poster path, can be null
-  overview: string; // Short description of the movie
-  release_date: string; // Release date of the movie
-  vote_average: number; // Average rating of the movie out of 10
-  vote_count: number; // Number of votes (ratings) a movie has
-  popularity: number; // Popularity rating of a movie (the higher, the more popular a movie is) - used for search relevance
-}
+
 
 // Access the TMDB access token from the environment variables
 const TMDB_ACCESS_TOKEN = process.env.EXPO_PUBLIC_TMDB_ACCESS_TOKEN;
