@@ -5,10 +5,12 @@ import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
 
 import { Movie, MovieResult } from "@/src/utils/types/types";
+import StarRating from "../StarRating/StarRating";
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
   movie: Movie;
+  movieResult?: MovieResult | null;
 }
 
 /**
@@ -17,9 +19,10 @@ interface MovieCardProps {
  *
  * @param {MovieCardProps} props - The props for the component.
  * @param {Movie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
+ * @param {MovieResult} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
  * @returns {JSX.Element} The MovieFlipCard component.
  */
-const MovieFlipCard: React.FC<MovieCardProps> = ({ movie }) => {
+const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   return (
     <View style={styles.movieCardContainer}>
       <FlipCard
@@ -55,6 +58,13 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie }) => {
           <Text style={styles.movieDetailText}>
             Rating: {movie.vote_average}
           </Text>
+          {movieResult && (
+            <Text style={styles.movieDetailText}>
+              Liked by you: {movieResult.liked ? 'Yes' : 'No'}
+            </Text>
+          )}
+          <StarRating  />
+
           {/* Additional movie details can be added here */}
         </View>
       </FlipCard>

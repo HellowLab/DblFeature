@@ -6,11 +6,9 @@ export const styles = StyleSheet.create({
   movieCardContainer: {
     alignItems: "center",
     justifyContent: "center",
-    flex: 1,
+    height: 500,
   },
   cardContainer: {
-    width: width * 0.9,
-    height: 500,
   },
   card: {
     width: width * 0.9,
