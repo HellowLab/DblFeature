@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { useTheme } from "@react-navigation/native";

@@ -1,16 +1,16 @@
 import React from "react";
-import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
+import { View, Text, ImageBackground, TouchableOpacity, Button } from "react-native";
 import FlipCard from "react-native-flip-card";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
 
-import { Movie, MovieResult } from "@/src/utils/types/types";
+import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
-  movie: Movie;
-  movieResult?: MovieResult | null;
+  movie: tmdbMovie;
+  movieResult?: DjangoMovie | null;
 }
 
 /**
@@ -18,8 +18,8 @@ interface MovieCardProps {
  * The card shows the movie poster on the front and details on the back.
  *
  * @param {MovieCardProps} props - The props for the component.
- * @param {Movie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
- * @param {MovieResult} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
+ * @param {tmdbMovie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
+ * @param {DjangoMovie} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
  * @returns {JSX.Element} The MovieFlipCard component.
  */
 const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
@@ -60,11 +60,24 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
           </Text>
           {movieResult && (
             <Text style={styles.movieDetailText}>
-              Liked by you: {movieResult.liked ? 'Yes' : 'No'}
+              Liked by you: {movieResult.liked ? "Yes" : "No"}
             </Text>
           )}
-          <StarRating  />
-
+          <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>        
+            <Ionicons
+              name="thumbs-down"
+              type="font-awesome"
+              color="red"
+              size={24}
+            />
+            <StarRating />
+            <Ionicons
+              name="thumbs-up"
+              type="font-awesome"
+              color="green"
+              size={24}
+            />
+          </View>
           {/* Additional movie details can be added here */}
         </View>
       </FlipCard>

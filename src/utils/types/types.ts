@@ -1,6 +1,5 @@
-
 // Define the Movie interface to type the movie data
-export interface Movie {
+export interface tmdbMovie {
   id: number;
   title: string;
   poster_path: string | null; // Movie poster path, can be null
@@ -11,7 +10,7 @@ export interface Movie {
   popularity: number; // Popularity rating of a movie (the higher, the more popular a movie is) - used for search relevance
 }
 
-export interface MovieResult {
+export interface DjangoMovie {
   id: number; // Unique ID for the movie -- primary key from Django
   user: number; // ForeignKey referencing the user ID
   tmdb_id: number; // The ID of the movie on TMDB

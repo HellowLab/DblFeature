@@ -10,13 +10,11 @@ import MatchesScreen from "@/src/screens/MatchesScreen";
  */
 const App = () => {
   return (
-    <View
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        flex: 1,
-      }}
-    >
+    <View style={{
+      justifyContent: "center",
+      alignItems: "center",
+      flex: 1,
+    }}>
       <MatchesScreen />
     </View>
   );

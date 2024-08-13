@@ -24,7 +24,7 @@ export default function HomeLayout() {
         ),
       }}
     >
-      <Stack.Screen options={{ title: "Matches" }} name="index" />
+      <Stack.Screen options={{ title: "Home" }} name="index" />
       {/* <Stack.Screen options={{title:"Details"}} name="details" /> */}
     </Stack>
   );

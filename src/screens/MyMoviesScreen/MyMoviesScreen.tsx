@@ -18,8 +18,8 @@ import { getMovieResults } from "@/src/utils/APIs/api";
 import { getMovieDetails } from "@/src/utils/APIs/TMDB";
 
 // Import Types
-import { MovieResult } from "@/src/utils/types/types";
-import { Movie } from "@/src/utils/types/types";
+import { DjangoMovie } from "@/src/utils/types/types";
+import { tmdbMovie } from "@/src/utils/types/types";
 
 // Import theme / colors
 import { useTheme } from "@react-navigation/native";
@@ -37,7 +37,7 @@ const MovieResultsScreen = (): JSX.Element => {
   const { colors } = useTheme(); // Access theme colors
 
   // State to hold movie results, loading status, and refresh status
-  const [movieResults, setMovieResults] = useState<MovieResult[]>([]);
+  const [movieResults, setMovieResults] = useState<DjangoMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -47,8 +47,9 @@ const MovieResultsScreen = (): JSX.Element => {
 
   // State to hold the selected movie item to display in the modal
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [selectedMovieResult, setSelectedMovieResult] = useState<MovieResult | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
+  const [selectedMovieResult, setSelectedMovieResult] =
+    useState<DjangoMovie | null>(null);
   /**
    * Fetches movie results from the API, sorts them by ID in descending order,
    * and filters out duplicate movies based on their tmdb_id.
@@ -58,15 +59,15 @@ const MovieResultsScreen = (): JSX.Element => {
       const response = await getMovieResults();
 
       // Sort data by movie ID in descending order
-      const sortedData: MovieResult[] = response.data.sort(
-        (a: MovieResult, b: MovieResult) => b.id - a.id
+      const sortedData: DjangoMovie[] = response.data.sort(
+        (a: DjangoMovie, b: DjangoMovie) => b.id - a.id
       );
 
       // Filter out duplicate movies based on their tmdb_id
-      const uniqueData: MovieResult[] = sortedData.filter(
-        (item: MovieResult, index: number, self: MovieResult[]) =>
+      const uniqueData: DjangoMovie[] = sortedData.filter(
+        (item: DjangoMovie, index: number, self: DjangoMovie[]) =>
           index ===
-          self.findIndex((t: MovieResult) => t.tmdb_id === item.tmdb_id)
+          self.findIndex((t: DjangoMovie) => t.tmdb_id === item.tmdb_id)
       );
 
       setMovieResults(uniqueData); // Update state with unique, sorted data
@@ -90,10 +91,10 @@ const MovieResultsScreen = (): JSX.Element => {
   };
 
   /**
-    * Set modal visibility to true and set the selected movie item when a movie is pressed.
-    * @param {MovieResult} item - The movie item that was pressed.
-    */
-  const handleMoviePress = async (item: MovieResult) => {
+   * Set modal visibility to true and set the selected movie item when a movie is pressed.
+   * @param {DjangoMovie} item - The movie item that was pressed.
+   */
+  const handleMoviePress = async (item: DjangoMovie) => {
     const tmdbMovieDetails = await getMovieDetails(item.tmdb_id);
     setSelectedMovie(tmdbMovieDetails);
     setSelectedMovieResult(item);
@@ -104,35 +105,39 @@ const MovieResultsScreen = (): JSX.Element => {
    * Renders a single movie item in the list.
    *
    * @param {Object} param0 - Object containing the movie item to be rendered.
-   * @param {MovieResult} param0.item - The movie item to be displayed.
+   * @param {DjangoMovie} param0.item - The movie item to be displayed.
    * @returns {JSX.Element} The rendered movie item.
    */
-const renderMovieItem = ({ item }: { item: MovieResult }) => (
-  <TouchableOpacity onPress={() => handleMoviePress(item)}>
-    <View style={[styles.movieItemContainer, { backgroundColor: colors.card }]}>
-      {item.poster && (
-        <Image source={{ uri: item.poster }} style={styles.posterImage} />
-      )}
-      <View style={styles.movieInfoContainer}>
-        <MyText size="large">{item.name}</MyText>
-        <MyText size="medium">
-          {item.liked ? "Swiped Right -- Liked" : "Swiped Left -- Not Liked"}
-        </MyText>
-      </View>
-      <View style={styles.iconContainer}>
-        {item.liked ? (
-          <AntDesign name="checkcircle" size={24} color="green" />
-        ) : (
-          <AntDesign name="closecircle" size={24} color="red" />
+  const renderMovieItem = ({ item }: { item: DjangoMovie }) => (
+    <TouchableOpacity onPress={() => handleMoviePress(item)}>
+      <View
+        style={[styles.movieItemContainer, { backgroundColor: colors.card }]}
+      >
+        {item.poster && (
+          <Image source={{ uri: item.poster }} style={styles.posterImage} />
         )}
+        <View style={styles.movieInfoContainer}>
+          <MyText size="large">{item.name}</MyText>
+          <MyText size="medium">
+            {item.liked ? "Swiped Right -- Liked" : "Swiped Left -- Not Liked"}
+          </MyText>
+        </View>
+        <View style={styles.iconContainer}>
+          {item.liked ? (
+            <AntDesign name="checkcircle" size={24} color="green" />
+          ) : (
+            <AntDesign name="closecircle" size={24} color="red" />
+          )}
+        </View>
       </View>
-    </View>
-  </TouchableOpacity>
-);
+    </TouchableOpacity>
+  );
 
   // Separate movies into liked and disliked categories
-  const likedMovies = movieResults.filter((movie: MovieResult) => movie.liked);
-  const dislikedMovies = movieResults.filter((movie: MovieResult) => !movie.liked);
+  const likedMovies = movieResults.filter((movie: DjangoMovie) => movie.liked);
+  const dislikedMovies = movieResults.filter(
+    (movie: DjangoMovie) => !movie.liked
+  );
 
   // Show a loading indicator while data is being fetched
   if (loading) {
@@ -143,20 +148,28 @@ const renderMovieItem = ({ item }: { item: MovieResult }) => (
   if (!movieResults.length) {
     return (
       <ScrollView
-      style={{ flex: 1, padding: 8, marginBottom: 50 }}
-      contentContainerStyle={{justifyContent: 'center', alignItems: 'center' }} // Use contentContainerStyle
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-      }
-    >
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 8 }}>
-        <MyText size="large">
-          You don't have any matches yet
-        </MyText>
-        <MyText size="large" >
-          Swipe right on movies to like them and find your matches here
-        </MyText>
-      </View>
+        style={{ flex: 1, padding: 8, marginBottom: 50 }}
+        contentContainerStyle={{
+          justifyContent: "center",
+          alignItems: "center",
+        }} // Use contentContainerStyle
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <MyText size="large">You don't have any matches yet</MyText>
+          <MyText size="large">
+            Swipe right on movies to like them and find your matches here
+          </MyText>
+        </View>
       </ScrollView>
     );
   }
@@ -219,9 +232,18 @@ const renderMovieItem = ({ item }: { item: MovieResult }) => (
           onRequestClose={() => setModalVisible(false)}
         >
           <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-            <View style={{ flex: 1, justifyContent: "center", alignItems:"center"}}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <TouchableWithoutFeedback>
-                <MovieFlipCard movie={selectedMovie} movieResult={selectedMovieResult} />
+                <MovieFlipCard
+                  movie={selectedMovie}
+                  movieResult={selectedMovieResult}
+                />
               </TouchableWithoutFeedback>
             </View>
           </TouchableWithoutFeedback>
