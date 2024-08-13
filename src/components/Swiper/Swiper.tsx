@@ -13,6 +13,7 @@
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
 } from "react";
@@ -25,7 +26,7 @@ import {
   PanResponderGestureState,
   Animated,
 } from "react-native";
-import { useSpring, animated, SpringValue } from "@react-spring/native";
+import { useSpring, animated } from "@react-spring/native";
 
 // Get the height and width of the device's screen for calculations.
 const { height, width } = Dimensions.get("window");
@@ -67,6 +68,7 @@ type SwiperProps = {
     likeOpacity: Animated.Value; // Animated value controlling the opacity of the "like" image.
     nopeOpacity: Animated.Value; // Animated value controlling the opacity of the "nope" image.
   };
+  cardPositionX?: Animated.Value; // Animated value that keeps track of the cards current x position
   onSwipeRequirementFulfilled?: (dir: string) => void; // Callback when the swipe requirement is fulfilled.
   onSwipeRequirementUnfulfilled?: () => void; // Callback when the swipe requirement is not fulfilled.
 };
@@ -85,7 +87,7 @@ const settings = {
 const physics = {
   touchResponsive: {
     friction: 50, // Friction for touch-responsive animations.
-    tension: 2000, // Tension for touch-responsive animations.
+    tension: 1500, // Tension for touch-responsive animations.
   },
   animateOut: {
     friction: 30, // Friction for animations that move the card off-screen.
@@ -227,11 +229,30 @@ const Swiper = forwardRef<unknown, SwiperProps>(
       swipeRequirementType = "velocity", // Default to detecting swipes based on velocity.
       swipeThreshold = settings.swipeThreshold, // Use default swipe threshold unless specified.
       overlay, // Optional animated values controlling the opacity of the "like" and "nope" images.
+      cardPositionX, // Optional animated value keeping track of the cards x position
       onSwipeRequirementFulfilled, // Callback for when swipe requirement is fulfilled.
       onSwipeRequirementUnfulfilled, // Callback for when swipe requirement is not fulfilled.
     },
     ref
   ) => {
+    // Initialize a spring value for the scale, starting at 0.97 for a slight initial shrink
+    const [{ scale }, api] = useSpring(() => ({
+      scale: 0.97, // The initial scale of the card, slightly smaller for a bounce effect when it appears
+      config: { tension: 300, friction: 5 }, // Configuration for how the spring animation behaves (higher tension = faster)
+    }));
+
+    useEffect(() => {
+      // Apply the bounce effect when the component mounts
+      api.start({
+        scale: 1.0, // Scale the card up to its full size
+        config: { tension: 150, friction: 10 }, // Adjust tension and friction to control the bounce speed and smoothness
+        onRest: () => {
+          // After the first bounce to full size, normalize the scale
+          api.start({ scale: 1 });
+        },
+      });
+    }, [api]); // The effect depends on the `api` object, which ensures the bounce happens when the component mounts
+
     // Initialize spring values for controlling card position and rotation.
     const [{ x, y, rot }, setSpringTarget] = useSpring(() => ({
       x: 0,
@@ -403,6 +424,13 @@ const Swiper = forwardRef<unknown, SwiperProps>(
               }
             }
 
+            const { dx } = gestureState; // Extract the horizontal displacement (dx) from the gesture state
+
+            // Update the cardPositionX animated value with the current horizontal displacement
+            if (cardPositionX) {
+              cardPositionX.setValue(dx); // Set the cardPositionX animated value to the current dx, which tracks the card's movement
+            }
+
             // Calculate rotation based on horizontal swipe velocity.
             let rot = ((300 * gestureState.vx) / width) * 15; // Scale rotation by a factor of 15.
             rot = Math.max(Math.min(rot, settings.maxTilt), -settings.maxTilt); // Clamp rotation within the maximum tilt angle.
@@ -450,6 +478,14 @@ const Swiper = forwardRef<unknown, SwiperProps>(
               overlay.likeOpacity.setValue(0);
               overlay.nopeOpacity.setValue(0);
             }
+
+            if (cardPositionX) {
+              // Animate the cardPositionX value back to 0, returning the card to its original position
+              Animated.spring(cardPositionX, {
+                toValue: 0, // The target value, which is the original horizontal position (centered on the screen)
+                useNativeDriver: true, // Optimize the animation performance by using the native driver
+              }).start(); // Start the spring animation to smoothly move the card back to its starting point
+            }
           },
         }),
       [] // Empty dependency array ensures that the PanResponder instance is only created once.
@@ -457,12 +493,13 @@ const Swiper = forwardRef<unknown, SwiperProps>(
 
     return (
       <AnimatedView
-        {...panResponder.panHandlers} // Attach the PanResponder gesture handlers to the animated view.
+        {...panResponder.panHandlers} // Spread the PanResponder handlers to manage touch gestures
         style={{
           transform: [
-            { translateX: x }, // Translate the card along the x-axis based on the spring value.
-            { translateY: y }, // Translate the card along the y-axis based on the spring value.
-            { rotate: rot.to((rotValue: number) => `${rotValue}deg`) }, // Rotate the card based on the spring value.
+            { translateX: x }, // Translate the card horizontally based on the spring value `x`
+            { translateY: y }, // Translate the card vertically based on the spring value `y`
+            { rotate: rot.to((rotValue: number) => `${rotValue}deg`) }, // Rotate the card based on the spring value `rot`, converting it to degrees
+            { scale }, // Apply the spring scale value directly to scale the card
           ],
         }}
       >

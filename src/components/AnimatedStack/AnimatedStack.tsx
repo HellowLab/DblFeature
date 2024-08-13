@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Swiper from "../Swiper";
-import { View, Image, Animated } from "react-native";
+import { View, Image, Animated, useWindowDimensions } from "react-native";
 import MovieCard from "../MovieCard";
 import { styles } from "./AnimatedStack.styles";
 //@ts-ignore
@@ -15,43 +15,34 @@ export interface AnimatedStackProps {
   onSwipeLeft: (movie: MovieCardProps) => void; // Callback for when a card is swiped left
 }
 
-/**
- * AnimatedStack Component
- *
- * A React functional component that displays a stack of cards with movies,
- * allowing the user to swipe through them. The current movie is displayed in
- * a swipeable TinderCard, and the next movie is shown with a scaling animation.
- *
- * @param data - Array of movie objects to be swiped through.
- * @param onSwipeRight - Function to be called when a movie card is swiped to the right.
- * @param onSwipeLeft - Function to be called when a movie card is swiped to the left.
- */
 const AnimatedStack: React.FC<AnimatedStackProps> = ({
   data,
   onSwipeRight,
   onSwipeLeft,
 }) => {
-  // Opacity values for the like and nope images. Passed to Swiper and updated as the user swipes left and right
+  // Get the dimensions of the window to calculate hidden positions
+  const { width: screenWidth } = useWindowDimensions();
+
+  // References to opacity, passed to Swiper to be updated as we swipe left and right
   const likeOpacity = useRef(new Animated.Value(0)).current;
   const nopeOpacity = useRef(new Animated.Value(0)).current;
 
-  // State to keep track of the current card index
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Animation value for scaling the next card
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  // Reference to current card position, passed to Swiper to be updated as we swipe left and right
+  // Used to scale up the size of the next card in the stack based on the position of the card's x position
+  const cardPositionX = useRef(new Animated.Value(0)).current;
 
-  // Get the current movie to display, or null if no more movies are left
+  // Scaling the next card based on the current card's position
+  const scaleAnim = cardPositionX.interpolate({
+    inputRange: [-screenWidth, 0, screenWidth],
+    outputRange: [1.16, 0.8, 1.16],
+    extrapolate: "clamp",
+  });
+
   const currentMovie = data[currentIndex] ?? null;
-
-  // Get the next movie for the upcoming card, or null if it's the last card
   const nextMovie = data[currentIndex + 1] ?? null;
 
-  /**
-   * Handle swipe action
-   *
-   * @param direction - The direction of the swipe ("right" or "left")
-   */
   const handleSwipe = (direction: string) => {
     if (direction === "right") {
       onSwipeRight(currentMovie);
@@ -59,20 +50,14 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
       onSwipeLeft(currentMovie);
     }
 
-    // Animate the scaling of the next card and update the current index
-    Animated.timing(scaleAnim, {
-      toValue: 1, // Scale the next card to full size
-      duration: 100, // Set the duration for a fast animation
-      useNativeDriver: true,
-    }).start(() => {
-      setCurrentIndex(currentIndex + 1); // Move to the next card
-      scaleAnim.setValue(0.9); // Reset the scale for the next card
-    });
+    // Reset the translation value after the swipe
+    cardPositionX.setValue(0);
+
+    setCurrentIndex((prevIndex) => prevIndex + 1);
   };
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {/* Render the next card with a scaling animation if it exists */}
       {nextMovie && (
         <Animated.View
           style={[
@@ -84,13 +69,13 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
         </Animated.View>
       )}
 
-      {/* Render the current swipeable card if it exists */}
       {currentMovie && (
         <Swiper
           key={currentIndex}
           onSwipe={handleSwipe}
-          overlay={{ likeOpacity, nopeOpacity }}
-          preventSwipe={["up", "down"]}
+          overlay={{ likeOpacity, nopeOpacity }} // Pass the like and nope opacity references to the Swiper to be updated
+          preventSwipe={["up", "down"]} // Prevent up and down swipes on cards
+          cardPositionX={cardPositionX} // Pass the card x position reference to the Swiper to be updated
         >
           <Animated.View style={styles.currentCardContainer}>
             <Animated.Image
@@ -106,12 +91,11 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
                   right: 10,
                   top: 10,
                   opacity: nopeOpacity,
-                  transform: [{ scale: 1.15 }], // Adjust the scale value to make the image larger
+                  transform: [{ scale: 1.15 }],
                 },
               ]}
               resizeMode="contain"
             />
-
             <MovieCard movie={currentMovie} />
           </Animated.View>
         </Swiper>
