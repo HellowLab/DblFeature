@@ -8,16 +8,16 @@ PODS:
     - ExpoModulesCore
   - Expo (51.0.21):
     - ExpoModulesCore
-  - expo-dev-client (4.0.20):
+  - expo-dev-client (4.0.22):
     - EXManifests
     - expo-dev-launcher
     - expo-dev-menu
     - expo-dev-menu-interface
     - EXUpdatesInterface
-  - expo-dev-launcher (4.0.22):
+  - expo-dev-launcher (4.0.24):
     - DoubleConversion
     - EXManifests
-    - expo-dev-launcher/Main (= 4.0.22)
+    - expo-dev-launcher/Main (= 4.0.24)
     - expo-dev-menu
     - expo-dev-menu-interface
     - ExpoModulesCore
@@ -43,7 +43,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-launcher/Main (4.0.22):
+  - expo-dev-launcher/Main (4.0.24):
     - DoubleConversion
     - EXManifests
     - expo-dev-launcher/Unsafe
@@ -72,7 +72,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-launcher/Unsafe (4.0.22):
+  - expo-dev-launcher/Unsafe (4.0.24):
     - DoubleConversion
     - EXManifests
     - expo-dev-menu
@@ -100,10 +100,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu (5.0.16):
+  - expo-dev-menu (5.0.18):
     - DoubleConversion
-    - expo-dev-menu/Main (= 5.0.16)
-    - expo-dev-menu/ReactNativeCompatibles (= 5.0.16)
+    - expo-dev-menu/Main (= 5.0.18)
+    - expo-dev-menu/ReactNativeCompatibles (= 5.0.18)
     - glog
     - hermes-engine
     - RCT-Folly (= 2024.01.01.00)
@@ -124,7 +124,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - expo-dev-menu-interface (1.8.3)
-  - expo-dev-menu/Main (5.0.16):
+  - expo-dev-menu/Main (5.0.18):
     - DoubleConversion
     - EXManifests
     - expo-dev-menu-interface
@@ -150,7 +150,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/ReactNativeCompatibles (5.0.16):
+  - expo-dev-menu/ReactNativeCompatibles (5.0.18):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -171,7 +171,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/SafeAreaView (5.0.16):
+  - expo-dev-menu/SafeAreaView (5.0.18):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -193,7 +193,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/Vendored (5.0.16):
+  - expo-dev-menu/Vendored (5.0.18):
     - DoubleConversion
     - expo-dev-menu/SafeAreaView
     - glog
@@ -281,9 +281,9 @@ PODS:
   - FBLazyVector (0.74.3)
   - fmt (9.1.0)
   - glog (0.3.5)
-  - hermes-engine (0.74.5):
-    - hermes-engine/Pre-built (= 0.74.5)
-  - hermes-engine/Pre-built (0.74.5)
+  - hermes-engine (0.74.3):
+    - hermes-engine/Pre-built (= 0.74.3)
+  - hermes-engine/Pre-built (0.74.3)
   - MMKV (1.3.9):
     - MMKVCore (~> 1.3.9)
   - MMKVCore (1.3.9)
@@ -1818,9 +1818,9 @@ SPEC CHECKSUMS:
   EXJSONUtils: 30c17fd9cc364d722c0946a550dfbf1be92ef6a4
   EXManifests: c1fab4c3237675e7b0299ea8df0bcb14baca4f42
   Expo: 6ff8c293719c5e5d23204e3f5fc9f472b5d0fd32
-  expo-dev-client: d24806e84d072563b0a26537c22ec902443e77d6
-  expo-dev-launcher: 9ec4a77189b7ba5340c26399885887bec84e71f2
-  expo-dev-menu: 02f7aa39ee32f4730815cb5fe0c38d7bfda76ab7
+  expo-dev-client: 05a436763435d5f50bbdbcc51adf8b0b55d8dabc
+  expo-dev-launcher: 140874617542fa32908b1710775bca3ff4bd66c6
+  expo-dev-menu: 101ecf9a992bc3d51841b31e4301f4ca54600ad4
   expo-dev-menu-interface: be32c09f1e03833050f0ee290dcc86b3ad0e73e4
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
@@ -1836,7 +1836,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 7e977dd099937dc5458851233141583abba49ff2
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
-  hermes-engine: 8c1577f3fdb849cbe7729c2e7b5abc4b845e88f8
+  hermes-engine: 1f547997900dd0752dc0cc0ae6dd16173c49e09b
   MMKV: 817ba1eea17421547e01e087285606eb270a8dcb
   MMKVCore: af055b00e27d88cd92fad301c5fecd1ff9b26dd9
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47

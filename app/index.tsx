@@ -26,17 +26,18 @@ const Index = () => {
         const res = await isTokenValid(token);
         console.log("res: ", res);
         if (res) {
-            router.push("/(drawer)");
-          } // Check if the token is still valid
-      }
-      else {
+          router.push("/(drawer)");
+        } // Check if the token is still valid
+      } else {
         // if the token cannot be found or refreshed, redirect to the login screen
         router.push("/(login)");
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
       router.push("/(login)");
-    } 
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
