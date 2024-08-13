@@ -7,19 +7,25 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./MyMoviesScreen.styles";
 
 // Import API functions
 import { getMovieResults } from "@/src/utils/APIs/api";
+import { getMovieDetails } from "@/src/utils/APIs/TMDB";
 
 // Import Types
 import { MovieResult } from "@/src/utils/types/types";
+import { Movie } from "@/src/utils/types/types";
 
 // Import theme / colors
 import { useTheme } from "@react-navigation/native";
 import MyText from "@/src/components/TextOutput/TextOutput";
+import MyButton from "@/src/components/Buttons/Button";
+import MovieFlipCard from "@/src/components/MovieFlipCard";
 
 /**
  * Displays a list of movies that the user has swiped left (disliked) or right (liked) on.
@@ -39,6 +45,10 @@ const MovieResultsScreen = (): JSX.Element => {
   const [likedCollapsed, setLikedCollapsed] = useState(false);
   const [dislikedCollapsed, setDislikedCollapsed] = useState(true);
 
+  // State to hold the selected movie item to display in the modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedMovieResult, setSelectedMovieResult] = useState<MovieResult | null>(null);
   /**
    * Fetches movie results from the API, sorts them by ID in descending order,
    * and filters out duplicate movies based on their tmdb_id.
@@ -80,13 +90,25 @@ const MovieResultsScreen = (): JSX.Element => {
   };
 
   /**
+    * Set modal visibility to true and set the selected movie item when a movie is pressed.
+    * @param {MovieResult} item - The movie item that was pressed.
+    */
+  const handleMoviePress = async (item: MovieResult) => {
+    const tmdbMovieDetails = await getMovieDetails(item.tmdb_id);
+    setSelectedMovie(tmdbMovieDetails);
+    setSelectedMovieResult(item);
+    setModalVisible(true);
+  };
+
+  /**
    * Renders a single movie item in the list.
    *
    * @param {Object} param0 - Object containing the movie item to be rendered.
    * @param {MovieResult} param0.item - The movie item to be displayed.
    * @returns {JSX.Element} The rendered movie item.
    */
-  const renderMovieItem = ({ item }: { item: MovieResult }) => (
+const renderMovieItem = ({ item }: { item: MovieResult }) => (
+  <TouchableOpacity onPress={() => handleMoviePress(item)}>
     <View style={[styles.movieItemContainer, { backgroundColor: colors.card }]}>
       {item.poster && (
         <Image source={{ uri: item.poster }} style={styles.posterImage} />
@@ -105,11 +127,12 @@ const MovieResultsScreen = (): JSX.Element => {
         )}
       </View>
     </View>
-  );
+  </TouchableOpacity>
+);
 
   // Separate movies into liked and disliked categories
-  const likedMovies = movieResults.filter((movie) => movie.liked);
-  const dislikedMovies = movieResults.filter((movie) => !movie.liked);
+  const likedMovies = movieResults.filter((movie: MovieResult) => movie.liked);
+  const dislikedMovies = movieResults.filter((movie: MovieResult) => !movie.liked);
 
   // Show a loading indicator while data is being fetched
   if (loading) {
@@ -186,6 +209,23 @@ const MovieResultsScreen = (): JSX.Element => {
           renderItem={renderMovieItem}
           scrollEnabled={false} // Disable scrolling inside FlatList
         />
+      )}
+
+      {selectedMovie && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View style={{ flex: 1, justifyContent: "center", alignItems:"center"}}>
+              <TouchableWithoutFeedback>
+                <MovieFlipCard movie={selectedMovie} movieResult={selectedMovieResult} />
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       )}
     </ScrollView>
   );
