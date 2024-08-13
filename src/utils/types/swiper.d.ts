@@ -1,3 +1,5 @@
+// Types and interfaces for the swiper component
+
 import React from "react";
 
 declare type Direction = "left" | "right" | "up" | "down";
