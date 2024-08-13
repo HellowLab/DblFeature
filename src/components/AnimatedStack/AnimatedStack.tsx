@@ -1,114 +1,107 @@
-// Import necessary components from external libraries and local files
-import { Text, View, ImageBackground } from "react-native";
-import Animated from "react-native-reanimated";
+import React, { useState, useRef } from "react";
+import TinderCard from "react-tinder-card";
+import { View, Image, Animated } from "react-native";
 import MovieCard from "../MovieCard";
-import { GestureDetector } from "react-native-gesture-handler";
-import { useCardAnimation, usePanGesture } from "@/src/hooks";
-import { useEffect, useState } from "react";
 import { styles } from "./AnimatedStack.styles";
-// Ignore TypeScript errors for the image imports
 //@ts-ignore
 import LIKE from "../../assets/images/LIKE.png";
 //@ts-ignore
 import nope from "../../assets/images/nope.png";
 import { MovieCardProps } from "../MovieCard/MovieCard";
-import React from "react";
 
-// Define the props for the AnimatedStack component
 export interface AnimatedStackProps {
-  data: MovieCardProps[];
-  onSwipeRight: (movie: MovieCardProps) => void;
-  onSwipeLeft: (movie: MovieCardProps) => void;
+  data: MovieCardProps[]; // Array of movie data to be displayed
+  onSwipeRight: (movie: MovieCardProps) => void; // Callback for when a card is swiped right
+  onSwipeLeft: (movie: MovieCardProps) => void; // Callback for when a card is swiped left
 }
 
 /**
- * AnimatedStack component displays a stack of movie cards with swipe gestures.
+ * AnimatedStack Component
  *
- * @param {AnimatedStackProps} props - The properties for the component.
- * @param {MovieCardProps[]} props.data - Array of movies to be displayed.
- * @param {Function} props.onSwipeRight - Function to call when a card is swiped right.
- * @param {Function} props.onSwipeLeft - Function to call when a card is swiped left.
- * @returns {JSX.Element} The AnimatedStack component.
+ * A React functional component that displays a stack of cards with movies,
+ * allowing the user to swipe through them. The current movie is displayed in
+ * a swipeable TinderCard, and the next movie is shown with a scaling animation.
+ *
+ * @param data - Array of movie objects to be swiped through.
+ * @param onSwipeRight - Function to be called when a movie card is swiped to the right.
+ * @param onSwipeLeft - Function to be called when a movie card is swiped to the left.
  */
 const AnimatedStack: React.FC<AnimatedStackProps> = ({
   data,
   onSwipeRight,
   onSwipeLeft,
 }) => {
-  // State to keep track of the current and next card indices
+  // State to keep track of the current card index
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [nextIndex, setNextIndex] = useState(currentIndex + 1);
 
-  // Retrieve the current and next movie from the data array
+  // Animation value for scaling the next card
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+
+  // Get the current movie to display, or null if no more movies are left
   const currentMovie = data[currentIndex] ?? null;
-  const nextMovie = data[nextIndex] ?? null;
 
-  // Function to update the index after a card is swiped away
-  const updateIndexAfterSwipeAway = () => {
-    setCurrentIndex(currentIndex + 1);
+  // Get the next movie for the upcoming card, or null if it's the last card
+  const nextMovie = data[currentIndex + 1] ?? null;
+
+  /**
+   * Handle swipe action
+   *
+   * @param direction - The direction of the swipe ("right" or "left")
+   */
+  const handleSwipe = (direction: string) => {
+    if (direction === "right") {
+      onSwipeRight(currentMovie);
+    } else if (direction === "left") {
+      onSwipeLeft(currentMovie);
+    }
+
+    // Animate the scaling of the next card and update the current index
+    Animated.timing(scaleAnim, {
+      toValue: 1, // Scale the next card to full size
+      duration: 100, // Set the duration for a fast animation
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentIndex(currentIndex + 1); // Move to the next card
+      scaleAnim.setValue(0.9); // Reset the scale for the next card
+    });
   };
 
-  // Retrieve animated styles and animation handlers from custom hook useCardAnimation
-  const {
-    cardStyle,
-    nextCardStyle,
-    likeStyle,
-    nopeStyle,
-    handleCardDrag,
-    handleCardSwipeEnd,
-    translateX,
-    translateY,
-  } = useCardAnimation(
-    updateIndexAfterSwipeAway,
-    onSwipeRight,
-    onSwipeLeft,
-    currentMovie
-  );
-
-  // Update nextIndex whenever currentIndex changes
-  useEffect(() => {
-    translateX.value = 0;
-    translateY.value = 0;
-    setNextIndex(currentIndex + 1);
-  }, [currentIndex, translateX, translateY]);
-
-  // Retrieve custom panGesture based on animation handlers from custom hook usePanGesture
-  const panGesture = usePanGesture(handleCardDrag, handleCardSwipeEnd);
-
   return (
-    <>
-      {/* Render the current movie card with swipe gestures */}
-      {currentMovie && (
-        <GestureDetector gesture={panGesture}>
-          <Animated.View
-            style={[styles.animatedCard, cardStyle, { zIndex: 1 }]}
-          >
-            {/* Display the "Like" image */}
-            <Animated.Image
-              source={LIKE}
-              style={[styles.png, { left: 10 }, likeStyle]}
-              resizeMode="contain"
-            />
-            {/* Display the "Nope" image */}
-            <Animated.Image
-              source={nope}
-              style={[styles.png, { right: 10 }, nopeStyle]}
-              resizeMode="contain"
-            />
-            <MovieCard movie={currentMovie} />
-          </Animated.View>
-        </GestureDetector>
-      )}
-
-      {/* Render the next movie card in the stack with animated styles */}
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      {/* Render the next card with a scaling animation if it exists */}
       {nextMovie && (
         <Animated.View
-          style={[styles.nextCardContainer, nextCardStyle, { zIndex: 0 }]}
+          style={[
+            styles.nextCardContainer,
+            { transform: [{ scale: scaleAnim }] },
+          ]}
         >
           <MovieCard movie={nextMovie} />
         </Animated.View>
       )}
-    </>
+
+      {/* Render the current swipeable card if it exists */}
+      {currentMovie && (
+        <TinderCard key={currentIndex} onSwipe={handleSwipe}>
+          <View style={styles.currentCardContainer}>
+            {/* To be implemented: like/dislike indicators */}
+            {/* 
+            <Image
+              source={LIKE}
+              style={[styles.png, { left: 10 }]}
+              resizeMode="contain"
+            />
+            <Image
+              source={nope}
+              style={[styles.png, { right: 10 }]}
+              resizeMode="contain"
+            />
+            */}
+            <MovieCard movie={currentMovie} />
+          </View>
+        </TinderCard>
+      )}
+    </View>
   );
 };
 
