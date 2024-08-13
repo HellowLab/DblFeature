@@ -90,6 +90,7 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
           key={currentIndex}
           onSwipe={handleSwipe}
           overlay={{ likeOpacity, nopeOpacity }}
+          preventSwipe={["up", "down"]}
         >
           <Animated.View style={styles.currentCardContainer}>
             <Animated.Image
