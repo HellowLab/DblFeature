@@ -1,3 +1,15 @@
+/**
+ * This Swiper component is an extension of the react-tinder-card library.
+ * Reference: https://www.npmjs.com/package/react-tinder-card
+ *
+ * The readme associated with the react-tinder-card library is applicable to this Swiper component as well.
+ * This component builds upon the functionalities provided by react-tinder-card, retaining all its core features,
+ * while introducing additional enhancements specific to this implementation.
+ *
+ * You can use the react-tinder-card documentation as a reference, with the understanding that this component includes
+ * extra features not covered in the original library's documentation.
+ */
+
 import React, {
   forwardRef,
   useCallback,
@@ -11,6 +23,7 @@ import {
   PanResponderInstance,
   GestureResponderEvent,
   PanResponderGestureState,
+  Animated,
 } from "react-native";
 import { useSpring, animated, SpringValue } from "@react-spring/native";
 
@@ -50,6 +63,10 @@ type SwiperProps = {
   preventSwipe?: string[]; // Array of directions in which swiping is prevented.
   swipeRequirementType?: "velocity" | "distance"; // Type of requirement to detect a swipe (velocity-based or distance-based).
   swipeThreshold?: number; // Custom threshold for swipe detection.
+  overlay?: {
+    likeOpacity: Animated.Value; // Animated value controlling the opacity of the "like" image.
+    nopeOpacity: Animated.Value; // Animated value controlling the opacity of the "nope" image.
+  };
   onSwipeRequirementFulfilled?: (dir: string) => void; // Callback when the swipe requirement is fulfilled.
   onSwipeRequirementUnfulfilled?: () => void; // Callback when the swipe requirement is not fulfilled.
 };
@@ -209,6 +226,7 @@ const Swiper = forwardRef<unknown, SwiperProps>(
       preventSwipe = [], // Directions in which swiping is prevented.
       swipeRequirementType = "velocity", // Default to detecting swipes based on velocity.
       swipeThreshold = settings.swipeThreshold, // Use default swipe threshold unless specified.
+      overlay, // Optional animated values controlling the opacity of the "like" and "nope" images.
       onSwipeRequirementFulfilled, // Callback for when swipe requirement is fulfilled.
       onSwipeRequirementUnfulfilled, // Callback for when swipe requirement is not fulfilled.
     },
@@ -396,6 +414,20 @@ const Swiper = forwardRef<unknown, SwiperProps>(
               rot,
               config: physics.touchResponsive, // Use touch-responsive physics settings.
             });
+
+            // Update the opacity of the like/nope images based on swipe direction and distance
+            if (overlay) {
+              const { dx } = gestureState;
+              if (dx > 0) {
+                // Swiping right
+                overlay.likeOpacity.setValue(Math.min(dx / 100, 1));
+                overlay.nopeOpacity.setValue(0);
+              } else {
+                // Swiping left
+                overlay.nopeOpacity.setValue(Math.min(-dx / 100, 1));
+                overlay.likeOpacity.setValue(0);
+              }
+            }
           },
 
           // Determine if the responder should release the gesture.
@@ -412,6 +444,12 @@ const Swiper = forwardRef<unknown, SwiperProps>(
             gestureState: PanResponderGestureState
           ) => {
             handleSwipeReleased(setSpringTarget, gestureState); // Call the function to determine the appropriate action.
+
+            // Reset opacity of overlay references to 0 on release
+            if (overlay) {
+              overlay.likeOpacity.setValue(0);
+              overlay.nopeOpacity.setValue(0);
+            }
           },
         }),
       [] // Empty dependency array ensures that the PanResponder instance is only created once.

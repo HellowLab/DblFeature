@@ -31,6 +31,10 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
   onSwipeRight,
   onSwipeLeft,
 }) => {
+  // Opacity values for the like and nope images. Passed to Swiper and updated as the user swipes left and right
+  const likeOpacity = useRef(new Animated.Value(0)).current;
+  const nopeOpacity = useRef(new Animated.Value(0)).current;
+
   // State to keep track of the current card index
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -82,23 +86,33 @@ const AnimatedStack: React.FC<AnimatedStackProps> = ({
 
       {/* Render the current swipeable card if it exists */}
       {currentMovie && (
-        <Swiper key={currentIndex} onSwipe={handleSwipe}>
-          <View style={styles.currentCardContainer}>
-            {/* To be implemented: like/dislike indicators */}
-            {/* 
-            <Image
+        <Swiper
+          key={currentIndex}
+          onSwipe={handleSwipe}
+          overlay={{ likeOpacity, nopeOpacity }}
+        >
+          <Animated.View style={styles.currentCardContainer}>
+            <Animated.Image
               source={LIKE}
-              style={[styles.png, { left: 10 }]}
+              style={[styles.png, { left: 10, opacity: likeOpacity }]}
               resizeMode="contain"
             />
-            <Image
+            <Animated.Image
               source={nope}
-              style={[styles.png, { right: 10 }]}
+              style={[
+                styles.png,
+                {
+                  right: 10,
+                  top: 10,
+                  opacity: nopeOpacity,
+                  transform: [{ scale: 1.15 }], // Adjust the scale value to make the image larger
+                },
+              ]}
               resizeMode="contain"
             />
-            */}
+
             <MovieCard movie={currentMovie} />
-          </View>
+          </Animated.View>
         </Swiper>
       )}
     </View>
