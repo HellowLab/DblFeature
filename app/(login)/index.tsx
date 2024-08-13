@@ -48,7 +48,7 @@ export default function Index() {
     try {
       deleteToken();
       const res = await login(username, password)
-
+      
       // if the login is unsuccessful
       if (res.status != 200) {
         setErrorText(res?.data.non_field_errors[0])

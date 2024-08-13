@@ -49,9 +49,11 @@ api.interceptors.request.use(
 export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", params?: object,) => {
   console.log(fetchtype +": " + (API_BASE_URL + url));
   console.log(JSON.stringify(params));
-  let retry = true;
+
+  const maxRetries = 3;
+  let retry = 0;
   let res = null;
-  while (retry) {
+  while (retry < maxRetries) {
     // try to make the api call
     try {
       if (fetchtype == "POST") {
@@ -77,10 +79,10 @@ export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", 
           const refreshSuccess = await refreshToken();
           if (refreshSuccess) {
             console.log("Token refreshed")
-            retry = true;
+            retry += 1;
           }
           else {
-            retry = false;
+            retry = maxRetries + 1; // exit loop
             router.push("/(login)");
           }
         }
@@ -157,6 +159,7 @@ export const refreshToken = async () => {
   try {
     const response = await axios.post(API_BASE_URL + 'auth/token/refresh/', data);
     console.log("refresh response: ", response);
+    console.log("Refresh Response Status (may fail with status of undefined): ", response.status);
     if (response.status == 200) {
       saveToken(response.data.access, response.data.refresh, response.data.access_expiration, response.data.refresh_expiration);
       return true;
@@ -164,6 +167,7 @@ export const refreshToken = async () => {
     return false;
   } 
   catch (error) {
+    console.log("Error in refreshToken function in api.tsx")
     const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);
     return false
   }
@@ -184,6 +188,7 @@ export const isTokenValid = async (token: string) => {
     return false;
   } 
   catch (error) {
+    console.log("Error in isTokenValid function in api.tsx")
     if (axios.isAxiosError(error)) {
       // Axios error
       const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);

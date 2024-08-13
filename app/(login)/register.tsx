@@ -65,7 +65,7 @@ const RegisterScreen = () => {
       console.log(res.status);
       if (res?.status == 201) {
         console.log("registration success");
-        saveToken(res.data.access);
+        saveToken(res.data.access, res.data.refresh);
         setIsRegistraionSuccess(true);
         return;
       } else {
