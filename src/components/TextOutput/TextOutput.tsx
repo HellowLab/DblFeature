@@ -9,9 +9,10 @@ import { BORDERRADIUS } from '@/src/utils/constants';
 
 
 type TextVariantsProps = {
-  color?: 'normal' | 'error' | 'inverted';
-  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+  color?: 'normal' | 'error' | 'inverted' | 'primary';
+  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
   align?: 'left' | 'center' | 'right';
+  bold?: boolean;
   // width?: 'full' | "nearfull" | 'auto' | 'small' | 'medium' | 'large';
   // height?: 'small' | 'medium' | 'large' | 'xlarge';
   // intent?: 'normal' | 'password'
@@ -33,7 +34,7 @@ type MyTextProps = TextVariantsProps & TextProps;
  * 
  * @returns {JSX.Element} The rendered text component.
  */
-const MyText: React.FC<MyTextProps> = ({ color, size, children, align, ...props }) => {
+const MyText: React.FC<MyTextProps> = ({ color, size, align, bold, children, ...props }) => {
   const { colors } = useTheme();
 
   const textsv = sv({
@@ -55,11 +56,14 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, align, ...props 
         },
         inverted: {
           color: colors.inverted
+        },
+        primary: {
+          color: colors.primary
         }
       },
       size: {
         xsmall: {
-          fontSize: 10,
+          fontSize: 8,
         },
         small: {
           fontSize: 12,
@@ -68,10 +72,13 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, align, ...props 
           fontSize: 14,
         },
         large: {
-          fontSize: 16,
+          fontSize: 18,
         },
         xlarge: {
-          fontSize: 18,
+          fontSize: 22,
+        },
+        xxlarge: {
+          fontSize: 26,
         }
       },
       align: {
@@ -83,6 +90,11 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, align, ...props 
         },
         right: {
           textAlign: 'right'
+        }
+      },
+      bold: {
+        true: {
+          fontWeight: 'bold'
         }
       }
     },
@@ -97,6 +109,7 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, align, ...props 
     color,
     size,
     align,
+    bold,
   });
 
   return (

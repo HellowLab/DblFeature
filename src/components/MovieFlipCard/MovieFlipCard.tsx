@@ -3,9 +3,10 @@ import { View, Text, ImageBackground, TouchableOpacity, Button } from "react-nat
 import FlipCard from "react-native-flip-card";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
-
+import { useTheme } from "@react-navigation/native";
 import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
+import MyText from "../TextOutput/TextOutput";
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
@@ -23,6 +24,21 @@ interface MovieCardProps {
  * @returns {JSX.Element} The MovieFlipCard component.
  */
 const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
+  const { colors } = useTheme();
+  const [isLiked, setIsLiked] = React.useState<boolean>(movieResult?.liked || false);
+  const [isDisliked, setIsDisliked] = React.useState<boolean>(!movieResult?.liked || false);
+
+  const handleLikePress = () => {
+    setIsLiked(!isLiked); // toggle the like state
+    setIsDisliked(false); // anytime like is pressed, set dislike to false
+  }
+
+  const handleDislikePress = () => {
+    setIsDisliked(!isDisliked); // toggle the dislike state
+    setIsLiked(false); // anytime dislike is pressed, set like to false
+  }
+
+  // console.log("MovieResult", movieResult);
   return (
     <View style={styles.movieCardContainer}>
       <FlipCard
@@ -41,43 +57,68 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
             imageStyle={styles.backgroundImage}
           >
             <View style={styles.footer}>
-              <Text style={styles.movieTitle}>{movie.title}</Text>
-              <TouchableOpacity style={styles.addButton}>
-                <Ionicons name="add-circle" size={24} color="green" />
-              </TouchableOpacity>
+              <View style={[styles.card, styles.cardBack, {justifyContent: "space-between", borderColor: colors.border}]}>
+                <MyText size="xxlarge" bold={true} align="center">{movie.title}</MyText>
+                <MyText size="large" bold={true} color="normal" align="center">{movie.overview}</MyText>
+                <View style={{gap: 8}}>
+                  <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+                    <TouchableOpacity onPress={handleDislikePress}>
+                      <Ionicons
+                        name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
+                        type="ionicons"
+                        color={isDisliked ? "red" : colors.text}
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                    <StarRating />
+                    <TouchableOpacity onPress={handleLikePress}>
+                      <Ionicons
+                        name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
+                        type="ionicons"
+                        color={isLiked? "green" : colors.text}
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                    <MyText color="normal" align="center">Release Date: {movie.release_date}</MyText>
+                    <MyText color="normal" align="center">TMDB Rating: {movie.vote_average}</MyText>
+                  </View>
+                </View>
+              </View>
             </View>
           </ImageBackground>
         </View>
         {/* Back Side of the Card */}
-        <View style={[styles.card, styles.cardBack]}>
-          <Text style={styles.movieTitle}>{movie.title}</Text>
-          <Text style={styles.movieOverview}>{movie.overview}</Text>
-          <Text style={styles.movieDetailText}>
-            Release Date: {movie.release_date}
-          </Text>
-          <Text style={styles.movieDetailText}>
-            Rating: {movie.vote_average}
-          </Text>
-          {movieResult && (
-            <Text style={styles.movieDetailText}>
-              Liked by you: {movieResult.liked ? "Yes" : "No"}
-            </Text>
-          )}
-          <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>        
-            <Ionicons
-              name="thumbs-down"
-              type="font-awesome"
-              color="red"
-              size={24}
-            />
-            <StarRating />
-            <Ionicons
-              name="thumbs-up"
-              type="font-awesome"
-              color="green"
-              size={24}
-            />
+        <View style={[styles.card, styles.cardBack, {justifyContent: "space-between", backgroundColor:colors.background, borderColor: colors.border}]}>
+          <MyText size="xxlarge" bold={true} align="center">{movie.title}</MyText>
+          <MyText size="large" color="normal" align="center">{movie.overview}</MyText>
+          <View style={{gap: 8}}>
+            <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+              <TouchableOpacity onPress={handleDislikePress}>
+                <Ionicons
+                  name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
+                  type="ionicons"
+                  color={isDisliked ? "red" : colors.text}
+                  size={30}
+                />
+              </TouchableOpacity>
+              <StarRating />
+              <TouchableOpacity onPress={handleLikePress}>
+                <Ionicons
+                  name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
+                  type="ionicons"
+                  color={isLiked? "green" : colors.text}
+                  size={30}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+              <MyText color="normal" align="center">Release Date: {movie.release_date}</MyText>
+              <MyText color="normal" align="center">TMDB Rating: {movie.vote_average}</MyText>
+            </View>
           </View>
+          
           {/* Additional movie details can be added here */}
         </View>
       </FlipCard>

@@ -34,7 +34,8 @@ export const styles = StyleSheet.create({
     borderRadius: 20, // Full border radius for the image background
   },
   cardBack: {
-    backgroundColor: "#f8f9fa",
+    justifyContent: "flex-start",
+    gap: 16,
     padding: 20,
     borderRadius: 20,
     borderWidth: 1,
@@ -49,7 +50,8 @@ export const styles = StyleSheet.create({
     borderRadius: 20, // Full border radius for the image
   },
   footer: {
-    height: 60, // Fixed height for footer
+    flex: 1,
+    // height: 60, // Fixed height for footer
     backgroundColor: "rgba(0, 0, 0, 0.8)", // Make the footer slightly transparent
     flexDirection: "row",
     alignItems: "center",
