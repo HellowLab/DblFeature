@@ -44,7 +44,11 @@ const HomeScreen = () => {
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
             : "",
           bio: movie.overview,
+          cast: [], // TODO: get array of cast members
+          crew: [], // TODO: get array of crew members
+          reviews: [], /// TODO: get array of reviews
         }));
+
         setMovies(formattedMovies);
       } catch (error) {
         console.error("Error fetching movies:", error);

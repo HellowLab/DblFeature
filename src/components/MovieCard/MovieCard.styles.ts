@@ -1,42 +1,181 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  card: {
+  cardWrapper: {
     width: "100%",
     height: "100%",
-    borderRadius: 10,
-    backgroundColor: "#fefefe",
-
-    // Used React Native Shadow Creator to get these shadow styles
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  card: {
+    width: "100%",
+    minWidth: 400,
+    maxWidth: 400,
+    height: "100%",
+    borderRadius: 20,
+    backgroundColor: "transparent",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 5,
     },
-    shadowOpacity: 0.36,
+    shadowOpacity: 0.4,
     shadowRadius: 6.68,
-
-    elevation: 11,
+    elevation: 15,
+    position: "relative",
+    overflow: "hidden", // Ensure rounded corners are applied
+  },
+  header: {
+    backgroundColor: "black",
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderTopLeftRadius: 20, // Rounded corners for the header
+    borderTopRightRadius: 20,
+  },
+  imageContainer: {
+    flex: 1,
+    overflow: "hidden", // To avoid the image bleeding over the edges
   },
   image: {
+    flex: 1,
     width: "100%",
     height: "100%",
-    borderRadius: 10,
-    overflow: "hidden",
-
-    justifyContent: "flex-end",
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  imageStyle: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "stretch", // Ensure the image covers the entire area
+    borderRadius: 0, // Squared corners for the image
   },
   cardInner: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  footer: {
+    backgroundColor: "black",
     padding: 10,
+    borderBottomLeftRadius: 20, // Rounded corners for the footer
+    borderBottomRightRadius: 20,
   },
   name: {
     fontSize: 30,
     color: "white",
     fontWeight: "bold",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 3,
   },
   bio: {
     fontSize: 18,
     color: "white",
     lineHeight: 24,
+    textAlign: "center",
+    paddingHorizontal: 15,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  pageContent: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 15,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  section: {
+    width: "100%",
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ccc",
+    marginBottom: 5,
+  },
+  member: {
+    fontSize: 16,
+    color: "white",
+    marginBottom: 5,
+  },
+  review: {
+    fontSize: 16,
+    color: "white",
+    marginVertical: 5,
+  },
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 10,
+    position: "absolute",
+    bottom: 15,
+    left: 0,
+    right: 0,
+  },
+  pageIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeIndicator: {
+    backgroundColor: "white",
+  },
+  swipeAreaLeft: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "50%",
+    height: "100%",
+    zIndex: 10,
+  },
+  swipeAreaRight: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "50%",
+    height: "100%",
+    zIndex: 10,
   },
 });
