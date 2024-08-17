@@ -20,7 +20,7 @@ import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import MyText from "@/src/components/TextOutput/TextOutput";
 
-import { updateMovieResult } from "@/src/utils/APIs/api";
+import { createMovieResult } from "@/src/utils/APIs/api";
 import React from "react";
 
 /**

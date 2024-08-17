@@ -14,7 +14,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./MyMoviesScreen.styles";
 
 // Import API functions
-import { getMovieResults } from "@/src/utils/APIs/api";
+import { getMovieResults, createMovieResult } from "@/src/utils/APIs/api";
 import { getMovieDetails } from "@/src/utils/APIs/TMDB";
 
 // Import Types
@@ -24,7 +24,6 @@ import { tmdbMovie } from "@/src/utils/types/types";
 // Import theme / colors
 import { useTheme } from "@react-navigation/native";
 import MyText from "@/src/components/TextOutput/TextOutput";
-import MyButton from "@/src/components/Buttons/Button";
 import MovieFlipCard from "@/src/components/MovieFlipCard";
 
 /**
@@ -48,8 +47,8 @@ const MovieResultsScreen = (): JSX.Element => {
   // State to hold the selected movie item to display in the modal
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
-  const [selectedMovieResult, setSelectedMovieResult] =
-    useState<DjangoMovie | null>(null);
+  const [selectedMovieResult, setSelectedMovieResult] = useState<DjangoMovie | null>(null);
+  
   /**
    * Fetches movie results from the API, sorts them by ID in descending order,
    * and filters out duplicate movies based on their tmdb_id.

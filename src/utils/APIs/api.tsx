@@ -46,7 +46,7 @@ api.interceptors.request.use(
  * @param params data to send for the API call
  * @returns API response
  */
-export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", params?: object,) => {
+export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH" | "PUT", data?: object, params?: object,) => {
   console.log(fetchtype +": " + (API_BASE_URL + url));
   console.log(JSON.stringify(params));
 
@@ -57,15 +57,19 @@ export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH", 
     // try to make the api call
     try {
       if (fetchtype == "POST") {
-        res = await api.post(url,params)
+        res = await api.post(url,data)
       }
     
       if (fetchtype == "PATCH") {
-        res = await api.patch(url,params)
+        res = await api.patch(url,data, params=params)
       }
     
       if (fetchtype == "GET") {
         res = await api.get(url, params=params)
+      }
+      if (fetchtype == "PUT") {
+        console.log("params: ", params)
+        res = await api.put(url, data, params=params)
       }
       return res;
     }
@@ -125,7 +129,13 @@ const handleAxiosError = (axiosError: AxiosError<ErrorResponse>) => {
   }
   return axiosError
 }
-// login
+
+/**
+ * 
+ * @param username username for user to be logged in
+ * @param password password for user to be logged in
+ * @returns api response
+ */
 export const login = async (username: string, password: string) => {
   const data = {username: username, password: password};
   try {
@@ -182,6 +192,7 @@ export const isTokenValid = async (token: string) => {
   const data = {token: token};
   try {
     const response = await myfetch('auth/token/verify/', "POST", data);
+    console.log(response)
     if (response.status == 200) {
       return true;
     }
@@ -201,7 +212,16 @@ export const isTokenValid = async (token: string) => {
   }
 }
 
-// register new user
+/**
+ * 
+ * @param email email for new user
+ * @param password1 password for new user
+ * @param password2 password again for new user
+ * @param firstname first name for new user
+ * @param lastname last name for new user
+ * @param username username for new user
+ * @returns api response
+ */
 export const registerUser = async (email: string, password1: string, password2: string, firstname: string, lastname: string, username: string) => {
   const data = {
     email: email, 
@@ -226,8 +246,15 @@ export const registerUser = async (email: string, password1: string, password2: 
   }
 }
 
-// Update Movie Swipe
-export const updateMovieResult = async (movieId: number, movieName: string, liked: boolean, poster: string) => {
+/**
+ * 
+ * @param movieId tmdb ID of the movie
+ * @param movieName name of the move
+ * @param liked boolean for if the movie was added to watchlist by user
+ * @param poster movie poster url
+ * @returns api response
+ */
+export const createMovieResult = async (movieId?: number, movieName?: string, liked?: boolean, poster?: string) => {
   const data = {
     tmdb_id: movieId, 
     name: movieName, 
@@ -255,6 +282,43 @@ export const updateMovieResult = async (movieId: number, movieName: string, like
 export const getMovieResults = async () => {
   try {
     const response = await myfetch('dblfeature/movieresult/', "GET");
+    return response;
+  } 
+  catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);
+      return errorResponse
+    } else {
+      // Non-Axios error
+      console.error('Error:', error);
+      // setError('Error: An unexpected error occurred.');
+    }
+  }
+}
+
+/**
+ * 
+ * @param movieId tmdb ID of the movie
+ * @param movieName name of the move
+ * @param liked boolean for if the movie was added to watchlist by user
+ * @param poster movie poster url
+ * @returns api response
+ */
+export const updateMovieResult = async (id: number, liked?: boolean | undefined, myRating?: number | undefined) => {
+  const data = {
+    id: id,
+    liked: liked,
+    myRating: myRating,  
+  };
+  
+  const params = {
+    id: id
+  }
+
+  try {
+    const response = await myfetch('dblfeature/movieresult/', "PUT", data, params );
+    console.log("PUT response: ", response)
     return response;
   } 
   catch (error) {

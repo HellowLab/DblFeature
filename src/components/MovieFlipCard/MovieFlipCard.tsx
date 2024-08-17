@@ -8,6 +8,8 @@ import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 import MyText from "../TextOutput/TextOutput";
 
+import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
+
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
   movie: tmdbMovie;
@@ -31,11 +33,33 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   const handleLikePress = () => {
     setIsLiked(!isLiked); // toggle the like state
     setIsDisliked(false); // anytime like is pressed, set dislike to false
+    let likedBool = null
+
+    if (isLiked) {
+      const likedBool = true
+    }
+
+
+    // if the movie exists update the result. otherwise create a new movieResult in 
+    if (movieResult) {
+      updateMovieResult(movieResult.id, likedBool )
+    }
+    else {
+      createMovieResult(movie.id, movie.title, isLiked)
+    }
   }
 
   const handleDislikePress = () => {
     setIsDisliked(!isDisliked); // toggle the dislike state
     setIsLiked(false); // anytime dislike is pressed, set like to false
+
+    // if the movie exists update the result. otherwise create a new movieResult in 
+    if (movieResult) {
+      updateMovieResult(movieResult?.id, )
+    }
+    else {
+      createMovieResult(movie.id, movie.title, isLiked)
+    }
   }
 
   // console.log("MovieResult", movieResult);
