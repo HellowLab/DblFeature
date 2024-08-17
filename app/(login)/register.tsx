@@ -62,7 +62,7 @@ const RegisterScreen = () => {
         userName
       );
       // if the login is successful
-      console.log(res.status);
+      // console.log(res.status);
       if (res?.status == 201) {
         console.log("registration success");
         saveToken(res.data.access, res.data.refresh);

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, useWindowDimensions } from "react-native";
-import { fetchMovies, Movie } from "@/src/utils/APIs/TMDB";
+import { fetchMovies } from "@/src/utils/APIs/TMDB";
 import LoadingIndicator from "../../components/LoadingIndicator";
 //@ts-ignore
 import LIKE from "../../assets/images/LIKE.png";
@@ -10,7 +10,7 @@ import MovieCard, { MovieCardProps } from "@/src/components/MovieCard";
 import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
 import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
-
+import { tmdbMovie } from "@/src/utils/types/types"
 /**
  * HomeScreen Component
  *
@@ -36,7 +36,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const getMovies = async () => {
       try {
-        const moviesData: Movie[] = await fetchMovies(1);
+        const moviesData: tmdbMovie[] = await fetchMovies(1);
         const formattedMovies: MovieCardProps[] = moviesData.map((movie) => ({
           id: movie.id,
           name: movie.title,

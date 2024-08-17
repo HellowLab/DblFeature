@@ -31,34 +31,41 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   const [isDisliked, setIsDisliked] = React.useState<boolean>(!movieResult?.liked || false);
 
   const handleLikePress = () => {
+    let likedValue = 2; // set default value to "neither"
+    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+    if (!isLiked) {
+      likedValue = 1 // set to "liked" if prev val of isLiked is false
+    }
+
     setIsLiked(!isLiked); // toggle the like state
     setIsDisliked(false); // anytime like is pressed, set dislike to false
-    let likedBool = null
-
-    if (isLiked) {
-      const likedBool = true
-    }
 
 
     // if the movie exists update the result. otherwise create a new movieResult in 
     if (movieResult) {
-      updateMovieResult(movieResult.id, likedBool )
+      updateMovieResult(movieResult.id, likedValue)
     }
     else {
-      createMovieResult(movie.id, movie.title, isLiked)
+      createMovieResult(movie.id, movie.title, likedValue)
     }
   }
 
   const handleDislikePress = () => {
+    let likedValue = 2; // set default value to "neither"
+    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+    if (!isDisliked) {
+      likedValue = 0 // set to "liked" if prev val of isLiked is false
+    }
+
     setIsDisliked(!isDisliked); // toggle the dislike state
     setIsLiked(false); // anytime dislike is pressed, set like to false
-
+   
     // if the movie exists update the result. otherwise create a new movieResult in 
     if (movieResult) {
-      updateMovieResult(movieResult?.id, )
+      updateMovieResult(movieResult?.id, likedValue)
     }
     else {
-      createMovieResult(movie.id, movie.title, isLiked)
+      createMovieResult(movie.id, movie.title, likedValue)
     }
   }
 

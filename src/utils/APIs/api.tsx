@@ -192,7 +192,7 @@ export const isTokenValid = async (token: string) => {
   const data = {token: token};
   try {
     const response = await myfetch('auth/token/verify/', "POST", data);
-    console.log(response)
+    // console.log(response)
     if (response.status == 200) {
       return true;
     }
@@ -250,11 +250,11 @@ export const registerUser = async (email: string, password1: string, password2: 
  * 
  * @param movieId tmdb ID of the movie
  * @param movieName name of the move
- * @param liked boolean for if the movie was added to watchlist by user
+ * @param liked integer for if the movie was added to watchlist by user[0:disliked, 1: liked, 2: null/neither]
  * @param poster movie poster url
  * @returns api response
  */
-export const createMovieResult = async (movieId?: number, movieName?: string, liked?: boolean, poster?: string) => {
+export const createMovieResult = async (movieId?: number, movieName?: string, liked?: number, poster?: string) => {
   const data = {
     tmdb_id: movieId, 
     name: movieName, 
@@ -305,20 +305,17 @@ export const getMovieResults = async () => {
  * @param poster movie poster url
  * @returns api response
  */
-export const updateMovieResult = async (id: number, liked?: boolean | undefined, myRating?: number | undefined) => {
+export const updateMovieResult = async (id: number, liked?: number, myRating?: number) => {
   const data = {
     id: id,
     liked: liked,
     myRating: myRating,  
   };
-  
-  const params = {
-    id: id
-  }
 
+  console.log("Data: ", data)
+  
   try {
-    const response = await myfetch('dblfeature/movieresult/', "PUT", data, params );
-    console.log("PUT response: ", response)
+    const response = await myfetch('dblfeature/movieresult/', "PUT", data );
     return response;
   } 
   catch (error) {

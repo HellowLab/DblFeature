@@ -68,7 +68,6 @@ const MovieResultsScreen = (): JSX.Element => {
           index ===
           self.findIndex((t: DjangoMovie) => t.tmdb_id === item.tmdb_id)
       );
-
       setMovieResults(uniqueData); // Update state with unique, sorted data
     } catch (error) {
       console.error(error); // Log any errors
