@@ -37,10 +37,12 @@ const Index = () => {
         // if the token cannot be found or refreshed, redirect to the login screen
         router.push("/(login)");
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
       router.push("/(login)");
-    } 
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
