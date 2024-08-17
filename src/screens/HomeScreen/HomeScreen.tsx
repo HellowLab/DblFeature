@@ -63,7 +63,7 @@ const HomeScreen = () => {
   // Interpolation for card scaling based on swipe position.
   const scaleAnim = cardPositionX.interpolate({
     inputRange: [-screenWidth, 0, screenWidth],
-    outputRange: [1.16, 0.8, 1.16],
+    outputRange: [1.0, 0.8, 1.0],
     extrapolate: "clamp",
   });
 

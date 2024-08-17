@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
   nextCardContainer: {
     paddingVertical: 20,
     paddingHorizontal: 10,
-    width: "90%",
-    height: "90%",
+    width: "100%",
+    height: "100%",
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
