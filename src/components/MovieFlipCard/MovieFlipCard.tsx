@@ -69,7 +69,6 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
     }
   }
 
-  // console.log("MovieResult", movieResult);
   return (
     <View style={styles.movieCardContainer}>
       <FlipCard

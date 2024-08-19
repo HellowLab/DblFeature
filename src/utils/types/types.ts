@@ -2,7 +2,7 @@
 export interface tmdbMovie {
   id: number;
   title: string;
-  poster_path: string | null; // Movie poster path, can be null
+  poster_path: string; // Movie poster path, can be null
   overview: string; // Short description of the movie
   release_date: string; // Release date of the movie
   vote_average: number; // Average rating of the movie out of 10
@@ -16,9 +16,9 @@ export interface DjangoMovie {
   tmdb_id: number; // The ID of the movie on TMDB
   name: string; // The name of the movie
   poster?: string | null; // Optional or can be null
-  liked: boolean; // Whether the movie is liked or disliked
+  liked: number; // Whether the movie is liked or disliked
   swipeDate: string; // Dates are typically represented as strings in JSON
   watched: boolean; // Whether the movie has been watched
-  myRanking?: number | null; // Optional or can be null
+  myRating?: number | null; // Optional or can be null
   myComments?: string | null; // Optional or can be null
 }

@@ -254,12 +254,13 @@ export const registerUser = async (email: string, password1: string, password2: 
  * @param poster movie poster url
  * @returns api response
  */
-export const createMovieResult = async (movieId?: number, movieName?: string, liked?: number, poster?: string) => {
+export const createMovieResult = async (movieId?: number, movieName?: string, liked?: number, poster?: string, myRating?: number) => {
   const data = {
     tmdb_id: movieId, 
     name: movieName, 
     liked: liked,
-    poster: poster,  
+    poster: poster, 
+    myRating: myRating 
   };
   try {
     const response = await myfetch('dblfeature/movieresult/', "POST", data);

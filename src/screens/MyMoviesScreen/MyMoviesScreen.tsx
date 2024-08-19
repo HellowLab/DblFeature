@@ -25,6 +25,7 @@ import { tmdbMovie } from "@/src/utils/types/types";
 import { useTheme } from "@react-navigation/native";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MovieFlipCard from "@/src/components/MovieFlipCard";
+import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
 
 /**
  * Displays a list of movies that the user has swiped left (disliked) or right (liked) on.
@@ -238,7 +239,11 @@ const MovieResultsScreen = (): JSX.Element => {
               }}
             >
               <TouchableWithoutFeedback>
-                <MovieFlipCard
+                {/* <MovieFlipCard
+                  movie={selectedMovie}
+                  movieResult={selectedMovieResult}
+                /> */}
+                <MovieCardOne
                   movie={selectedMovie}
                   movieResult={selectedMovieResult}
                 />

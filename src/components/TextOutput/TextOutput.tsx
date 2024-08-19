@@ -9,7 +9,7 @@ import { BORDERRADIUS } from '@/src/utils/constants';
 
 
 type TextVariantsProps = {
-  color?: 'normal' | 'error' | 'inverted' | 'primary';
+  color?: 'normal' | 'error' | 'inverted' | 'primary' | 'white' | 'black';
   size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
   align?: 'left' | 'center' | 'right';
   bold?: boolean;
@@ -59,6 +59,12 @@ const MyText: React.FC<MyTextProps> = ({ color, size, align, bold, children, ...
         },
         primary: {
           color: colors.primary
+        },
+        white: {
+          color: colors.white
+        },
+        black: {
+          color: colors.black
         }
       },
       size: {

@@ -11,6 +11,7 @@ import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
 import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
 import { tmdbMovie } from "@/src/utils/types/types"
+
 /**
  * HomeScreen Component
  *

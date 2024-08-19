@@ -1,4 +1,6 @@
 // theme.ts
+
+// colors that are used in both light & dark themes
 const error = '#ef4444';
 const success = '#10b981';
 const p1 = '#0284c7';

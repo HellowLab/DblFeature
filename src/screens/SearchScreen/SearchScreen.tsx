@@ -4,8 +4,11 @@ import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
 import MovieFlipCard from "@/src/components/MovieFlipCard";
-import { searchMovies, getMovieDetails, Movie } from "@/src/utils/APIs/TMDB";
+import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
+
+import { searchMovies, getMovieDetails } from "@/src/utils/APIs/TMDB";
 import SearchItem from "@/src/components/SearchItem";
+import { tmdbMovie } from "@/src/utils/types/types";
 
 const SearchScreen = () => {
   // Get the current theme colors from the navigation context
@@ -14,8 +17,8 @@ const SearchScreen = () => {
   // State variables for managing search query, loading state, search results, and selected movie
   const [query, setQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [results, setResults] = useState<Movie[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [results, setResults] = useState<tmdbMovie[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
 
   /**
    * Handles the search operation by fetching movie data based on the user's query.
@@ -65,7 +68,7 @@ const SearchScreen = () => {
    *
    * @param movie - The movie selected by the user from the search results.
    */
-  const handleSelectMovie = async (movie: Movie) => {
+  const handleSelectMovie = async (movie: tmdbMovie) => {
     setLoading(true);
     try {
       const movieDetails = await getMovieDetails(movie.id);
@@ -89,7 +92,7 @@ const SearchScreen = () => {
    * @param item - The movie item to be rendered.
    * @returns JSX element representing a search item.
    */
-  const renderMovieItem = ({ item }: { item: Movie }) => (
+  const renderMovieItem = ({ item }: { item: tmdbMovie }) => (
     <SearchItem movie={item} onPress={() => handleSelectMovie(item)} />
   );
 
@@ -115,7 +118,9 @@ const SearchScreen = () => {
           style={styles.resultsList}
         />
       ) : (
-        selectedMovie && <MovieFlipCard movie={selectedMovie} />
+        // selectedMovie && <MovieFlipCard movie={selectedMovie} />
+        selectedMovie && <MovieCardOne movie={selectedMovie} />
+
       )}
     </SafeAreaView>
   );
