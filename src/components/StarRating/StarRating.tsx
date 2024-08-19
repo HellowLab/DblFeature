@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useState } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  GestureResponderEvent,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 interface StarRatingProps {
   maxStars?: number;
@@ -8,10 +13,17 @@ interface StarRatingProps {
   onRatingChange?: (rating: number) => void;
 }
 
-const StarRating: React.FC<StarRatingProps> = ({ maxStars = 5, initialRating = 0, onRatingChange }) => {
+const StarRating: React.FC<StarRatingProps> = ({
+  maxStars = 5,
+  initialRating = 0,
+  onRatingChange,
+}) => {
   const [rating, setRating] = useState<number>(initialRating);
 
-  const handleStarPress = (starNumber: number, event: GestureResponderEvent) => {
+  const handleStarPress = (
+    starNumber: number,
+    event: GestureResponderEvent
+  ) => {
     const { locationX } = event.nativeEvent;
     const starWidth = event.target.measure((fx, fy, width) => width);
     const isHalfStar = locationX < 32 / 2;
@@ -28,7 +40,12 @@ const StarRating: React.FC<StarRatingProps> = ({ maxStars = 5, initialRating = 0
     <View style={styles.container}>
       {Array.from({ length: maxStars }, (_, index) => {
         const starNumber = index + 1;
-        const starIcon = rating >= starNumber ? 'star' : (rating >= starNumber - 0.5 ? 'star-half-full' : 'star-o');
+        const starIcon =
+          rating >= starNumber
+            ? "star"
+            : rating >= starNumber - 0.5
+              ? "star-half-full"
+              : "star-o";
 
         return (
           <TouchableOpacity
@@ -39,7 +56,7 @@ const StarRating: React.FC<StarRatingProps> = ({ maxStars = 5, initialRating = 0
             <Icon
               name={starIcon}
               size={32}
-              color={starNumber < rating + 1  ? '#ffd700' : '#d3d3d3'}
+              color={starNumber < rating + 1 ? "#ffd700" : "#d3d3d3"}
             />
           </TouchableOpacity>
         );
@@ -50,9 +67,9 @@ const StarRating: React.FC<StarRatingProps> = ({ maxStars = 5, initialRating = 0
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

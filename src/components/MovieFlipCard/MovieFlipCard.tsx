@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, ImageBackground, TouchableOpacity, Button } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import FlipCard from "react-native-flip-card";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
@@ -27,47 +33,48 @@ interface MovieCardProps {
  */
 const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   const { colors } = useTheme();
-  const [isLiked, setIsLiked] = React.useState<boolean>(movieResult?.liked || false);
-  const [isDisliked, setIsDisliked] = React.useState<boolean>(!movieResult?.liked || false);
+  const [isLiked, setIsLiked] = React.useState<boolean>(
+    movieResult?.liked == 1|| false
+  );
+  const [isDisliked, setIsDisliked] = React.useState<boolean>(
+    movieResult?.liked == 0 || false
+  );
 
   const handleLikePress = () => {
     let likedValue = 2; // set default value to "neither"
     // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
     if (!isLiked) {
-      likedValue = 1 // set to "liked" if prev val of isLiked is false
+      likedValue = 1; // set to "liked" if prev val of isLiked is false
     }
 
     setIsLiked(!isLiked); // toggle the like state
     setIsDisliked(false); // anytime like is pressed, set dislike to false
 
-
-    // if the movie exists update the result. otherwise create a new movieResult in 
+    // if the movie exists update the result. otherwise create a new movieResult in
     if (movieResult) {
-      updateMovieResult(movieResult.id, likedValue)
+      updateMovieResult(movieResult.id, likedValue);
+    } else {
+      createMovieResult(movie.id, movie.title, likedValue);
     }
-    else {
-      createMovieResult(movie.id, movie.title, likedValue)
-    }
-  }
+  };
 
   const handleDislikePress = () => {
     let likedValue = 2; // set default value to "neither"
     // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
     if (!isDisliked) {
-      likedValue = 0 // set to "liked" if prev val of isLiked is false
+      likedValue = 0; // set to "liked" if prev val of isLiked is false
     }
 
     setIsDisliked(!isDisliked); // toggle the dislike state
     setIsLiked(false); // anytime dislike is pressed, set like to false
-   
-    // if the movie exists update the result. otherwise create a new movieResult in 
+
+    // if the movie exists update the result. otherwise create a new movieResult in
     if (movieResult) {
-      updateMovieResult(movieResult?.id, likedValue)
+      updateMovieResult(movieResult?.id, likedValue);
+    } else {
+      createMovieResult(movie.id, movie.title, likedValue);
     }
-    else {
-      createMovieResult(movie.id, movie.title, likedValue)
-    }
-  }
+  };
 
   return (
     <View style={styles.movieCardContainer}>
@@ -87,14 +94,34 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
             imageStyle={styles.backgroundImage}
           >
             <View style={styles.footer}>
-              <View style={[styles.card, styles.cardBack, {justifyContent: "space-between", borderColor: colors.border}]}>
-                <MyText size="xxlarge" bold={true} align="center">{movie.title}</MyText>
-                <MyText size="large" bold={true} color="normal" align="center">{movie.overview}</MyText>
-                <View style={{gap: 8}}>
-                  <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+              <View
+                style={[
+                  styles.card,
+                  styles.cardBack,
+                  {
+                    justifyContent: "space-between",
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <MyText size="xxlarge" bold={true} align="center">
+                  {movie.title}
+                </MyText>
+                <MyText size="large" bold={true} color="normal" align="center">
+                  {movie.overview}
+                </MyText>
+                <View style={{ gap: 8 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
                     <TouchableOpacity onPress={handleDislikePress}>
                       <Ionicons
-                        name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
+                        name={
+                          isDisliked ? "thumbs-down" : "thumbs-down-outline"
+                        }
                         type="ionicons"
                         color={isDisliked ? "red" : colors.text}
                         size={30}
@@ -105,14 +132,23 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
                       <Ionicons
                         name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
                         type="ionicons"
-                        color={isLiked? "green" : colors.text}
+                        color={isLiked ? "green" : colors.text}
                         size={30}
                       />
                     </TouchableOpacity>
                   </View>
-                  <View style={{flexDirection: "row", justifyContent:"space-between"}}>
-                    <MyText color="normal" align="center">Release Date: {movie.release_date}</MyText>
-                    <MyText color="normal" align="center">TMDB Rating: {movie.vote_average}</MyText>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <MyText color="normal" align="center">
+                      Release Date: {movie.release_date}
+                    </MyText>
+                    <MyText color="normal" align="center">
+                      TMDB Rating: {movie.vote_average}
+                    </MyText>
                   </View>
                 </View>
               </View>
@@ -120,11 +156,27 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
           </ImageBackground>
         </View>
         {/* Back Side of the Card */}
-        <View style={[styles.card, styles.cardBack, {justifyContent: "space-between", backgroundColor:colors.background, borderColor: colors.border}]}>
-          <MyText size="xxlarge" bold={true} align="center">{movie.title}</MyText>
-          <MyText size="large" color="normal" align="center">{movie.overview}</MyText>
-          <View style={{gap: 8}}>
-            <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <View
+          style={[
+            styles.card,
+            styles.cardBack,
+            {
+              justifyContent: "space-between",
+              backgroundColor: colors.background,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <MyText size="xxlarge" bold={true} align="center">
+            {movie.title}
+          </MyText>
+          <MyText size="large" color="normal" align="center">
+            {movie.overview}
+          </MyText>
+          <View style={{ gap: 8 }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+            >
               <TouchableOpacity onPress={handleDislikePress}>
                 <Ionicons
                   name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
@@ -138,17 +190,23 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
                 <Ionicons
                   name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
                   type="ionicons"
-                  color={isLiked? "green" : colors.text}
+                  color={isLiked ? "green" : colors.text}
                   size={30}
                 />
               </TouchableOpacity>
             </View>
-            <View style={{flexDirection: "row", justifyContent:"space-between"}}>
-              <MyText color="normal" align="center">Release Date: {movie.release_date}</MyText>
-              <MyText color="normal" align="center">TMDB Rating: {movie.vote_average}</MyText>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <MyText color="normal" align="center">
+                Release Date: {movie.release_date}
+              </MyText>
+              <MyText color="normal" align="center">
+                TMDB Rating: {movie.vote_average}
+              </MyText>
             </View>
           </View>
-          
+
           {/* Additional movie details can be added here */}
         </View>
       </FlipCard>

@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Modal, TouchableWithoutFeedback, SafeAreaView, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Modal,
+  TouchableWithoutFeedback,
+  SafeAreaView,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
@@ -23,8 +30,9 @@ const SearchScreen = () => {
 
   // State to hold the selected movie item to display in the modal
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMovieResult, setSelectedMovieResult] = useState<DjangoMovie | null>(null);
-  
+  const [selectedMovieResult, setSelectedMovieResult] =
+    useState<DjangoMovie | null>(null);
+
   /**
    * Handles the search operation by fetching movie data based on the user's query.
    * If the query is longer than 2 characters, it initiates an API call to search for movies.
@@ -77,7 +85,7 @@ const SearchScreen = () => {
     // setLoading(true);
     const movieDetails = await getMovieDetails(movie.id);
 
-    try {      
+    try {
       const movieResultResponse = await getMyMovie(undefined, movie.id);
       console.log("movieResultResponse", movieResultResponse);
       if (movieResultResponse.status === 200) {
@@ -91,12 +99,11 @@ const SearchScreen = () => {
       setLoading(false);
     }
 
-    
-      // Update the selected movie and clear the search results
-      setSelectedMovie(movieDetails);
-      setModalVisible(true);
-      // setResults([]);
-      // setQuery(movie.title);
+    // Update the selected movie and clear the search results
+    setSelectedMovie(movieDetails);
+    setModalVisible(true);
+    // setResults([]);
+    // setQuery(movie.title);
   };
 
   /**

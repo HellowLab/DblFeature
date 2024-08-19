@@ -49,8 +49,9 @@ const MovieResultsScreen = (): JSX.Element => {
   // State to hold the selected movie item to display in the modal
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
-  const [selectedMovieResult, setSelectedMovieResult] = useState<DjangoMovie | null>(null);
-  
+  const [selectedMovieResult, setSelectedMovieResult] =
+    useState<DjangoMovie | null>(null);
+
   /**
    * Fetches movie results from the API, sorts them by ID in descending order,
    * and filters out duplicate movies based on their tmdb_id.
@@ -138,7 +139,9 @@ const MovieResultsScreen = (): JSX.Element => {
   );
 
   // Separate movies into liked and disliked categories
-  const likedMovies = movieResults.filter((movie: DjangoMovie) => movie.liked == 1);
+  const likedMovies = movieResults.filter(
+    (movie: DjangoMovie) => movie.liked == 1
+  );
   const dislikedMovies = movieResults.filter(
     (movie: DjangoMovie) => movie.liked == 0
   );

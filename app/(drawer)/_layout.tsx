@@ -43,7 +43,7 @@ export default function Layout() {
         initialRouteName="(tabs)"
       >
         {/* Define different screens available in the drawer */}
-        <Drawer.Screen name="(tabs)" options={{ title: "Home" }}/>
+        <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
         {/* <Drawer.Screen name="(home)" options={{ title: "Home" }} />
         <Drawer.Screen name="(mymovies)" options={{ title: "My Movies" }} />
         <Drawer.Screen name="(matches)" options={{ title: "My Matches" }} />
