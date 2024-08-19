@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   cardWrapper: {
     width: "100%",
-    height: "100%",
+    height: "95%",
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
