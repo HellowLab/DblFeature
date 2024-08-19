@@ -22,3 +22,10 @@ export interface DjangoMovie {
   myRating?: number | null; // Optional or can be null
   myComments?: string | null; // Optional or can be null
 }
+
+// API response object 
+export interface APIResponse {
+  data: any;
+  status: number;
+  message?: string;
+}

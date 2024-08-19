@@ -55,33 +55,36 @@ const MovieResultsScreen = (): JSX.Element => {
    * and filters out duplicate movies based on their tmdb_id.
    */
   const fetchMovieResults = async () => {
-    try {
-      const response = await getMovieResults();
+    // Only fetch movie results if the modal is not visible
+    if (modalVisible == false) {
+      try {
+        const response = await getMovieResults();
 
-      // Sort data by movie ID in descending order
-      const sortedData: DjangoMovie[] = response.data.sort(
-        (a: DjangoMovie, b: DjangoMovie) => b.id - a.id
-      );
+        // Sort data by movie ID in descending order
+        const sortedData: DjangoMovie[] = response.data.sort(
+          (a: DjangoMovie, b: DjangoMovie) => b.id - a.id
+        );
 
-      // Filter out duplicate movies based on their tmdb_id
-      const uniqueData: DjangoMovie[] = sortedData.filter(
-        (item: DjangoMovie, index: number, self: DjangoMovie[]) =>
-          index ===
-          self.findIndex((t: DjangoMovie) => t.tmdb_id === item.tmdb_id)
-      );
-      setMovieResults(uniqueData); // Update state with unique, sorted data
-    } catch (error) {
-      console.error(error); // Log any errors
-    } finally {
-      setLoading(false); // Set loading to false after data is fetched
-      setRefreshing(false); // Stop the refresh indicator
+        // Filter out duplicate movies based on their tmdb_id
+        const uniqueData: DjangoMovie[] = sortedData.filter(
+          (item: DjangoMovie, index: number, self: DjangoMovie[]) =>
+            index ===
+            self.findIndex((t: DjangoMovie) => t.tmdb_id === item.tmdb_id)
+        );
+        setMovieResults(uniqueData); // Update state with unique, sorted data
+      } catch (error) {
+        console.error(error); // Log any errors
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
+        setRefreshing(false); // Stop the refresh indicator
+      }
     }
   };
 
-  // Fetch movie results on component mount
+  // Fetch movie results on component mount and when the modal visibility changes
   useEffect(() => {
     fetchMovieResults();
-  }, []);
+  }, [modalVisible]);
 
   // Refresh the list of movies when the user pulls down to refresh
   const handleRefresh = () => {

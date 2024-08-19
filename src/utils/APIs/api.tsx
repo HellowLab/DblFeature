@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosInstance  } from 'axios';
 import { getToken, getRefreshToken, saveToken } from '../store/TokenStore';
 import { router } from 'expo-router';
+import { APIResponse } from '../types/types';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -24,7 +25,6 @@ api.interceptors.request.use(
       const token = await getToken();
       // If a token exists, add it to the Authorization header
       if (token) {
-          // console.log("token: ", token)
           config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
@@ -262,6 +262,7 @@ export const createMovieResult = async (movieId?: number, movieName?: string, li
     poster: poster, 
     myRating: myRating 
   };
+
   try {
     const response = await myfetch('dblfeature/movieresult/', "POST", data);
     return response;
@@ -312,12 +313,13 @@ export const updateMovieResult = async (id: number, liked?: number, myRating?: n
     liked: liked,
     myRating: myRating,  
   };
-
-  console.log("Data: ", data)
   
   try {
-    const response = await myfetch('dblfeature/movieresult/', "PUT", data );
-    return response;
+    const res = await myfetch('dblfeature/movieresult/', "PUT", data );
+    if (res.status == 200) {
+      const apiRes: APIResponse = {data: res.data, status: res.status, message: "Movie Result Updated"};
+      return apiRes;
+    }
   } 
   catch (error) {
     if (axios.isAxiosError(error)) {

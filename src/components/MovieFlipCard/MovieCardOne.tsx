@@ -4,7 +4,7 @@ import FlipCard from "react-native-flip-card";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
 import { useTheme } from "@react-navigation/native";
-import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
+import { tmdbMovie, DjangoMovie, APIResponse } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 import MyText from "../TextOutput/TextOutput";
 
@@ -25,60 +25,74 @@ interface MovieCardProps {
  * @param {DjangoMovie} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
  * @returns {JSX.Element} The MovieFlipCard component.
  */
-const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
+const MovieCardOne: React.FC<MovieCardProps> =  ({ movie, movieResult }) => {
   const { colors } = useTheme();
   const [showMovieText, setShowMovieText] = React.useState<boolean>(true);
   const [isLiked, setIsLiked] = React.useState<boolean>(movieResult?.liked === 1);
   const [isDisliked, setIsDisliked] = React.useState<boolean>(movieResult?.liked === 0);
 
-  const handleLikePress = () => {
+  const handleLikeButtons = async (button: number) => {
     let likedValue = 2; // set default value to "neither"
-    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
-    if (!isLiked) {
-      likedValue = 1 // set to "liked" if prev val of isLiked is false
-    }
-
-    setIsLiked(!isLiked); // toggle the like state
-    setIsDisliked(false); // anytime like is pressed, set dislike to false
-
-    // if the movie exists update the result. otherwise create a new movieResult in 
-    if (movieResult) {
-      updateMovieResult(movieResult.id, likedValue)
-    }
-    else {
-      createMovieResult(movie.id, movie.title, likedValue)
-    }
-  }
-
-  const handleDislikePress = async () => {
-    let likedValue = 2; // set default value to "neither"
-    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
-    if (!isDisliked) {
-      likedValue = 0 // set to "liked" if prev val of isLiked is false
-    }
-
-    setIsDisliked(!isDisliked); // toggle the dislike state
-    setIsLiked(false); // anytime dislike is pressed, set like to false
-   
-    // if the movie exists update the result. otherwise create a new movieResult in 
-    if (movieResult) {
-      const res = await updateMovieResult(movieResult?.id, likedValue)
-      console.log("movie res", res)
-    }
-    else {
-      createMovieResult(movie.id, movie.title, likedValue)
-    }
-  }
-
-  const handleStarPress = (rating: number) => {
-    if (movieResult) {
-      updateMovieResult(movieResult?.id, movieResult.liked,rating)
-    }
-    else {
-      if (movie){
-        // create a new movie result with the rating, set the liked to 2 (neither liked nor disliked)
-        createMovieResult(movie.id, movie.title, 2, movie.poster_path, rating)
+    if (button === 1) {
+      // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+      if (!isLiked) {
+        likedValue = 1 // set to "liked" if prev val of isLiked is false
       }
+      setIsLiked(!isLiked); // toggle the like state
+      setIsDisliked(false); // anytime like is pressed, set dislike to false
+    } 
+    else if (button === 0) {
+      // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+      if (!isDisliked) {
+        likedValue = 0 // set to "liked" if prev val of isLiked is false
+      }
+      setIsDisliked(!isDisliked); // toggle the dislike state
+      setIsLiked(false); // anytime dislike is pressed, set like to false
+    }
+
+    let res: APIResponse
+    // if the movie exists update the result. otherwise create a new movieResult in 
+    if (movieResult) {
+      res = await updateMovieResult(movieResult.id, likedValue)
+    }
+    else {
+      res = await createMovieResult(movie.id, movie.title, likedValue, movie.poster_path)
+    }
+
+    // if res is successful 200 or 201, set the movieResult to the response data
+    // else set error text and revert the button state
+    if (res.status === 200 || res.status === 201) {
+        movieResult = res.data
+      }
+    else {
+      console.error(res.message)
+      if (button === 1) {
+        setIsLiked(!isLiked)
+      }
+      else {
+        setIsDisliked(!isDisliked)
+      }
+    }
+  }
+
+  const handleStarPress = async (rating: number) => {
+    let res: APIResponse;
+    if (movieResult) {
+      res = await updateMovieResult(movieResult?.id, movieResult.liked,rating)
+    }
+    else {
+      // create a new movie result with the rating, set the liked to 2 (neither liked nor disliked)
+      res = await createMovieResult(movie.id, movie.title, 2, movie.poster_path, rating)
+    }
+
+    // if res is successful 200 or 201, set the movieResult to the response data
+    // else set error text and revert the button state
+    if (res.status === 200 || res.status === 201) {
+        movieResult = res.data
+      }
+    else {
+      console.error(res.message)
+      // TODO: set the rating back to the previous value
     }
   }
 
@@ -96,7 +110,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
             <MyText color='white' size="large" bold={true} align="center">{movie.overview}</MyText>
             <View style={{gap: 8}}> 
               <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-                <TouchableOpacity onPress={handleDislikePress}>
+                <TouchableOpacity onPress={() => handleLikeButtons(0)}>
                   <Ionicons
                     name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
                     type="ionicons"
@@ -105,7 +119,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
                   />
                 </TouchableOpacity>
                 <StarRating maxStars={5} initialRating={movieResult?.myRating ?? 0} onRatingChange={handleStarPress} />
-                <TouchableOpacity onPress={handleLikePress}>
+                <TouchableOpacity onPress={() => handleLikeButtons(1)}>
                   <Ionicons
                     name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
                     type="ionicons"
