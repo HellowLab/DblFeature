@@ -31,6 +31,8 @@ const MovieCardOne: React.FC<MovieCardProps> =  ({ movie, movieResult }) => {
   const [isLiked, setIsLiked] = React.useState<boolean>(movieResult?.liked === 1);
   const [isDisliked, setIsDisliked] = React.useState<boolean>(movieResult?.liked === 0);
 
+  const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
+
   const handleLikeButtons = async (button: number) => {
     let likedValue = 2; // set default value to "neither"
     if (button === 1) {
@@ -56,7 +58,8 @@ const MovieCardOne: React.FC<MovieCardProps> =  ({ movie, movieResult }) => {
       res = await updateMovieResult(movieResult.id, likedValue)
     }
     else {
-      res = await createMovieResult(movie.id, movie.title, likedValue, movie.poster_path)
+      // const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
+      res = await createMovieResult(movie.id, movie.title, likedValue, fullPosterPath)
     }
 
     // if res is successful 200 or 201, set the movieResult to the response data
@@ -81,8 +84,9 @@ const MovieCardOne: React.FC<MovieCardProps> =  ({ movie, movieResult }) => {
       res = await updateMovieResult(movieResult?.id, movieResult.liked,rating)
     }
     else {
+      // const fullPosterPath = "https://image.tmdb.org/t/p/w500${movie.poster_path}";
       // create a new movie result with the rating, set the liked to 2 (neither liked nor disliked)
-      res = await createMovieResult(movie.id, movie.title, 2, movie.poster_path, rating)
+      res = await createMovieResult(movie.id, movie.title, 2, fullPosterPath, rating)
     }
 
     // if res is successful 200 or 201, set the movieResult to the response data
@@ -98,7 +102,7 @@ const MovieCardOne: React.FC<MovieCardProps> =  ({ movie, movieResult }) => {
 
   return (
     <ImageBackground
-      source={{uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,}}
+      source={{uri: fullPosterPath,}}
       style={styles.cardImageBackground}
       imageStyle={styles.backgroundImage}
     >

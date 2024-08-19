@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SafeAreaView, FlatList, ActivityIndicator } from "react-native";
+import { View, Modal, TouchableWithoutFeedback, SafeAreaView, FlatList, ActivityIndicator } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
@@ -8,7 +8,8 @@ import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
 
 import { searchMovies, getMovieDetails } from "@/src/utils/APIs/TMDB";
 import SearchItem from "@/src/components/SearchItem";
-import { tmdbMovie } from "@/src/utils/types/types";
+import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
+import { getMyMovie } from "@/src/utils/APIs/api";
 
 const SearchScreen = () => {
   // Get the current theme colors from the navigation context
@@ -20,6 +21,10 @@ const SearchScreen = () => {
   const [results, setResults] = useState<tmdbMovie[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
 
+  // State to hold the selected movie item to display in the modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMovieResult, setSelectedMovieResult] = useState<DjangoMovie | null>(null);
+  
   /**
    * Handles the search operation by fetching movie data based on the user's query.
    * If the query is longer than 2 characters, it initiates an API call to search for movies.
@@ -69,14 +74,15 @@ const SearchScreen = () => {
    * @param movie - The movie selected by the user from the search results.
    */
   const handleSelectMovie = async (movie: tmdbMovie) => {
-    setLoading(true);
-    try {
-      const movieDetails = await getMovieDetails(movie.id);
+    // setLoading(true);
+    const movieDetails = await getMovieDetails(movie.id);
 
-      // Update the selected movie and clear the search results
-      setSelectedMovie(movieDetails);
-      setResults([]);
-      setQuery(movie.title);
+    try {      
+      const movieResultResponse = await getMyMovie(undefined, movie.id);
+      console.log("movieResultResponse", movieResultResponse);
+      if (movieResultResponse.status === 200) {
+        setSelectedMovieResult(movieResultResponse.data);
+      }
     } catch (error) {
       // Log any errors encountered while fetching movie details
       console.error("Error fetching movie details:", error);
@@ -84,6 +90,13 @@ const SearchScreen = () => {
       // Ensure loading state is turned off after fetching movie details
       setLoading(false);
     }
+
+    
+      // Update the selected movie and clear the search results
+      setSelectedMovie(movieDetails);
+      setModalVisible(true);
+      // setResults([]);
+      // setQuery(movie.title);
   };
 
   /**
@@ -110,17 +123,38 @@ const SearchScreen = () => {
       {loading && <ActivityIndicator size="large" color={colors.primary} />}
 
       {/* Display search results if available, otherwise show the selected movie */}
-      {results.length > 0 ? (
+      {results.length > 0 && (
         <FlatList
           data={results}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderMovieItem}
           style={styles.resultsList}
         />
-      ) : (
-        // selectedMovie && <MovieFlipCard movie={selectedMovie} />
-        selectedMovie && <MovieCardOne movie={selectedMovie} />
-
+      )}
+      {selectedMovie && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TouchableWithoutFeedback>
+                <MovieCardOne
+                  movie={selectedMovie}
+                  movieResult={selectedMovieResult}
+                />
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       )}
     </SafeAreaView>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -10,6 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./MyMoviesScreen.styles";
 
@@ -81,10 +82,11 @@ const MovieResultsScreen = (): JSX.Element => {
     }
   };
 
-  // Fetch movie results on component mount and when the modal visibility changes
-  useEffect(() => {
-    fetchMovieResults();
-  }, [modalVisible]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMovieResults();
+    }, [modalVisible])
+  );
 
   // Refresh the list of movies when the user pulls down to refresh
   const handleRefresh = () => {
@@ -136,9 +138,12 @@ const MovieResultsScreen = (): JSX.Element => {
   );
 
   // Separate movies into liked and disliked categories
-  const likedMovies = movieResults.filter((movie: DjangoMovie) => movie.liked);
+  const likedMovies = movieResults.filter((movie: DjangoMovie) => movie.liked == 1);
   const dislikedMovies = movieResults.filter(
-    (movie: DjangoMovie) => !movie.liked
+    (movie: DjangoMovie) => movie.liked == 0
+  );
+  const remainingMovies = movieResults.filter(
+    (movie: DjangoMovie) => movie.liked == 2
   );
 
   // Show a loading indicator while data is being fetched

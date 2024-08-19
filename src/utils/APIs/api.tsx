@@ -61,15 +61,14 @@ export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH" |
       }
     
       if (fetchtype == "PATCH") {
-        res = await api.patch(url,data, params=params)
+        res = await api.patch(url,data, {params})
       }
     
       if (fetchtype == "GET") {
-        res = await api.get(url, params=params)
+        res = await api.get(url, {params})
       }
       if (fetchtype == "PUT") {
-        console.log("params: ", params)
-        res = await api.put(url, data, params=params)
+        res = await api.put(url, data, {params})
       }
       return res;
     }
@@ -78,7 +77,6 @@ export const myfetch = async (url: string, fetchtype: "GET" | "POST" | "PATCH" |
       // if the error is an Axios error caused by the api response.status
       if (axios.isAxiosError(error)) {
         // if error is caused by user not being authenticated, try to refresh the users token
-        handleAxiosError(error as AxiosError<ErrorResponse>);
         if (error.response?.status == 401) {
           const refreshSuccess = await refreshToken();
           if (refreshSuccess) {
@@ -325,6 +323,44 @@ export const updateMovieResult = async (id: number, liked?: number, myRating?: n
     if (axios.isAxiosError(error)) {
       // Axios error
       const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);
+      return errorResponse
+    } else {
+      // Non-Axios error
+      console.error('Error:', error);
+      // setError('Error: An unexpected error occurred.');
+    }
+  }
+}
+
+/**
+ * 
+ * @param tmdb_id tmdb ID of the movie
+ * @param id django ID of the movie
+ * @returns api response
+ */
+export const getMyMovie = async (id?: number, tmdb_id?: number) => {
+  const data = {
+    tmdb_id: tmdb_id
+  };
+
+  console.log("data: ", data)
+  try {
+    const res = await myfetch(`dblfeature/singlemovieresult/`, "GET", undefined, data);
+    if (res.status == 200) {
+      const apiRes: APIResponse = {data: res.data, status: res.status, message: "Single Movie Returned"};
+      return apiRes;
+    }
+    if (res.status == 404) {
+      const apiRes: APIResponse = {data: res.data, status: res.status, message: "Movie Not Found"};
+      return apiRes;
+    }
+    return res;
+  } 
+  catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(error as AxiosError<ErrorResponse>);
+      console.log("my errorResponse: ", errorResponse)
       return errorResponse
     } else {
       // Non-Axios error
