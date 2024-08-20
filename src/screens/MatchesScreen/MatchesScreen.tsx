@@ -1,6 +1,7 @@
 import { View, Text, SafeAreaView, Image } from "react-native";
 import { styles } from "./MatchesScreen.styles";
 import movies from "../../assets/data/users";
+import React from "react";
 
 /**
  * MatchesScreen component that displays the movie matches.

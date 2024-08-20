@@ -1,19 +1,28 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  animatedCard: {
-    width: "90%",
-    height: "70%",
+  currentCardContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "center",
   },
+
   nextCardContainer: {
-    width: "95%",
-    height: "75%",
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
+    alignSelf: "center",
   },
+
   png: {
     width: 150,
     height: 150,

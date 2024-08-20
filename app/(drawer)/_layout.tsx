@@ -20,7 +20,7 @@ import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import MyText from "@/src/components/TextOutput/TextOutput";
 
-import { updateMovieResult } from "@/src/utils/APIs/api";
+import { createMovieResult } from "@/src/utils/APIs/api";
 import React from "react";
 
 /**
@@ -40,16 +40,14 @@ export default function Layout() {
         }}
         // Screen options with header hidden
         screenOptions={{ headerShown: false }}
+        initialRouteName="(tabs)"
       >
         {/* Define different screens available in the drawer */}
-        <Drawer.Screen name="(home)" options={{ title: "Home" }} />
+        <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
+        {/* <Drawer.Screen name="(home)" options={{ title: "Home" }} />
         <Drawer.Screen name="(mymovies)" options={{ title: "My Movies" }} />
         <Drawer.Screen name="(matches)" options={{ title: "My Matches" }} />
-        <Drawer.Screen name="(search)" options={{ title: "Search" }} />
-        <Drawer.Screen
-          name="(tabs)"
-          options={{ title: "Show Tab Navigator" }}
-        />
+        <Drawer.Screen name="(search)" options={{ title: "Search" }} /> */}
       </Drawer>
     </GestureHandlerRootView>
   );

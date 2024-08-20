@@ -1,59 +1,147 @@
-import React, { useEffect, useState } from "react";
-import AnimatedStack from "@/src/components/AnimatedStack";
-import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
-import { fetchMovies, Movie } from "@/src/utils/APIs/TMDB";
-import { MovieCardProps } from "@/src/components/MovieCard";
+import React, { useState, useRef, useEffect } from "react";
+import { View, Animated, useWindowDimensions } from "react-native";
+import { fetchMovies } from "@/src/utils/APIs/TMDB";
 import LoadingIndicator from "../../components/LoadingIndicator";
+//@ts-ignore
+import LIKE from "../../assets/images/LIKE.png";
+//@ts-ignore
+import nope from "../../assets/images/nope.png";
+import MovieCard, { MovieCardProps } from "@/src/components/MovieCard";
+import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
+import Swiper from "@/src/components/Swiper";
+import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
+import { tmdbMovie } from "@/src/utils/types/types"
 
+/**
+ * HomeScreen Component
+ *
+ * This component renders the home screen of the app, displaying a swiper interface
+ * for browsing through a list of movies. It fetches movies from the TMDB API, and
+ * allows users to swipe left or right to indicate their preference for each movie.
+ */
 const HomeScreen = () => {
+  // Get the screen width using the useWindowDimensions hook.
+  const { width: screenWidth } = useWindowDimensions();
+
+  // Create animated values for handling swipe interactions.
+  const likeOpacity = useRef(new Animated.Value(0)).current;
+  const nopeOpacity = useRef(new Animated.Value(0)).current;
+  const cardPositionX = useRef(new Animated.Value(0)).current;
+
+  // State to hold the list of movies and loading state.
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Effect hook to fetch movies when the component mounts
+  // Fetch movies on component mount.
   useEffect(() => {
-    /**
-     * Async function to fetch and format movies data
-     */
     const getMovies = async () => {
       try {
-        // Fetch the movies data from the API (currently just getting the 1st page)
-        const moviesData: Movie[] = await fetchMovies(1);
-        // Format the movies data to match the MovieCardProps structure
+        const moviesData: tmdbMovie[] = await fetchMovies(1);
         const formattedMovies: MovieCardProps[] = moviesData.map((movie) => ({
           id: movie.id,
           name: movie.title,
           image: movie.poster_path
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "", // Provide a default value for image if poster_path is null
+            : "",
           bio: movie.overview,
+          cast: [], // TODO: get array of cast members
+          crew: [], // TODO: get array of crew members
+          reviews: [], /// TODO: get array of reviews
         }));
-        // Update the movies state with the formatted data
+
         setMovies(formattedMovies);
       } catch (error) {
-        // Log any errors that occur during the fetch operation
         console.error("Error fetching movies:", error);
       } finally {
-        // Ensure loading is set to false once the fetch operation is complete
         setLoading(false);
       }
     };
 
-    // Call the async function to fetch movies
     getMovies();
   }, []);
 
-  // Show a loading indicator while the movies data is being fetched
+  // Interpolation for card scaling based on swipe position.
+  const scaleAnim = cardPositionX.interpolate({
+    inputRange: [-screenWidth, 0, screenWidth],
+    outputRange: [1.0, 0.8, 1.0],
+    extrapolate: "clamp",
+  });
+
+  // Current and next movies to be displayed in the swiper.
+  const currentMovie = movies[currentIndex] ?? null;
+  const nextMovie = movies[currentIndex + 1] ?? null;
+
+  /**
+   * Handles the swipe action by the user.
+   *
+   * @param {string} direction - The direction of the swipe ("left" or "right").
+   */
+  const handleSwipe = (direction: string) => {
+    if (direction === "right") {
+      console.log("Swiped Right:", currentMovie);
+      onSwipeRight(currentMovie);
+    } else if (direction === "left") {
+      console.log("Swiped Left:", currentMovie);
+      onSwipeLeft(currentMovie);
+    }
+    // Reset card position and update the index for the next movie.
+    cardPositionX.setValue(0);
+    setCurrentIndex((prevIndex) => prevIndex + 1);
+  };
+
+  // Display a loading indicator while movies are being fetched.
   if (loading) {
     return <LoadingIndicator />;
   }
 
-  // Render the AnimatedStack component with the fetched movies data
   return (
-    <AnimatedStack
-      data={movies}
-      onSwipeRight={onSwipeRight}
-      onSwipeLeft={onSwipeLeft}
-    />
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      {/* Render the next movie card with a scale animation */}
+      {nextMovie && (
+        <Animated.View
+          style={[
+            styles.nextCardContainer,
+            { transform: [{ scale: scaleAnim }] },
+          ]}
+        >
+          <MovieCard movie={nextMovie} />
+        </Animated.View>
+      )}
+
+      {/* Render the current movie card and the swipe interface */}
+      {currentMovie && (
+        <Swiper
+          key={currentIndex}
+          onSwipe={handleSwipe}
+          overlay={{ likeOpacity, nopeOpacity }}
+          preventSwipe={["up", "down"]}
+          cardPositionX={cardPositionX}
+        >
+          <Animated.View style={styles.currentCardContainer}>
+            <Animated.Image
+              source={LIKE}
+              style={[styles.png, { left: 10, opacity: likeOpacity }]}
+              resizeMode="contain"
+            />
+            <Animated.Image
+              source={nope}
+              style={[
+                styles.png,
+                {
+                  right: 10,
+                  top: 10,
+                  opacity: nopeOpacity,
+                  transform: [{ scale: 1.15 }],
+                },
+              ]}
+              resizeMode="contain"
+            />
+            <MovieCard movie={currentMovie} />
+          </Animated.View>
+        </Swiper>
+      )}
+    </View>
   );
 };
 

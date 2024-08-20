@@ -9,8 +9,10 @@ import { BORDERRADIUS } from '@/src/utils/constants';
 
 
 type TextVariantsProps = {
-  color?: 'normal' | 'error' | 'inverted';
-  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+  color?: 'normal' | 'error' | 'inverted' | 'primary' | 'white' | 'black';
+  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
+  align?: 'left' | 'center' | 'right';
+  bold?: boolean;
   // width?: 'full' | "nearfull" | 'auto' | 'small' | 'medium' | 'large';
   // height?: 'small' | 'medium' | 'large' | 'xlarge';
   // intent?: 'normal' | 'password'
@@ -18,12 +20,26 @@ type TextVariantsProps = {
 
 type MyTextProps = TextVariantsProps & TextProps;
 
-
-const MyText: React.FC<MyTextProps> = ({ color, size, children, ...props }) => {
+/**
+ * MyText Component
+ * 
+ * This component renders text with customizable properties such as color, size, and alignment.
+ * It uses the theme colors from the context.
+ * 
+ * @param {Object} props - The properties passed to the component.
+ * @param {string} [props.color] - The color of the text.
+ * @param {'xsmall' | 'small' | 'medium' | 'large' | 'xlarge'} [props.size] - The size of the text.
+ * @param {'left' | 'center' | 'right'} [props.align] - The alignment of the text.
+ * @param {React.ReactNode} props.children - The content to be displayed inside the text component.
+ * 
+ * @returns {JSX.Element} The rendered text component.
+ */
+const MyText: React.FC<MyTextProps> = ({ color, size, align, bold, children, ...props }) => {
   const { colors } = useTheme();
 
   const textsv = sv({
     base: {
+      // textAlign: 'center',
       // borderRadius: BORDERRADIUS,
       // borderWidth: 1,
       // borderColor: colors.border,
@@ -40,11 +56,20 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, ...props }) => {
         },
         inverted: {
           color: colors.inverted
+        },
+        primary: {
+          color: colors.primary
+        },
+        white: {
+          color: colors.white
+        },
+        black: {
+          color: colors.black
         }
       },
       size: {
         xsmall: {
-          fontSize: 10,
+          fontSize: 8,
         },
         small: {
           fontSize: 12,
@@ -53,22 +78,44 @@ const MyText: React.FC<MyTextProps> = ({ color, size, children, ...props }) => {
           fontSize: 14,
         },
         large: {
-          fontSize: 16,
+          fontSize: 18,
         },
         xlarge: {
-          fontSize: 18,
+          fontSize: 22,
+        },
+        xxlarge: {
+          fontSize: 26,
+        }
+      },
+      align: {
+        left: {
+          textAlign: 'left'
+        },
+        center: {
+          textAlign: 'center'
+        },
+        right: {
+          textAlign: 'right'
+        }
+      },
+      bold: {
+        true: {
+          fontWeight: 'bold'
         }
       }
     },
     defaultVariants: {
       color: 'normal',
       size: 'medium',
+      align: 'left'
     },
   });
 
   const textInputStyles = textsv({
     color,
-    size
+    size,
+    align,
+    bold,
   });
 
   return (

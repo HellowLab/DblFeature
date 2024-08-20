@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { getToken, getRefreshToken } from "@/src/utils/store/TokenStore";
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
 import Loader from "@/src/components/loaders/Loader";
 
@@ -26,17 +26,23 @@ const Index = () => {
         const res = await isTokenValid(token);
         console.log("res: ", res);
         if (res) {
+          // Add a 3-second delay before navigating to the drawer screen
+          setTimeout(() => {
+            // this is a good opportunity to refresh other app level data while still in the splash screen
             router.push("/(drawer)");
-          } // Check if the token is still valid
+          }, 3000);
+        }
       }
       else {
         // if the token cannot be found or refreshed, redirect to the login screen
         router.push("/(login)");
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
       router.push("/(login)");
-    } 
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -48,7 +54,7 @@ const Index = () => {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <AppLogo />
-        <Loader />
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }

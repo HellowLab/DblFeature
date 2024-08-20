@@ -1,22 +1,24 @@
 import { Dimensions, StyleSheet } from "react-native";
 
 const { width } = Dimensions.get("window");
-
+const BORDER_RADIUS = 20;
 export const styles = StyleSheet.create({
   movieCardContainer: {
     alignItems: "center",
     justifyContent: "center",
-    flex: 1,
+    height: 500,
+    width: width * 0.9,
+    borderRadius: 20,
   },
   cardContainer: {
-    width: width * 0.9,
-    height: 500,
   },
   card: {
     width: width * 0.9,
     height: 500,
     borderRadius: 20,
     justifyContent: "center",
+    borderWidth: 4,
+    borderColor: "bbb"
   },
   cardShadow: {
     width: width * 0.9,
@@ -31,12 +33,15 @@ export const styles = StyleSheet.create({
     overflow: "hidden", // Add this to clip the content to the border radius
   },
   cardImageBackground: {
-    flex: 1,
-    justifyContent: "flex-end", // Align footer to the bottom
-    borderRadius: 20, // Full border radius for the image background
-  },
+    alignItems: "center",
+    justifyContent: "center",
+    height: 500,
+    width: width * 0.9,
+    borderRadius: BORDER_RADIUS,
+   },
   cardBack: {
-    backgroundColor: "#f8f9fa",
+    justifyContent: "flex-start",
+    gap: 16,
     padding: 20,
     borderRadius: 20,
     borderWidth: 1,
@@ -48,17 +53,17 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   backgroundImage: {
-    borderRadius: 20, // Full border radius for the image
+    borderRadius: BORDER_RADIUS, // Full border radius for the image
   },
   footer: {
-    height: 60, // Fixed height for footer
+    flex: 1,
+    width: "100%",
     backgroundColor: "rgba(0, 0, 0, 0.8)", // Make the footer slightly transparent
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingVertical: 12,
+    borderRadius: BORDER_RADIUS
   },
   movieTitle: {
     fontSize: 24,

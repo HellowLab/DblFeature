@@ -1,0 +1,6 @@
+start app
+- check user login / login 
+- refresh user info
+- refresh MyMovies
+- begin tmdb fetch, start at page 1, filter out all movies that are already in MyMovies, pull until list of movies is 25
+--- if list of movies is ever < 10, pull more movies

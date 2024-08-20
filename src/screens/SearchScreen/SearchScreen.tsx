@@ -1,11 +1,22 @@
 import React, { useState } from "react";
-import { SafeAreaView, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Modal,
+  TouchableWithoutFeedback,
+  SafeAreaView,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
 import MovieFlipCard from "@/src/components/MovieFlipCard";
-import { searchMovies, getMovieDetails, Movie } from "@/src/utils/APIs/TMDB";
+import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
+
+import { searchMovies, getMovieDetails } from "@/src/utils/APIs/TMDB";
 import SearchItem from "@/src/components/SearchItem";
+import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
+import { getMyMovie } from "@/src/utils/APIs/api";
 
 const SearchScreen = () => {
   // Get the current theme colors from the navigation context
@@ -14,8 +25,13 @@ const SearchScreen = () => {
   // State variables for managing search query, loading state, search results, and selected movie
   const [query, setQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [results, setResults] = useState<Movie[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [results, setResults] = useState<tmdbMovie[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<tmdbMovie | null>(null);
+
+  // State to hold the selected movie item to display in the modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMovieResult, setSelectedMovieResult] =
+    useState<DjangoMovie | null>(null);
 
   /**
    * Handles the search operation by fetching movie data based on the user's query.
@@ -65,15 +81,16 @@ const SearchScreen = () => {
    *
    * @param movie - The movie selected by the user from the search results.
    */
-  const handleSelectMovie = async (movie: Movie) => {
-    setLoading(true);
-    try {
-      const movieDetails = await getMovieDetails(movie.id);
+  const handleSelectMovie = async (movie: tmdbMovie) => {
+    // setLoading(true);
+    const movieDetails = await getMovieDetails(movie.id);
 
-      // Update the selected movie and clear the search results
-      setSelectedMovie(movieDetails);
-      setResults([]);
-      setQuery(movie.title);
+    try {
+      const movieResultResponse = await getMyMovie(undefined, movie.id);
+      console.log("movieResultResponse", movieResultResponse);
+      if (movieResultResponse.status === 200) {
+        setSelectedMovieResult(movieResultResponse.data);
+      }
     } catch (error) {
       // Log any errors encountered while fetching movie details
       console.error("Error fetching movie details:", error);
@@ -81,6 +98,12 @@ const SearchScreen = () => {
       // Ensure loading state is turned off after fetching movie details
       setLoading(false);
     }
+
+    // Update the selected movie and clear the search results
+    setSelectedMovie(movieDetails);
+    setModalVisible(true);
+    // setResults([]);
+    // setQuery(movie.title);
   };
 
   /**
@@ -89,7 +112,7 @@ const SearchScreen = () => {
    * @param item - The movie item to be rendered.
    * @returns JSX element representing a search item.
    */
-  const renderMovieItem = ({ item }: { item: Movie }) => (
+  const renderMovieItem = ({ item }: { item: tmdbMovie }) => (
     <SearchItem movie={item} onPress={() => handleSelectMovie(item)} />
   );
 
@@ -107,15 +130,38 @@ const SearchScreen = () => {
       {loading && <ActivityIndicator size="large" color={colors.primary} />}
 
       {/* Display search results if available, otherwise show the selected movie */}
-      {results.length > 0 ? (
+      {results.length > 0 && (
         <FlatList
           data={results}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderMovieItem}
           style={styles.resultsList}
         />
-      ) : (
-        selectedMovie && <MovieFlipCard movie={selectedMovie} />
+      )}
+      {selectedMovie && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TouchableWithoutFeedback>
+                <MovieCardOne
+                  movie={selectedMovie}
+                  movieResult={selectedMovieResult}
+                />
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       )}
     </SafeAreaView>
   );

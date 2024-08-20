@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
     padding: 8,
     flexDirection: "row",
     alignItems: "center",
+    borderRadius: 3,
   },
   posterImage: {
     width: 66,
@@ -29,5 +30,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
+    borderRadius: 3,
+
   },
 });

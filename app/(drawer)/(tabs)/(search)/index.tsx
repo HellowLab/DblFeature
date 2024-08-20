@@ -9,13 +9,11 @@ import SearchScreen from "@/src/screens/SearchScreen";
  */
 const App = () => {
   return (
-    <View
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        flex: 1,
-      }}
-    >
+    <View style={{
+      justifyContent: "center",
+      alignItems: "center",
+      flex: 1,
+    }}>
       <SearchScreen />
     </View>
   );
