@@ -12,6 +12,9 @@ import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
 import { tmdbMovie } from "@/src/utils/types/types"
 
+import { DjangoMovie } from "@/src/utils/types/types";
+import { getMovieResults } from "@/src/utils/APIs/api";
+
 /**
  * HomeScreen Component
  *
@@ -30,36 +33,103 @@ const HomeScreen = () => {
 
   // State to hold the list of movies and loading state.
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
+  const [tmdbMovies, setTmdbMovies] = useState<tmdbMovie[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchMoreMovies, setFetchMoreMovies] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [tmdbIndex, setTmdbIndex] = useState(1);
 
   // Fetch movies on component mount.
   useEffect(() => {
     const getMovies = async () => {
-      try {
-        const moviesData: tmdbMovie[] = await fetchMovies(1);
-        const formattedMovies: MovieCardProps[] = moviesData.map((movie) => ({
-          id: movie.id,
-          name: movie.title,
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "",
-          bio: movie.overview,
-          cast: [], // TODO: get array of cast members
-          crew: [], // TODO: get array of crew members
-          reviews: [], /// TODO: get array of reviews
-        }));
+      let fetchMoreData: boolean = true;
+      let myMoviesList: number[] = []; // list of tmdb id's fetched from dbl feature backend
+      let newMovies: tmdbMovie[] = []; // list of tmdb movies fetched from tmdb api
+      let allMovies: tmdbMovie[] = []; // list of all tmdb movies fetched from tmdb api -- new movies combined with previous movie list
+      let tempIndex: number = tmdbIndex; // index to keep track of the page number for tmdb api
 
-        setMovies(formattedMovies);
+      // fetch movies from dbl feature backend
+      try {
+        const response = await getMovieResults();
+        if (response.status === 200) {
+          const myMoviesResponse = response.data;
+
+          // map each ID from response.status to a list of just the tmdb_id
+          myMoviesList = myMoviesResponse.map((movie: DjangoMovie) =>
+            Number(movie.tmdb_id)
+          );
+        }
       } catch (error) {
-        console.error("Error fetching movies:", error);
-      } finally {
-        setLoading(false);
+        console.error(
+          "Error fetching my movies from dblfeature backend:",
+          error
+        );
+      }
+
+      // fetch movies from tmdb api
+      while (fetchMoreData) {
+        try {
+          console.log("Fetching movies from TMDB API... index: ", tempIndex);
+          newMovies = await fetchMovies(tempIndex); // fetch movies from tmdb api
+          tempIndex += 1; // increase the tmdbIndex by 1 after making api call
+
+          // if a movie is in myMoviesList, remove it from moviesDataResponse
+          if (myMoviesList.length > 0) {
+            newMovies = newMovies.filter(
+              (movie) => !myMoviesList.includes(movie.id)
+            );
+          }
+
+          // if moviesData is not null, then set moviesData to a new array of unique values from the previous moviesData and newMovies
+          if (allMovies) {
+            allMovies = Array.from(new Set(allMovies.concat(newMovies)));
+          } else {
+            allMovies = newMovies;
+          }
+
+          // if allMovies has more than 15 movies in it, set fetchMoreData to false, otherwise continue fetching movies
+          if (allMovies.length > 15) {
+            console.log("allMovies length > 15");
+            // print the title for each movie in my dataresponse
+            allMovies.forEach((movie) => {
+              console.log("Movie Title:", movie.id, movie.title);
+            });
+            fetchMoreData = false;
+          }
+        } catch (error) {
+          console.error("Error fetching movies. App will not retry:", error);
+          fetchMoreData = false;
+        } finally {
+          // Format the fetched movies data and update the state.
+          const formattedMovies: MovieCardProps[] = allMovies.map((movie) => ({
+            id: movie.id,
+            name: movie.title,
+            image: movie.poster_path
+              ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+              : "",
+            bio: movie.overview,
+            cast: [], // TODO: get array of cast members
+            crew: [], // TODO: get array of crew members
+            reviews: [], /// TODO: get array of reviews
+          }));
+          // setMovies(formattedMovies);
+
+          // Update the state with the formatted movies
+          setMovies((prevMovies) => [...prevMovies, ...formattedMovies]);
+          setTmdbMovies(allMovies);
+          setLoading(false);
+          setTmdbIndex(tempIndex);
+          setFetchMoreMovies(false);
+        }
+
+        
       }
     };
-
-    getMovies();
-  }, []);
+    if (fetchMoreMovies) {  
+      getMovies();
+    }
+  }, [fetchMoreMovies]);
 
   // Interpolation for card scaling based on swipe position.
   const scaleAnim = cardPositionX.interpolate({
@@ -79,15 +149,28 @@ const HomeScreen = () => {
    */
   const handleSwipe = (direction: string) => {
     if (direction === "right") {
-      console.log("Swiped Right:", currentMovie);
+      // console.log("Swiped Right:", currentMovie);
       onSwipeRight(currentMovie);
     } else if (direction === "left") {
-      console.log("Swiped Left:", currentMovie);
+      // console.log("Swiped Left:", currentMovie);
       onSwipeLeft(currentMovie);
     }
     // Reset card position and update the index for the next movie.
     cardPositionX.setValue(0);
     setCurrentIndex((prevIndex) => prevIndex + 1);
+
+    // check the remaining qty of movies in the queue, if less than 5, pull more movies
+    if (movies.length - currentIndex < 5) {
+      setFetchMoreMovies(true);
+      // fetch more movies
+    }
+
+    console.log("Movies Remaining in Queue: ", movies.length - currentIndex);
+
+    // print the title for each movie in my dataresponse
+    // movies.forEach((movie) => {
+    //   console.log("Movie Title:", movie.id, movie.name);
+    // });
   };
 
   // Display a loading indicator while movies are being fetched.
