@@ -15,6 +15,9 @@ import { tmdbMovie } from "@/src/utils/types/types"
 import { DjangoMovie } from "@/src/utils/types/types";
 import { getMovieResults } from "@/src/utils/APIs/api";
 
+import { getTmdbIndex, updateTmdbIndex } from "@/src/utils/APIs/api";
+import { tmdb_index_type } from "@/src/utils/types/types";
+
 /**
  * HomeScreen Component
  *
@@ -33,23 +36,22 @@ const HomeScreen = () => {
 
   // State to hold the list of movies and loading state.
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
-  const [tmdbMovies, setTmdbMovies] = useState<tmdbMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchMoreMovies, setFetchMoreMovies] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const [tmdbIndex, setTmdbIndex] = useState(1);
+  const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular");
 
   // Fetch movies on component mount.
   useEffect(() => {
     const getMovies = async () => {
-      let fetchMoreData: boolean = true;
+      let fetchMoreData: boolean = true; // controls the while loop for fetching movies
       let myMoviesList: number[] = []; // list of tmdb id's fetched from dbl feature backend
       let newMovies: tmdbMovie[] = []; // list of tmdb movies fetched from tmdb api
       let allMovies: tmdbMovie[] = []; // list of all tmdb movies fetched from tmdb api -- new movies combined with previous movie list
       let tempIndex: number = tmdbIndex; // index to keep track of the page number for tmdb api
 
-      // fetch movies from dbl feature backend
+      // fetch my movies from dbl feature backend
       try {
         const response = await getMovieResults();
         if (response.status === 200) {
@@ -65,6 +67,18 @@ const HomeScreen = () => {
           "Error fetching my movies from dblfeature backend:",
           error
         );
+      }
+
+      // fetch tmdb index from backend
+      const res = await getTmdbIndex(tmdbType);
+      if (res.status === 200) {
+        // if date equals todays date, set the tempIndex to the tmdb_index from the response
+        console.log("todays date: ", new Date().toISOString().split("T")[0]);
+        console.log("Response date: ", res.data.date);
+
+        if (res.data.date === new Date().toISOString().split("T")[0]) {
+          tempIndex = res.data.index;
+        }
       }
 
       // fetch movies from tmdb api
@@ -90,11 +104,6 @@ const HomeScreen = () => {
 
           // if allMovies has more than 15 movies in it, set fetchMoreData to false, otherwise continue fetching movies
           if (allMovies.length > 15) {
-            console.log("allMovies length > 15");
-            // print the title for each movie in my dataresponse
-            allMovies.forEach((movie) => {
-              console.log("Movie Title:", movie.id, movie.title);
-            });
             fetchMoreData = false;
           }
         } catch (error) {
@@ -113,20 +122,19 @@ const HomeScreen = () => {
             crew: [], // TODO: get array of crew members
             reviews: [], /// TODO: get array of reviews
           }));
-          // setMovies(formattedMovies);
 
           // Update the state with the formatted movies
           setMovies((prevMovies) => [...prevMovies, ...formattedMovies]);
-          setTmdbMovies(allMovies);
           setLoading(false);
           setTmdbIndex(tempIndex);
           setFetchMoreMovies(false);
+          updateTmdbIndex(tempIndex); // update the tmdb index in the backend
         }
-
-        
       }
     };
-    if (fetchMoreMovies) {  
+
+    console.log("Fetching movies...");
+    if (fetchMoreMovies && (movies.length - currentIndex < 5)) {
       getMovies();
     }
   }, [fetchMoreMovies]);
@@ -141,6 +149,7 @@ const HomeScreen = () => {
   // Current and next movies to be displayed in the swiper.
   const currentMovie = movies[currentIndex] ?? null;
   const nextMovie = movies[currentIndex + 1] ?? null;
+  
 
   /**
    * Handles the swipe action by the user.
@@ -161,16 +170,13 @@ const HomeScreen = () => {
 
     // check the remaining qty of movies in the queue, if less than 5, pull more movies
     if (movies.length - currentIndex < 5) {
+      console.log("Fetching more movies...");
       setFetchMoreMovies(true);
       // fetch more movies
     }
 
     console.log("Movies Remaining in Queue: ", movies.length - currentIndex);
 
-    // print the title for each movie in my dataresponse
-    // movies.forEach((movie) => {
-    //   console.log("Movie Title:", movie.id, movie.name);
-    // });
   };
 
   // Display a loading indicator while movies are being fetched.

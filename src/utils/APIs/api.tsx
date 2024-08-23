@@ -427,3 +427,87 @@ export const getMyMovie = async (id?: number, tmdb_id?: number) => {
     }
   }
 };
+
+
+/**
+ *
+ * @param popular_index index of the popular movies
+ * @returns api response
+ */
+export const updateTmdbIndex = async (popular_index: number) => {
+  const data = {
+    popular_index: popular_index,
+  };
+
+  try {
+    const res = await myfetch("dblfeature/tmdbindex/", "PUT", data);
+    if (res.status == 200 || res.status == 201) {
+      const apiRes: APIResponse = {
+        data: res.data,
+        status: res.status,
+        message: "Index Updated",
+      };
+      return apiRes;
+    }
+    return res;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+    }
+  }
+}
+
+import { tmdb_index_type } from "../types/types";
+/**
+ *
+ * @returns api response
+ */
+export const getTmdbIndex = async (type?: tmdb_index_type ) => {
+  const params = {
+    type: type,
+  };
+  try {
+    const res = await myfetch("dblfeature/tmdbindex/", "GET", undefined, params);
+    console.log("res: ", res.data);
+    if (res.status == 200) {
+      const apiRes: APIResponse = {
+        data: res.data,
+        status: res.status,
+        message: "Index Returned",
+      };
+      return apiRes;
+    }
+    return res;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+
+      const apiRes: APIResponse = {
+        data: 1,
+        status: errorResponse.status,
+        message: "API call error",
+      }
+      return apiRes;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+
+      const apiRes: APIResponse = {
+        data: 1,
+        status: 500,
+        message: "API call error",
+      };
+      return apiRes;
+    }
+  }
+}
