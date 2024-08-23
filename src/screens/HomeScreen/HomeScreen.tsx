@@ -128,7 +128,7 @@ const HomeScreen = () => {
           setLoading(false);
           setTmdbIndex(tempIndex);
           setFetchMoreMovies(false);
-          updateTmdbIndex(tempIndex); // update the tmdb index in the backend
+          updateTmdbIndex(tempIndex-1); // update the tmdb index in the backend (use tempIndex-1 to ensure we don't skip any movies if we need to refetch the page we just got)
         }
       }
     };
