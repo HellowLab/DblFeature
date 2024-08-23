@@ -42,67 +42,59 @@ const HomeScreen = () => {
   const [tmdbIndex, setTmdbIndex] = useState(1);
   const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular");
 
-  // Fetch movies on component mount.
+  // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
     const getMovies = async () => {
-      let fetchMoreData: boolean = true; // controls the while loop for fetching movies
-      let myMoviesList: number[] = []; // list of tmdb id's fetched from dbl feature backend
-      let newMovies: tmdbMovie[] = []; // list of tmdb movies fetched from tmdb api
-      let allMovies: tmdbMovie[] = []; // list of all tmdb movies fetched from tmdb api -- new movies combined with previous movie list
-      let tempIndex: number = tmdbIndex; // index to keep track of the page number for tmdb api
+      let fetchMoreData = true; // Controls the loop for fetching additional movies
+      let myMoviesList: number[] = []; // List of TMDB IDs fetched from your backend
+      let newMovies: tmdbMovie[] = []; // New movies fetched from TMDB API
+      let allMovies: tmdbMovie[] = []; // Combined list of all fetched movies
+      let tempIndex = tmdbIndex; // Index for tracking the page number for the TMDB API
 
-      // fetch my movies from dbl feature backend
+      // Fetch the list of movies from your backend
       try {
         const response = await getMovieResults();
         if (response.status === 200) {
-          const myMoviesResponse = response.data;
-
-          // map each ID from response.status to a list of just the tmdb_id
-          myMoviesList = myMoviesResponse.map((movie: DjangoMovie) =>
+          // Extract the TMDB IDs from the response
+          myMoviesList = response.data.map((movie: DjangoMovie) =>
             Number(movie.tmdb_id)
           );
         }
       } catch (error) {
-        console.error(
-          "Error fetching my movies from dblfeature backend:",
-          error
-        );
+        console.error("Error fetching my movies from the backend:", error);
       }
 
-      // fetch tmdb index from backend
-      const res = await getTmdbIndex(tmdbType);
-      if (res.status === 200) {
-        // if date equals todays date, set the tempIndex to the tmdb_index from the response
-        console.log("todays date: ", new Date().toISOString().split("T")[0]);
-        console.log("Response date: ", res.data.date);
-
-        if (res.data.date === new Date().toISOString().split("T")[0]) {
-          tempIndex = res.data.index;
+      // Fetch the current TMDB index from your backend
+      try {
+        const res = await getTmdbIndex(tmdbType);
+        if (res.status === 200) {
+          // If the date from the backend matches today's date, update the tempIndex
+          if (res.data.date === new Date().toISOString().split("T")[0]) {
+            tempIndex = res.data.index;
+          }
         }
+      } catch (error) {
+        console.error("Error fetching TMDB index from backend:", error);
       }
 
-      // fetch movies from tmdb api
+      // Loop to fetch movies from the TMDB API until conditions are met
       while (fetchMoreData) {
         try {
-          console.log("Fetching movies from TMDB API... index: ", tempIndex);
-          newMovies = await fetchMovies(tempIndex); // fetch movies from tmdb api
-          tempIndex += 1; // increase the tmdbIndex by 1 after making api call
+          console.log("Fetching movies from TMDB API... index:", tempIndex);
+          newMovies = await fetchMovies(tempIndex); // Fetch movies from TMDB API
+          tempIndex += 1; // Increment the page index for the next API call
 
-          // if a movie is in myMoviesList, remove it from moviesDataResponse
+          // Filter out movies already in myMoviesList
           if (myMoviesList.length > 0) {
             newMovies = newMovies.filter(
               (movie) => !myMoviesList.includes(movie.id)
             );
           }
 
-          // if moviesData is not null, then set moviesData to a new array of unique values from the previous moviesData and newMovies
-          if (allMovies) {
-            allMovies = Array.from(new Set(allMovies.concat(newMovies)));
-          } else {
-            allMovies = newMovies;
-          }
+          // Combine previously fetched movies with newMovies, ensuring uniqueness
+          allMovies = Array.from(new Set([...allMovies, ...newMovies]));
 
-          // if allMovies has more than 15 movies in it, set fetchMoreData to false, otherwise continue fetching movies
+          // Stop fetching if more than 15 movies are accumulated
           if (allMovies.length > 15) {
             fetchMoreData = false;
           }
@@ -110,7 +102,7 @@ const HomeScreen = () => {
           console.error("Error fetching movies. App will not retry:", error);
           fetchMoreData = false;
         } finally {
-          // Format the fetched movies data and update the state.
+          // Format the fetched movies for display
           const formattedMovies: MovieCardProps[] = allMovies.map((movie) => ({
             id: movie.id,
             name: movie.title,
@@ -118,26 +110,27 @@ const HomeScreen = () => {
               ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
               : "",
             bio: movie.overview,
-            cast: [], // TODO: get array of cast members
-            crew: [], // TODO: get array of crew members
-            reviews: [], /// TODO: get array of reviews
+            cast: [], // TODO: Fetch array of cast members
+            crew: [], // TODO: Fetch array of crew members
+            reviews: [], // TODO: Fetch array of reviews
           }));
 
-          // Update the state with the formatted movies
+          // Update state with the new movie list and manage loading indicators
           setMovies((prevMovies) => [...prevMovies, ...formattedMovies]);
           setLoading(false);
           setTmdbIndex(tempIndex);
           setFetchMoreMovies(false);
-          updateTmdbIndex(tempIndex-1); // update the tmdb index in the backend (use tempIndex-1 to ensure we don't skip any movies if we need to refetch the page we just got)
+          updateTmdbIndex(tempIndex - 1); // Update backend index to avoid skipping movies
         }
       }
     };
 
-    console.log("Fetching movies...");
-    if (fetchMoreMovies && (movies.length - currentIndex < 5)) {
+    // Trigger the movie fetching if conditions are met
+    if (fetchMoreMovies && movies.length - currentIndex < 5) {
+      console.log("Fetching movies...");
       getMovies();
     }
-  }, [fetchMoreMovies]);
+  }, [fetchMoreMovies]); // Re-run the effect when fetchMoreMovies changes
 
   // Interpolation for card scaling based on swipe position.
   const scaleAnim = cardPositionX.interpolate({
@@ -149,7 +142,6 @@ const HomeScreen = () => {
   // Current and next movies to be displayed in the swiper.
   const currentMovie = movies[currentIndex] ?? null;
   const nextMovie = movies[currentIndex + 1] ?? null;
-  
 
   /**
    * Handles the swipe action by the user.
@@ -176,7 +168,6 @@ const HomeScreen = () => {
     }
 
     console.log("Movies Remaining in Queue: ", movies.length - currentIndex);
-
   };
 
   // Display a loading indicator while movies are being fetched.
