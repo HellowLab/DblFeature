@@ -437,6 +437,7 @@ export const getMyMovie = async (id?: number, tmdb_id?: number) => {
 export const updateTmdbIndex = async (popular_index: number) => {
   const data = {
     popular_index: popular_index,
+    popular_date: new Date().toISOString().split("T")[0],
   };
 
   try {
@@ -473,6 +474,7 @@ export const getTmdbIndex = async (type?: tmdb_index_type ) => {
   const params = {
     type: type,
   };
+
   try {
     const res = await myfetch("dblfeature/tmdbindex/", "GET", undefined, params);
     console.log("res: ", res.data);
