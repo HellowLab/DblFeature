@@ -35,11 +35,12 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   const { colors } = useTheme();
   const [showMovieText, setShowMovieText] = React.useState<boolean>(true);
   const [isLiked, setIsLiked] = React.useState<boolean>(
-    movieResult?.liked === 1
+    movieResult ? movieResult.liked === 1 : false
   );
   const [isDisliked, setIsDisliked] = React.useState<boolean>(
-    movieResult?.liked === 0
+    movieResult ? movieResult.liked === 0 : false
   );
+  const [rating, setRating] = React.useState<number>(movieResult?.myRating ?? 0);
 
   const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
 
@@ -91,10 +92,11 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
 
   const handleStarPress = async (rating: number) => {
     let res: APIResponse;
+    const oldRating = rating;
+    setRating(rating);
     if (movieResult) {
       res = await updateMovieResult(movieResult?.id, movieResult.liked, rating);
     } else {
-      // const fullPosterPath = "https://image.tmdb.org/t/p/w500${movie.poster_path}";
       // create a new movie result with the rating, set the liked to 2 (neither liked nor disliked)
       res = await createMovieResult(
         movie.id,
@@ -111,7 +113,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
       movieResult = res.data;
     } else {
       console.error(res.message);
-      // TODO: set the rating back to the previous value
+      setRating(oldRating);
     }
   };
 
@@ -148,7 +150,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
                 </TouchableOpacity>
                 <StarRating
                   maxStars={5}
-                  initialRating={movieResult?.myRating ?? 0}
+                  initialRating={rating}
                   onRatingChange={handleStarPress}
                 />
                 <TouchableOpacity onPress={() => handleLikeButtons(1)}>
