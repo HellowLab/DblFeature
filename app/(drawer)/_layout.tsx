@@ -3,6 +3,7 @@ import { Drawer } from "expo-router/drawer";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import {
+  createDrawerNavigator,
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
@@ -21,7 +22,8 @@ import { deleteToken } from "@/src/utils/store/TokenStore";
 import MyText from "@/src/components/TextOutput/TextOutput";
 
 import { createMovieResult } from "@/src/utils/APIs/api";
-import React from "react";
+import React, { useState } from "react";
+import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -44,10 +46,6 @@ export default function Layout() {
       >
         {/* Define different screens available in the drawer */}
         <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
-        {/* <Drawer.Screen name="(home)" options={{ title: "Home" }} />
-        <Drawer.Screen name="(mymovies)" options={{ title: "My Movies" }} />
-        <Drawer.Screen name="(matches)" options={{ title: "My Matches" }} />
-        <Drawer.Screen name="(search)" options={{ title: "Search" }} /> */}
       </Drawer>
     </GestureHandlerRootView>
   );
@@ -68,6 +66,9 @@ function CustomDrawerContent(props: any) {
   // Access the router for navigation
   const router = useRouter();
 
+  const [bottomSheetIsVisible, setBottomSheetIsVisible] = useState(false);
+
+
   /**
    * Handles the logout button press. Clears user data, deletes the token,
    * and redirects the user to the login screen.
@@ -77,6 +78,11 @@ function CustomDrawerContent(props: any) {
     deleteToken();
     router.replace("/(login)");
   };
+
+  const handleThemePress = () => {
+    console.log("Theme Pressed");
+    setBottomSheetIsVisible(true);
+  }
 
   return (
     <DrawerContentScrollView {...props}>
@@ -114,10 +120,12 @@ function CustomDrawerContent(props: any) {
         </MyButton>
 
         {/* Theme toggle button */}
-        <MyButton width="full" onPress={toggleTheme} rounded={false}>
-          Toggle Theme
+        <MyButton width="full" onPress={handleThemePress} rounded={false}>
+          App Theme
         </MyButton>
+        <ThemeBottomsheet isVisible={bottomSheetIsVisible} setIsVisible={setBottomSheetIsVisible} />
       </View>
     </DrawerContentScrollView>
   );
 }
+

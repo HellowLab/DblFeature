@@ -4,6 +4,8 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
+import { useColorScheme } from "react-native";
+
 // import 'react-native-reanimated';
 
 // Import zustand store
@@ -49,13 +51,30 @@ function RootLayoutNav() {
   // const customDarkTheme = { ...DarkTheme, colors:Colors.dark}
   // const customLightTheme = { ...DefaultTheme, colors:Colors.light}
 
-  // Set the theme to the current device theme
-  // TODO: Update this to pull the theme from storage, once we add that feature. For now it resets when the app is launched
-  // const [theme, setTheme] = useState(systemScheme)
+  // set theme from zustand store
   const { theme } = useThemeStore();
+  const colorScheme = useColorScheme();
+  const [myTheme, setMyTheme] = useState('light');
 
+  //useEffect that sets the theme based on the colorScheme
+  useEffect(() => {
+    if (theme === "light" || theme === "dark") {
+      console.log("setting theme manually to: ", theme);
+      setMyTheme(theme);
+    }
+    else {
+      if (colorScheme === "light" || colorScheme === "dark") {
+        console.log("setting theme to colorScheme: ", colorScheme);
+        setMyTheme(colorScheme);
+      }
+    }
+    
+  }, [theme, colorScheme]);
+
+
+  
   return (
-    <ThemeProvider value={theme === "dark" ? darkTheme : lightTheme}>
+    <ThemeProvider value={myTheme === "dark" ? darkTheme : lightTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(login)" />
         <Stack.Screen name="(drawer)" />

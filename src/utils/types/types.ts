@@ -1,3 +1,8 @@
+
+// define custom color scheme name
+export type ColorSchemeName = "light" | "dark" | "system" | null | undefined;
+
+
 // Define the Movie interface to type the movie data
 export interface tmdbMovie {
   id: number;
