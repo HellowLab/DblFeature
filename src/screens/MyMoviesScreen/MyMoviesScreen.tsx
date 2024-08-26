@@ -126,8 +126,8 @@ const MovieResultsScreen = (): JSX.Element => {
           <MyText size="large">{item.name}</MyText>
 
           {/* if myRating is not 0 or undefined, display my rating */}
-          {item.myRating && item.myRating > 0 && <MyText size="small">My Rating: {item.myRating} / 5</MyText>}
-
+          {item.myRating > 0 && (<MyText size="small">My Rating: {item.myRating} / 5</MyText>)}
+          
           {/* display the swipe date */}
           <MyText size="small">Swiped Date: {item.swipeDate.substring(0,10)}</MyText>
         </View>
