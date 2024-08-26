@@ -11,14 +11,14 @@ export default function HomeLayout() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colors.primary },
-        headerTitleStyle: { fontWeight: "bold" },
+        headerTitleStyle: { fontWeight: "bold", color: colors.white  },
         // headerLeft: () => <MaterialIcons name="menu" size={24} color="black" />,
-        headerLeft: () => <DrawerToggleButton tintColor={colors.inverted} />,
+        headerLeft: () => <DrawerToggleButton tintColor={colors.white} />,
         headerRight: () => (
           <MaterialIcons
             name="account-circle"
             size={24}
-            color={colors.inverted}
+            color={colors.white}
           />
         ),
       }}
