@@ -122,11 +122,16 @@ const MovieResultsScreen = (): JSX.Element => {
           <Image source={{ uri: item.poster }} style={styles.posterImage} />
         )}
         <View style={styles.movieInfoContainer}>
+          {/* display the movie name */}
           <MyText size="large">{item.name}</MyText>
-          <MyText size="medium">
-            {item.liked ? "Swiped Right -- Liked" : "Swiped Left -- Not Liked"}
-          </MyText>
+
+          {/* if myRating is not 0 or undefined, display my rating */}
+          {item.myRating && item.myRating > 0 && <MyText size="small">My Rating: {item.myRating} / 5</MyText>}
+
+          {/* display the swipe date */}
+          <MyText size="small">Swiped Date: {item.swipeDate.substring(0,10)}</MyText>
         </View>
+        {/* display the like/dislike icon depending on the valie of item.liked*/}
         <View style={styles.iconContainer}>
           {item.liked ? (
             <AntDesign name="checkcircle" size={24} color="green" />
