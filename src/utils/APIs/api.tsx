@@ -58,7 +58,9 @@ export const myfetch = async (
   params?: object
 ) => {
   console.log(fetchtype + ": " + (API_BASE_URL + url));
-  console.log(JSON.stringify(params));
+
+  if (data) console.log(JSON.stringify(data));
+  if (params) console.log(JSON.stringify(params));
 
   const maxRetries = 3;
   let retry = 0;
@@ -125,8 +127,14 @@ const handleAxiosError = (axiosError: AxiosError<ErrorResponse>) => {
     return axiosError.response;
   } else if (axiosError.request) {
     // The request was made, but no response was received
-    console.error("No response received:", axiosError.request);
+    console.error("No response received.");
     // setError('Error: No response received from server.');
+
+    const apiRes: APIResponse = {
+      data: axiosError.request,
+      status: axiosError.request.status,
+      message: "No response received from server.",
+    };
     return axiosError.request;
   } else {
     // Something happened in setting up the request that triggered an Error
@@ -226,6 +234,38 @@ export const isTokenValid = async (token: string) => {
       // setError('Error: An unexpected error occurred.');
     }
     return false;
+  }
+};
+
+/**
+ * retrieves the current user's information from the backend
+ * @returns api response
+ */
+export const getMyUserInfo = async () => {
+  try {
+    const response = await myfetch("auth/myuser/", "GET");
+
+    if (response.status == 200) {
+      const apiRes: APIResponse = {
+        data: response.data,
+        status: response.status,
+        message: "User Info Returned",
+      };
+      return apiRes;
+    }
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+      // setError('Error: An unexpected error occurred.');
+    }
   }
 };
 

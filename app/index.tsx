@@ -5,7 +5,7 @@ import { View, ActivityIndicator } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
 import Loader from "@/src/components/loaders/Loader";
 
-import { isTokenValid } from "@/src/utils/APIs/api";
+import { getMyUserInfo, isTokenValid } from "@/src/utils/APIs/api";
 
 // This can be used as the splash screen to perform any api calls or other async tasks
 // and then redirect to the login screen or any other screen if the user is already logged in.
@@ -19,13 +19,24 @@ const Index = () => {
   const isLoggedIn = async () => {
     try {
       const token = await getToken();
-      const refreshToken = await getRefreshToken();
-      console.log("token: ", token);
-      console.log("refreshToken: ", refreshToken);
+
       if (token) {
-        const res = await isTokenValid(token);
-        console.log("res: ", res);
-        if (res) {
+        const refreshRes = await isTokenValid(token);
+        if (refreshRes) {
+          // if token is valid, get my user info using token
+          const userRes = await getMyUserInfo();
+          console.log("userRes", userRes);
+
+          // if user info is successfully fetched, navigate to the drawer screen
+          if (userRes.status === 200) {
+            router.push("/(drawer)");
+          }
+          else {
+            // if user info cannot be fetched, redirect to the login screen
+            router.push("/(login)");
+          }
+
+          
           // Add a 3-second delay before navigating to the drawer screen
           setTimeout(() => {
             // this is a good opportunity to refresh other app level data while still in the splash screen
