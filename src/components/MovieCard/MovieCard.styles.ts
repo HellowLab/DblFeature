@@ -108,7 +108,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   title: {
     fontSize: 26,
@@ -122,34 +122,44 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
   castCrewContainer: {
-    flexDirection: "row", // Arrange Cast and Crew lists side by side
-    justifyContent: "space-between",
+    flexDirection: "column",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
     width: "100%",
-    height: "82%",
-    paddingHorizontal: 10,
   },
-  scrollListContainer: {
-    width: "48%", // Ensure each list takes up half the width
+  horizontalList: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
   },
-  autoScrollVertical: {
-    height: 100, // Fixed height to define the scrolling area
-    width: "80%",
+  gridItem: {
+    width: 100,
+    height: 20,
+    marginBottom: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#ccc",
-    marginVertical: 5, // Margin to separate title from the list
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    marginVertical: 5,
+  },
+  placeholderImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    backgroundColor: "#ccc",
+    marginBottom: 5,
+  },
+  memberText: {
+    fontSize: 14,
+    color: "white",
     textAlign: "center",
   },
-  member: {
-    fontSize: 18,
-    color: "white",
-    marginBottom: 5,
+  memberName: {
+    fontSize: 12,
+    color: "#ccc",
     textAlign: "center",
   },
   review: {
@@ -157,5 +167,13 @@ export const styles = StyleSheet.create({
     color: "white",
     marginVertical: 5,
     textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ccc",
+    marginVertical: 5,
+    marginLeft: 10,
+    textAlign: "left",
   },
 });

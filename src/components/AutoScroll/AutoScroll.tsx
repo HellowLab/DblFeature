@@ -6,68 +6,81 @@ import {
   Easing,
   LayoutChangeEvent,
   Platform,
+  Text, // Import Text component to ensure all text is rendered correctly
 } from "react-native";
 
-// Interface defining the props for the AutoScrolling component
+// Interface for component props
 interface AutoScrollingProps {
-  style?: object; // Optional custom styles for the container
-  children: React.ReactElement; // React element(s) to be rendered and scrolled
-  endPaddingWidth?: number; // Optional padding at the end of the scrolling content
+  style?: object; // Optional style for the container view
+  children: React.ReactElement; // React element to be displayed inside the auto-scrolling view
+  endPaddingWidth?: number; // Optional padding at the end of the scroll view
   duration?: number; // Optional duration for the scrolling animation
-  delay?: number; // Optional delay before the scrolling starts
-  isBTT?: boolean; // Optional flag to indicate bottom-to-top scrolling
+  delay?: number; // Optional delay before the animation starts
+  isBTT?: boolean; // Optional flag for bottom-to-top scrolling (vertical mode)
+  isHorizontal?: boolean; // Optional flag for enabling horizontal scrolling
+  isRTL?: boolean; // Optional flag for right-to-left scrolling (horizontal mode)
 }
 
-// AutoScrolling functional component
+// Functional component for auto-scrolling content
 const AutoScrolling: React.FC<AutoScrollingProps> = ({
   style,
   children,
-  endPaddingWidth = 0, // Default padding width
-  duration, // Duration for the scrolling animation
-  delay = 0, // Default delay before scrolling starts
-  isBTT = false, // Default direction is top-to-bottom (not bottom-to-top)
+  endPaddingWidth = 0, // Default padding width set to 0
+  duration,
+  delay = 0, // Default delay set to 0
+  isBTT = false, // Default to top-to-bottom scrolling
+  isHorizontal = false, // Default to vertical scrolling
+  isRTL = false, // Default to left-to-right scrolling
 }) => {
-  // State to track if auto-scrolling is enabled
+  // State to enable or disable auto-scrolling based on content size
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(false);
-  // State to store the height of the divider used for padding
+
+  // State to handle padding size at the end of the scroll view
   const [dividerHeight, setDividerHeight] = useState(endPaddingWidth);
 
-  // Refs to store container and content heights and the animated value for scrolling
+  // Refs to store container and content dimensions
   const containerHeight = useRef<number>(0);
   const contentHeight = useRef<number>(0);
+
+  // Animated value for the scroll offset
   const offsetY = useRef(new Animated.Value(0)).current;
+
+  // Ref to the content view for measuring purposes
   const contentRef = useRef<View | null>(null);
 
-  // Callback to measure the container's height and update state accordingly
-  const measureContainerView = useCallback((event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
-    // If the container height hasn't changed, do nothing
-    if (containerHeight.current === height) return;
-    containerHeight.current = height;
+  // Callback to measure container view dimensions
+  const measureContainerView = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { height, width } = event.nativeEvent.layout;
+      const containerSize = isHorizontal ? width : height; // Choose width for horizontal scrolling, height otherwise
 
-    // If contentRef is not set, do nothing
-    if (!contentRef.current) return;
+      // Check if container size has changed
+      if (containerHeight.current === containerSize) return;
+      containerHeight.current = containerSize;
 
-    // Measure the content's height and check its dimensions
-    contentRef.current.measure((_x, _y, _width, height) => {
-      checkContent(height, _x);
-    });
-  }, []);
+      // Measure the content size
+      if (!contentRef.current) return;
+      contentRef.current.measure((_x, _y, width, height) => {
+        checkContent(isHorizontal ? width : height, _x); // Pass the relevant dimension based on scrolling direction
+      });
+    },
+    [isHorizontal] // Dependency array to optimize the function
+  );
 
-  // Function to check and set content height, divider height, and start scrolling animation
+  // Function to check content size and adjust auto-scrolling
   const checkContent = useCallback(
-    (newContentHeight: number, fx: number) => {
-      // If the new content height is zero, disable auto-scrolling
-      if (!newContentHeight) {
+    (newContentSize: number, fx: number) => {
+      // Disable auto-scrolling if no content size is detected
+      if (!newContentSize) {
         setIsAutoScrollEnabled(false);
         return;
       }
 
-      // If content height hasn't changed, do nothing
-      if (contentHeight.current === newContentHeight) return;
-      contentHeight.current = newContentHeight;
+      // Check if content size has changed
+      if (contentHeight.current === newContentSize) return;
+      contentHeight.current = newContentSize;
 
-      // Calculate and set new divider height if content height is less than container height
+      // Calculate the new divider height based on content and container size
       let newDividerHeight = endPaddingWidth;
       if (contentHeight.current < containerHeight.current) {
         newDividerHeight = containerHeight.current - contentHeight.current;
@@ -75,69 +88,82 @@ const AutoScrolling: React.FC<AutoScrollingProps> = ({
       setDividerHeight(newDividerHeight);
       setIsAutoScrollEnabled(true);
 
-      // If bottom-to-top scrolling is enabled, set initial offset value
-      if (isBTT) {
-        offsetY.setValue(-(newContentHeight + newDividerHeight));
+      // Set initial offset value for reverse scrolling (BTT or RTL)
+      if (isBTT || isRTL) {
+        offsetY.setValue(-(newContentSize + newDividerHeight));
       }
 
-      // Start the looping scrolling animation
+      // Start the auto-scrolling animation loop
       Animated.loop(
         Animated.timing(offsetY, {
-          toValue: isBTT
-            ? fx
-            : -(contentHeight.current + fx + newDividerHeight),
-          duration: duration || 50 * contentHeight.current, // Default duration is proportional to content height
-          delay: delay, // Optional delay before animation starts
-          easing: Easing.linear, // Linear easing for smooth scrolling
-          useNativeDriver: Platform.OS !== "web", // Use native driver for better performance on non-web platforms
+          toValue:
+            isBTT || isRTL
+              ? fx // Use the offset value for reverse scrolling
+              : -(contentHeight.current + fx + newDividerHeight), // Forward scrolling
+          duration: duration || 50 * contentHeight.current, // Calculate duration based on content height if not provided
+          delay: delay, // Apply the delay if specified
+          easing: Easing.linear, // Use linear easing for smooth scrolling
+          useNativeDriver: Platform.OS !== "web", // Enable native driver for better performance (except on web)
         })
       ).start();
     },
-    [endPaddingWidth, duration, delay, isBTT, offsetY] // Dependencies for the callback
+    [endPaddingWidth, duration, delay, isBTT, isRTL, offsetY] // Dependencies for the callback function
   );
 
-  // Memoized children with onLayout and ref callback for dynamic content measurement
+  // Memoized children elements with applied layout measurement and reference handling
   const childrenCloned = useMemo(() => {
     return React.cloneElement(children, {
       ...children.props,
       onLayout: (event: LayoutChangeEvent) => {
-        const { height, y } = event.nativeEvent.layout;
-        // If container height or content height hasn't changed, do nothing
-        if (!containerHeight.current || height === contentHeight.current)
+        const { height, width, y } = event.nativeEvent.layout;
+        const contentSize = isHorizontal ? width : height; // Use width for horizontal, height for vertical
+
+        // Skip if container size is not set or content size is unchanged
+        if (!containerHeight.current || contentSize === contentHeight.current)
           return;
 
-        // Stop any ongoing animation and reset the offset
+        // Reset animation offsets
         offsetY.stopAnimation();
         offsetY.setValue(0);
         offsetY.setOffset(0);
 
-        // Check the new content dimensions
-        checkContent(height, y);
+        // Check content size and possibly restart animation
+        checkContent(contentSize, y);
       },
-      ref: (ref: View | null) => (contentRef.current = ref), // Assign content ref
+      ref: (ref: View | null) => (contentRef.current = ref), // Set the reference to the content view
     });
-  }, [children, checkContent, offsetY]);
+  }, [children, checkContent, offsetY, isHorizontal]); // Dependencies for memoization
 
+  // Render the auto-scrolling view
   return (
-    // Container view that measures its own dimensions
     <View onLayout={measureContainerView} style={style}>
       <ScrollView
-        horizontal={false} // Only vertical scrolling allowed
+        horizontal={isHorizontal} // Enable horizontal scrolling based on prop
         bounces={false} // Disable bounce effect
         scrollEnabled={false} // Disable manual scrolling
-        showsVerticalScrollIndicator={false} // Hide scroll indicator
+        showsVerticalScrollIndicator={false} // Hide vertical scroll indicator
+        showsHorizontalScrollIndicator={false} // Hide horizontal scroll indicator if in horizontal mode
       >
         <Animated.View
           style={{
-            flexDirection: "column",
-            transform: [{ translateY: offsetY }], // Apply vertical translation using animated value
+            flexDirection: isHorizontal ? "row" : "column", // Set flex direction based on scrolling mode
+            transform: [
+              { translateX: isHorizontal ? offsetY : 0 }, // Horizontal translation
+              { translateY: !isHorizontal ? offsetY : 0 }, // Vertical translation
+            ],
           }}
         >
           {childrenCloned}
-          {isAutoScrollEnabled && ( // Conditionally render additional space and children for scrolling
+          {isAutoScrollEnabled && ( // Only render divider and duplicate children if auto-scrolling is enabled
             <>
-              <View style={{ height: dividerHeight }} />
+              <View
+                style={{
+                  width: isHorizontal ? dividerHeight : undefined, // Divider for horizontal mode
+                  height: !isHorizontal ? dividerHeight : undefined, // Divider for vertical mode
+                }}
+              />
               {children}
+              {/* Duplicate children to create continuous scrolling effect */}
             </>
           )}
         </Animated.View>
@@ -146,5 +172,4 @@ const AutoScrolling: React.FC<AutoScrollingProps> = ({
   );
 };
 
-// Export the component wrapped with React.memo for performance optimization
-export default React.memo(AutoScrolling);
+export default React.memo(AutoScrolling); // Memoize component to optimize re-renders

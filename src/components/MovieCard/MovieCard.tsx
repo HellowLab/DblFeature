@@ -1,37 +1,38 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Text,
   View,
+  Image,
   ImageBackground,
   TouchableOpacity,
   Animated,
 } from "react-native";
 import AutoScroll from "../AutoScroll";
 import { styles } from "./MovieCard.styles";
+import { CastMember, CrewMember } from "@/src/utils/types/types";
 
-// Define the interface for the MovieCard component's props
 export interface MovieCardProps {
   id: number;
   name: string;
   image: string;
   bio: string;
-  cast: string[];
-  crew: string[];
+  cast: CastMember[];
+  crew: CrewMember[];
   reviews: string[];
 }
 
-// MovieCard functional component that accepts a movie object as a prop
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
-  const { name, image, bio, cast, crew, reviews } = props.movie; // Destructure the movie object to extract its properties
-  const [isExpanded, setIsExpanded] = useState(false); // State to track whether the bio section is expanded or not
-  const [currentPage, setCurrentPage] = useState(0); // State to track the current page in the card (0 = default, 1 = Cast & Crew, 2 = Reviews)
-  const numPages = 3; // Constant to define the number of pages in the card
-  const animatedHeight = useRef(new Animated.Value(50)).current; // Animated value for controlling the height of the bio section
+  const { name, image, bio, cast, crew, reviews } = props.movie;
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const numPages = 3;
+  const animatedHeight = useRef(new Animated.Value(50)).current;
 
-  /**
-   * Handles swipe gestures to navigate between different pages in the card.
-   * @param direction - The direction of the swipe ("left" or "right").
-   */
+  useEffect(() => {
+    console.log("Cast members:", cast);
+    console.log("Crew members:", crew);
+  }, [cast, crew]);
+
   const handleSwipe = (direction: "left" | "right") => {
     if (direction === "left" && currentPage < numPages - 1) {
       setCurrentPage(currentPage + 1);
@@ -40,22 +41,94 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     }
   };
 
-  /**
-   * Toggles the expansion of the bio section. The height of the section is animated.
-   */
   const toggleExpand = () => {
     Animated.spring(animatedHeight, {
-      toValue: isExpanded ? 50 : 250, // Expand or collapse the bio section
+      toValue: isExpanded ? 50 : 250,
       friction: 5,
-      useNativeDriver: false, // Animation should not use the native driver as height is being animated
+      useNativeDriver: false,
     }).start();
-    setIsExpanded(!isExpanded); // Toggle the expanded state
+    setIsExpanded(!isExpanded);
   };
 
-  /**
-   * Renders the main content of the card based on the current page.
-   * Page 1 shows Cast & Crew, Page 2 shows Reviews.
-   */
+  const renderMembersWithAutoScroll = (
+    members: (CastMember | CrewMember)[],
+    isCast: boolean,
+    invertDirection: boolean
+  ) => {
+    if (members.length === 0) {
+      return <Text style={styles.memberText}>No members available</Text>;
+    }
+
+    const half = Math.ceil(members.length / 2);
+    const firstRow = members.slice(0, half);
+    const secondRow = members.slice(half);
+
+    return (
+      <View>
+        <AutoScroll
+          isHorizontal
+          delay={100}
+          duration={20000}
+          style={{ height: 100 }}
+          isRTL={invertDirection}
+        >
+          <View style={styles.horizontalList}>
+            {firstRow.map((member, index) => (
+              <View key={index} style={styles.gridItem}>
+                {member.profile_path ? (
+                  <Image
+                    source={{
+                      uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
+                    }}
+                    style={styles.profileImage}
+                  />
+                ) : (
+                  <View style={styles.placeholderImage} />
+                )}
+                <Text style={styles.memberText}>
+                  {isCast
+                    ? `${(member as CastMember).character}`
+                    : `${(member as CrewMember).job}`}
+                </Text>
+                <Text style={styles.memberName}>{member.name}</Text>
+              </View>
+            ))}
+          </View>
+        </AutoScroll>
+        <AutoScroll
+          isHorizontal
+          delay={100}
+          duration={20000}
+          style={{ height: 100 }}
+          isRTL={invertDirection}
+        >
+          <View style={styles.horizontalList}>
+            {secondRow.map((member, index) => (
+              <View key={index} style={styles.gridItem}>
+                {member.profile_path ? (
+                  <Image
+                    source={{
+                      uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
+                    }}
+                    style={styles.profileImage}
+                  />
+                ) : (
+                  <View style={styles.placeholderImage} />
+                )}
+                <Text style={styles.memberText}>
+                  {isCast
+                    ? `${(member as CastMember).character}`
+                    : `${(member as CrewMember).job}`}
+                </Text>
+                <Text style={styles.memberName}>{member.name}</Text>
+              </View>
+            ))}
+          </View>
+        </AutoScroll>
+      </View>
+    );
+  };
+
   const renderMainContent = () => {
     switch (currentPage) {
       case 1:
@@ -63,36 +136,13 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           <View style={styles.centeredContent}>
             <Text style={styles.title}>Cast & Crew</Text>
             <View style={styles.castCrewContainer}>
-              {/* Auto-scrolling list for Cast */}
               <View>
                 <Text style={styles.sectionTitle}>Cast:</Text>
-                <AutoScroll
-                  delay={500} // Delay before starting the scroll
-                >
-                  <View>
-                    {cast.map((member, index) => (
-                      <Text key={index} style={styles.member}>
-                        {member}
-                      </Text>
-                    ))}
-                  </View>
-                </AutoScroll>
+                {renderMembersWithAutoScroll(cast, true, true)}
               </View>
-              {/* Auto-scrolling list for Crew */}
               <View>
                 <Text style={styles.sectionTitle}>Crew:</Text>
-                <AutoScroll
-                  delay={500} // Delay before starting the scroll
-                  isBTT={true}
-                >
-                  <View>
-                    {crew.map((member, index) => (
-                      <Text key={index} style={styles.member}>
-                        {member}
-                      </Text>
-                    ))}
-                  </View>
-                </AutoScroll>
+                {renderMembersWithAutoScroll(crew, false, false)}
               </View>
             </View>
           </View>
@@ -109,7 +159,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           </View>
         );
       default:
-        return null; // Return null if the page is not Cast & Crew or Reviews
+        return null;
     }
   };
 
@@ -120,30 +170,27 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           source={{ uri: image }}
           style={styles.image}
           imageStyle={styles.imageStyle}
-          blurRadius={currentPage > 0 ? 10 : 0} // Apply blur on pages 1 and 2
+          blurRadius={currentPage > 0 ? 10 : 0}
         >
           <View style={styles.cardInner}>
-            {/* Render the main content based on the current page */}
             {renderMainContent()}
-            {/* Footer with title and bio, visible on all pages */}
             <TouchableOpacity
               style={styles.contentContainer}
               onPress={toggleExpand}
-              activeOpacity={0.8} // Reduce opacity on press for visual feedback
+              activeOpacity={0.8}
             >
               <Text style={styles.name}>{name}</Text>
               <Animated.View
-                style={{ height: animatedHeight, overflow: "hidden" }} // Animated bio height
+                style={{ height: animatedHeight, overflow: "hidden" }}
               >
                 <Text
-                  style={[styles.bio, !isExpanded ? styles.fadedBio : null]} // Apply faded style when collapsed
-                  numberOfLines={isExpanded ? undefined : 2} // Limit lines when collapsed
+                  style={[styles.bio, !isExpanded ? styles.fadedBio : null]}
+                  numberOfLines={isExpanded ? undefined : 2}
                 >
                   {bio}
                 </Text>
               </Animated.View>
             </TouchableOpacity>
-            {/* Clickable areas for swiping left and right */}
             <TouchableOpacity
               style={styles.swipeAreaLeft}
               onPress={() => handleSwipe("right")}
@@ -155,7 +202,6 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           </View>
         </ImageBackground>
 
-        {/* Pagination indicators */}
         <View style={styles.pagination}>
           {Array.from({ length: numPages }).map((_, index) => (
             <View
