@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, useWindowDimensions } from "react-native";
-import { fetchMovies } from "@/src/utils/APIs/TMDB";
+import { fetchMovies, getMovieCredits } from "@/src/utils/APIs/TMDB"; // Import the getMovieCredits function
 import LoadingIndicator from "../../components/LoadingIndicator";
 //@ts-ignore
 import LIKE from "../../assets/images/LIKE.png";
@@ -10,7 +10,7 @@ import MovieCard, { MovieCardProps } from "@/src/components/MovieCard";
 import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
 import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
-import { tmdbMovie } from "@/src/utils/types/types"
+import { tmdbMovie, tmdbCredits } from "@/src/utils/types/types"; // Import types
 
 /**
  * HomeScreen Component
@@ -38,19 +38,29 @@ const HomeScreen = () => {
     const getMovies = async () => {
       try {
         const moviesData: tmdbMovie[] = await fetchMovies(1);
-        const formattedMovies: MovieCardProps[] = moviesData.map((movie) => ({
-          id: movie.id,
-          name: movie.title,
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "",
-          bio: movie.overview,
-          cast: [], // TODO: get array of cast members
-          crew: [], // TODO: get array of crew members
-          reviews: [], /// TODO: get array of reviews
-        }));
+        const moviesWithCredits: MovieCardProps[] = await Promise.all(
+          moviesData.map(async (movie) => {
+            const credits: tmdbCredits = await getMovieCredits(movie.id); // Fetch credits for each movie
 
-        setMovies(formattedMovies);
+            // Map the cast and crew to arrays of names
+            const castNames = credits.cast.map((member) => member.name); // Convert cast to string array of names
+            const crewNames = credits.crew.map((member) => member.name); // Convert crew to string array of names
+
+            return {
+              id: movie.id,
+              name: movie.title,
+              image: movie.poster_path
+                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                : "",
+              bio: movie.overview,
+              cast: castNames, // Use array of cast names
+              crew: crewNames, // Use array of crew names
+              reviews: [], // TODO: get array of reviews
+            };
+          })
+        );
+
+        setMovies(moviesWithCredits); // Update state with movies and their credits
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
@@ -117,6 +127,7 @@ const HomeScreen = () => {
           overlay={{ likeOpacity, nopeOpacity }}
           preventSwipe={["up", "down"]}
           cardPositionX={cardPositionX}
+          swipeThreshold={0.5}
         >
           <Animated.View style={styles.currentCardContainer}>
             <Animated.Image

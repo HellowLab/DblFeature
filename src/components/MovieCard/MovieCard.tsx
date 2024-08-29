@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import AutoScroll from "../AutoScroll";
 import { styles } from "./MovieCard.styles";
 
 // Define the interface for the MovieCard component's props
@@ -61,21 +62,38 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         return (
           <View style={styles.centeredContent}>
             <Text style={styles.title}>Cast & Crew</Text>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Cast:</Text>
-              {(cast || []).map((member, index) => (
-                <Text key={index} style={styles.member}>
-                  {member}
-                </Text>
-              ))}
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Crew:</Text>
-              {(crew || []).map((member, index) => (
-                <Text key={index} style={styles.member}>
-                  {member}
-                </Text>
-              ))}
+            <View style={styles.castCrewContainer}>
+              {/* Auto-scrolling list for Cast */}
+              <View>
+                <Text style={styles.sectionTitle}>Cast:</Text>
+                <AutoScroll
+                  delay={500} // Delay before starting the scroll
+                >
+                  <View>
+                    {cast.map((member, index) => (
+                      <Text key={index} style={styles.member}>
+                        {member}
+                      </Text>
+                    ))}
+                  </View>
+                </AutoScroll>
+              </View>
+              {/* Auto-scrolling list for Crew */}
+              <View>
+                <Text style={styles.sectionTitle}>Crew:</Text>
+                <AutoScroll
+                  delay={500} // Delay before starting the scroll
+                  isBTT={true}
+                >
+                  <View>
+                    {crew.map((member, index) => (
+                      <Text key={index} style={styles.member}>
+                        {member}
+                      </Text>
+                    ))}
+                  </View>
+                </AutoScroll>
+              </View>
             </View>
           </View>
         );
@@ -83,7 +101,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         return (
           <View style={styles.centeredContent}>
             <Text style={styles.title}>Reviews</Text>
-            {(reviews || []).map((review, index) => (
+            {reviews.map((review, index) => (
               <Text key={index} style={styles.review}>
                 {review}
               </Text>

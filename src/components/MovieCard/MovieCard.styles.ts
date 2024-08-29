@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
   },
   centeredContent: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 20,
   },
@@ -114,20 +114,37 @@ export const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     color: "white",
-    marginBottom: 15,
+    marginTop: 25,
+    marginBottom: 10,
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+    textAlign: "center",
   },
-  section: {
-    marginBottom: 10,
+  castCrewContainer: {
+    flexDirection: "row", // Arrange Cast and Crew lists side by side
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    width: "100%",
+    height: "82%",
+    paddingHorizontal: 10,
+  },
+  scrollListContainer: {
+    width: "48%", // Ensure each list takes up half the width
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 10,
+  },
+  autoScrollVertical: {
+    height: 100, // Fixed height to define the scrolling area
+    width: "80%",
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#ccc",
-    marginBottom: 10,
+    marginVertical: 5, // Margin to separate title from the list
+    textAlign: "center",
   },
   member: {
     fontSize: 18,

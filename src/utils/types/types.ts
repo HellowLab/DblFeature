@@ -1,7 +1,5 @@
-
 // define custom color scheme name
 export type ColorSchemeName = "light" | "dark" | "system" | null | undefined;
-
 
 // Define the Movie interface to type the movie data
 export interface tmdbMovie {
@@ -28,9 +26,39 @@ export interface DjangoMovie {
   myComments?: string | null; // Optional or can be null
 }
 
-// API response object 
+// API response object
 export interface APIResponse {
   data: any;
   status: number;
   message?: string;
+}
+
+// Define the structure for a Cast member
+export interface CastMember {
+  cast_id: number;
+  character: string;
+  credit_id: string;
+  gender: number | null; // 1 for female, 2 for male, null if not specified
+  id: number;
+  name: string;
+  order: number; // The order of the cast member in credits
+  profile_path: string | null; // Path to the profile image, can be null
+}
+
+// Define the structure for a Crew member
+export interface CrewMember {
+  credit_id: string;
+  department: string; // Department like Directing, Writing, etc.
+  gender: number | null; // 1 for female, 2 for male, null if not specified
+  id: number;
+  job: string; // Job title, like Director, Writer, etc.
+  name: string;
+  profile_path: string | null; // Path to the profile image, can be null
+}
+
+// Define the structure for TMDB credits, including cast and crew
+export interface tmdbCredits {
+  id: number; // Movie ID
+  cast: CastMember[]; // Array of cast members
+  crew: CrewMember[]; // Array of crew members
 }
