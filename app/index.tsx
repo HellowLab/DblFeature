@@ -6,10 +6,12 @@ import { AppLogo } from "@/src/components/images/AppLogo";
 import Loader from "@/src/components/loaders/Loader";
 
 import { getMyUserInfo, isTokenValid } from "@/src/utils/APIs/api";
+import { useUserStore } from "@/src/utils/store/UserStore";
 
 // This can be used as the splash screen to perform any api calls or other async tasks
 // and then redirect to the login screen or any other screen if the user is already logged in.
 const Index = () => {
+  const { setUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
 
   /**
@@ -18,31 +20,27 @@ const Index = () => {
    */
   const isLoggedIn = async () => {
     try {
-      const token = await getToken();
+      // Check if the token is valid
+      const validToken = await isTokenValid();
+      
+      if (validToken) {
+        // if token is valid, get my user info using token
+        const userRes = await getMyUserInfo();
 
-      if (token) {
-        const refreshRes = await isTokenValid(token);
-        if (refreshRes) {
-          // if token is valid, get my user info using token
-          const userRes = await getMyUserInfo();
-          console.log("userRes", userRes);
-
-          // if user info is successfully fetched, navigate to the drawer screen
-          if (userRes.status === 200) {
-            router.push("/(drawer)");
-          }
-          else {
-            // if user info cannot be fetched, redirect to the login screen
-            router.push("/(login)");
-          }
-
-          
-          // Add a 3-second delay before navigating to the drawer screen
-          setTimeout(() => {
-            // this is a good opportunity to refresh other app level data while still in the splash screen
-            router.push("/(drawer)");
-          }, 3000);
+        // if user info is successfully fetched, navigate to the drawer screen
+        if (userRes.status === 200) {
+          setUser(userRes.data);
+          router.push("/(drawer)");
         }
+        else {
+          // if user info cannot be fetched, redirect to the login screen
+          router.push("/(login)");
+        } 
+      //   // Add a 3-second delay before navigating to the drawer screen
+      //   setTimeout(() => {
+      //     // this is a good opportunity to refresh other app level data while still in the splash screen
+      //     router.push("/(drawer)");
+      //   }, 3000);
       }
       else {
         // if the token cannot be found or refreshed, redirect to the login screen
