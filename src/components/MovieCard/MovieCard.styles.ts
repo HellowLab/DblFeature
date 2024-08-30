@@ -148,9 +148,37 @@ export const styles = StyleSheet.create({
   placeholderImage: {
     width: 50,
     height: 50,
-    borderRadius: 30,
-    backgroundColor: "#ccc",
-    marginBottom: 5,
+    borderRadius: 25,
+    backgroundColor: "#e0e0e0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  initialsText: {
+    fontSize: 18,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  autoScrollName: {
+    width: "100%",
+    height: 20,
+  },
+  autoScrollTitle: {
+    width: "100%",
+    height: 15,
+  },
+  backButton: {
+    marginTop: 20, // Add some space at the top
+    paddingVertical: 10, // Vertical padding for the button
+    paddingHorizontal: 20, // Horizontal padding for the button
+    backgroundColor: "#007BFF", // Blue background color for visibility
+    borderRadius: 5, // Rounded corners
+    alignSelf: "center", // Center the button horizontally
+  },
+  backButtonText: {
+    color: "#FFFFFF", // White text color for contrast
+    fontSize: 16, // Font size for the text
+    fontWeight: "bold", // Bold text
+    textAlign: "center", // Center the text within the button
   },
   memberText: {
     fontSize: 14,

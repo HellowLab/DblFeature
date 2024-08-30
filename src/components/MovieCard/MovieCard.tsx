@@ -21,6 +21,13 @@ export interface MovieCardProps {
   reviews: string[];
 }
 
+// Function to extract initials from a name
+const getInitials = (name: string) => {
+  const nameParts = name.split(" ");
+  const initials = nameParts.map((part) => part[0]).join("");
+  return initials.toUpperCase();
+};
+
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   const { name, image, bio, cast, crew, reviews } = props.movie;
   const [isExpanded, setIsExpanded] = useState(false);
@@ -76,8 +83,8 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
       Animated.parallel([
         Animated.sequence([
           Animated.timing(animatedScale, {
-            toValue: 1.05, // Slightly increase size
-            duration: 100,
+            toValue: 1.025, // Slightly increase size
+            duration: 90,
             useNativeDriver: true,
           }),
           Animated.spring(animatedScale, {
@@ -88,13 +95,13 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         ]),
         Animated.sequence([
           Animated.timing(targetOpacity, {
-            toValue: 0.15, // Fade to half opacity
-            duration: 100,
+            toValue: 0.25, // Fade to half opacity
+            duration: 90,
             useNativeDriver: true,
           }),
           Animated.timing(targetOpacity, {
             toValue: 0, // Fade back to transparent
-            duration: 100,
+            duration: 90,
             useNativeDriver: true,
           }),
         ]),
@@ -145,7 +152,11 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
                       style={styles.profileImage}
                     />
                   ) : (
-                    <View style={styles.placeholderImage} />
+                    <View style={styles.placeholderImage}>
+                      <Text style={styles.initialsText}>
+                        {getInitials(member.name)}
+                      </Text>
+                    </View>
                   )}
                   <Text style={styles.memberText}>
                     {isCast
@@ -175,7 +186,11 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
                       style={styles.profileImage}
                     />
                   ) : (
-                    <View style={styles.placeholderImage} />
+                    <View style={styles.placeholderImage}>
+                      <Text style={styles.initialsText}>
+                        {getInitials(member.name)}
+                      </Text>
+                    </View>
                   )}
                   <Text style={styles.memberText}>
                     {isCast
