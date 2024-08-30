@@ -36,6 +36,8 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     extrapolate: "clamp",
   });
   const animatedScale = useRef(new Animated.Value(1)).current; // For bounce effect on card
+  const leftCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for left semicircle
+  const rightCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for right semicircle
 
   // Function to measure content height
   const onBioLayout = useCallback((event: any) => {
@@ -67,18 +69,35 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   // Function to handle swipe and add bounce effect
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
-      // Apply bounce animation
-      Animated.sequence([
-        Animated.timing(animatedScale, {
-          toValue: 1.02, // Slightly increase size
-          duration: 75,
-          useNativeDriver: true,
-        }),
-        Animated.spring(animatedScale, {
-          toValue: 1, // Bounce back to original size
-          friction: 3,
-          useNativeDriver: true,
-        }),
+      // Determine which semicircle to animate based on swipe direction
+      const targetOpacity =
+        direction === "left" ? rightCircleOpacity : leftCircleOpacity;
+
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(animatedScale, {
+            toValue: 1.05, // Slightly increase size
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.spring(animatedScale, {
+            toValue: 1, // Bounce back to original size
+            friction: 3,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(targetOpacity, {
+            toValue: 0.15, // Fade to half opacity
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(targetOpacity, {
+            toValue: 0, // Fade back to transparent
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ]),
       ]).start();
 
       // Change page
@@ -88,7 +107,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         setCurrentPage(currentPage - 1);
       }
     },
-    [currentPage, numPages]
+    [currentPage, numPages, leftCircleOpacity, rightCircleOpacity]
   );
 
   // Render cast and crew with auto-scroll
@@ -221,6 +240,35 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           blurRadius={currentPage > 0 ? 10 : 0} // Adjust blur as needed
         >
           <View style={styles.cardInner}>
+            {/* Left Semicircle */}
+            <Animated.View
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: "65%",
+                height: "100%", // Full height of the card
+                borderTopRightRadius: 100, // Large radius to create a smooth curve
+                borderBottomRightRadius: 100,
+                backgroundColor: `rgba(0, 0, 0, 0.5)`,
+                opacity: leftCircleOpacity,
+              }}
+            />
+            {/* Right Semicircle */}
+            <Animated.View
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 0,
+                width: "65%",
+                height: "100%", // Full height of the card
+                borderTopLeftRadius: 100, // Large radius to create a smooth curve
+                borderBottomLeftRadius: 100,
+                backgroundColor: `rgba(0, 0, 0, 0.5)`,
+                opacity: rightCircleOpacity,
+              }}
+            />
+
             {renderMainContent()}
             <TouchableOpacity
               style={styles.contentContainer}
