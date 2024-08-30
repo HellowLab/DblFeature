@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Text,
   View,
@@ -35,12 +35,13 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     outputRange: [0.5, 1], // Gradually increase opacity as it expands
     extrapolate: "clamp",
   });
+  const animatedScale = useRef(new Animated.Value(1)).current; // For bounce effect on card
 
   // Function to measure content height
-  const onBioLayout = (event: any) => {
+  const onBioLayout = useCallback((event: any) => {
     const { height } = event.nativeEvent.layout;
     setBioHeight(height);
-  };
+  }, []);
 
   // Update animated height based on bio length
   useEffect(() => {
@@ -49,113 +50,131 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     }
   }, [bioHeight]);
 
+  // Animation for expanding bio
   useEffect(() => {
-    if (isExpanded) {
-      Animated.spring(animatedHeight, {
-        toValue: contentHeight,
-        friction: 5,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.spring(animatedHeight, {
-        toValue: 50, // Collapse to initial height
-        friction: 5,
-        useNativeDriver: false,
-      }).start();
-    }
+    Animated.spring(animatedHeight, {
+      toValue: isExpanded ? contentHeight : 50,
+      friction: 5,
+      useNativeDriver: false, // Cannot use native driver with height
+    }).start();
   }, [isExpanded, contentHeight]);
 
-  const toggleExpand = () => {
+  // Function to toggle bio expansion
+  const toggleExpand = useCallback(() => {
     setIsExpanded((prev) => !prev);
-  };
+  }, []);
 
-  const handleSwipe = (direction: "left" | "right") => {
-    if (direction === "left" && currentPage < numPages - 1) {
-      setCurrentPage(currentPage + 1);
-    } else if (direction === "right" && currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  // Function to handle swipe and add bounce effect
+  const handleSwipe = useCallback(
+    (direction: "left" | "right") => {
+      // Apply bounce animation
+      Animated.sequence([
+        Animated.timing(animatedScale, {
+          toValue: 1.02, // Slightly increase size
+          duration: 75,
+          useNativeDriver: true,
+        }),
+        Animated.spring(animatedScale, {
+          toValue: 1, // Bounce back to original size
+          friction: 3,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-  const renderMembersWithAutoScroll = (
-    members: (CastMember | CrewMember)[],
-    isCast: boolean,
-    invertDirection: boolean
-  ) => {
-    if (members.length === 0) {
-      return <Text style={styles.memberText}>No members available</Text>;
-    }
+      // Change page
+      if (direction === "left" && currentPage < numPages - 1) {
+        setCurrentPage(currentPage + 1);
+      } else if (direction === "right" && currentPage > 0) {
+        setCurrentPage(currentPage - 1);
+      }
+    },
+    [currentPage, numPages]
+  );
 
-    const half = Math.ceil(members.length / 2);
-    const firstRow = members.slice(0, half);
-    const secondRow = members.slice(half);
+  // Render cast and crew with auto-scroll
+  const renderMembersWithAutoScroll = useCallback(
+    (
+      members: (CastMember | CrewMember)[],
+      isCast: boolean,
+      invertDirection: boolean
+    ) => {
+      if (members.length === 0) {
+        return <Text style={styles.memberText}>No members available</Text>;
+      }
 
-    return (
-      <View>
-        <AutoScroll
-          isHorizontal
-          delay={100}
-          duration={20000}
-          style={{ height: 100 }}
-          isRTL={invertDirection}
-        >
-          <View style={styles.horizontalList}>
-            {firstRow.map((member, index) => (
-              <View key={index} style={styles.gridItem}>
-                {member.profile_path ? (
-                  <Image
-                    source={{
-                      uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
-                    }}
-                    style={styles.profileImage}
-                  />
-                ) : (
-                  <View style={styles.placeholderImage} />
-                )}
-                <Text style={styles.memberText}>
-                  {isCast
-                    ? `${(member as CastMember).character}`
-                    : `${(member as CrewMember).job}`}
-                </Text>
-                <Text style={styles.memberName}>{member.name}</Text>
-              </View>
-            ))}
-          </View>
-        </AutoScroll>
-        <AutoScroll
-          isHorizontal
-          delay={100}
-          duration={20000}
-          style={{ height: 100 }}
-          isRTL={invertDirection}
-        >
-          <View style={styles.horizontalList}>
-            {secondRow.map((member, index) => (
-              <View key={index} style={styles.gridItem}>
-                {member.profile_path ? (
-                  <Image
-                    source={{
-                      uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
-                    }}
-                    style={styles.profileImage}
-                  />
-                ) : (
-                  <View style={styles.placeholderImage} />
-                )}
-                <Text style={styles.memberText}>
-                  {isCast
-                    ? `${(member as CastMember).character}`
-                    : `${(member as CrewMember).job}`}
-                </Text>
-                <Text style={styles.memberName}>{member.name}</Text>
-              </View>
-            ))}
-          </View>
-        </AutoScroll>
-      </View>
-    );
-  };
+      const half = Math.ceil(members.length / 2);
+      const firstRow = members.slice(0, half);
+      const secondRow = members.slice(half);
 
+      return (
+        <View>
+          <AutoScroll
+            isHorizontal
+            delay={100}
+            duration={20000}
+            style={{ height: 100 }}
+            isRTL={invertDirection}
+          >
+            <View style={styles.horizontalList}>
+              {firstRow.map((member, index) => (
+                <View key={index} style={styles.gridItem}>
+                  {member.profile_path ? (
+                    <Image
+                      source={{
+                        uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
+                      }}
+                      style={styles.profileImage}
+                    />
+                  ) : (
+                    <View style={styles.placeholderImage} />
+                  )}
+                  <Text style={styles.memberText}>
+                    {isCast
+                      ? `${(member as CastMember).character}`
+                      : `${(member as CrewMember).job}`}
+                  </Text>
+                  <Text style={styles.memberName}>{member.name}</Text>
+                </View>
+              ))}
+            </View>
+          </AutoScroll>
+          <AutoScroll
+            isHorizontal
+            delay={100}
+            duration={20000}
+            style={{ height: 100 }}
+            isRTL={invertDirection}
+          >
+            <View style={styles.horizontalList}>
+              {secondRow.map((member, index) => (
+                <View key={index} style={styles.gridItem}>
+                  {member.profile_path ? (
+                    <Image
+                      source={{
+                        uri: `https://image.tmdb.org/t/p/w185${member.profile_path}`,
+                      }}
+                      style={styles.profileImage}
+                    />
+                  ) : (
+                    <View style={styles.placeholderImage} />
+                  )}
+                  <Text style={styles.memberText}>
+                    {isCast
+                      ? `${(member as CastMember).character}`
+                      : `${(member as CrewMember).job}`}
+                  </Text>
+                  <Text style={styles.memberName}>{member.name}</Text>
+                </View>
+              ))}
+            </View>
+          </AutoScroll>
+        </View>
+      );
+    },
+    []
+  );
+
+  // Render main content based on the current page
   const renderMainContent = () => {
     switch (currentPage) {
       case 1:
@@ -192,12 +211,14 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
 
   return (
     <View style={styles.cardWrapper}>
-      <View style={styles.card}>
+      <Animated.View
+        style={[styles.card, { transform: [{ scale: animatedScale }] }]}
+      >
         <ImageBackground
           source={{ uri: image }}
           style={styles.image}
           imageStyle={styles.imageStyle}
-          blurRadius={currentPage > 0 ? 10 : 0} // Adjust blur as we need
+          blurRadius={currentPage > 0 ? 10 : 0} // Adjust blur as needed
         >
           <View style={styles.cardInner}>
             {renderMainContent()}
@@ -256,7 +277,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
             />
           ))}
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };
