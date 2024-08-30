@@ -24,14 +24,50 @@ export interface MovieCardProps {
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   const { name, image, bio, cast, crew, reviews } = props.movie;
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const numPages = 3;
-  const animatedHeight = useRef(new Animated.Value(50)).current;
+  const [bioHeight, setBioHeight] = useState(0); // Measured bio height
+  const [contentHeight, setContentHeight] = useState(50); // Initial height set to 50
+  const [currentPage, setCurrentPage] = useState(0); // For pagination
+  const numPages = 3; // Number of pages to swipe through
+
+  const animatedHeight = useRef(new Animated.Value(50)).current; // Default initial height
+  const animatedOpacity = animatedHeight.interpolate({
+    inputRange: [50, Math.max(50, contentHeight)], // Ensure non-decreasing inputRange
+    outputRange: [0.5, 1], // Gradually increase opacity as it expands
+    extrapolate: "clamp",
+  });
+
+  // Function to measure content height
+  const onBioLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    setBioHeight(height);
+  };
+
+  // Update animated height based on bio length
+  useEffect(() => {
+    if (bioHeight > 0) {
+      setContentHeight(bioHeight + 10); // Add 10 pixels buffer to calculated height
+    }
+  }, [bioHeight]);
 
   useEffect(() => {
-    console.log("Cast members:", cast);
-    console.log("Crew members:", crew);
-  }, [cast, crew]);
+    if (isExpanded) {
+      Animated.spring(animatedHeight, {
+        toValue: contentHeight,
+        friction: 5,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.spring(animatedHeight, {
+        toValue: 50, // Collapse to initial height
+        friction: 5,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [isExpanded, contentHeight]);
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   const handleSwipe = (direction: "left" | "right") => {
     if (direction === "left" && currentPage < numPages - 1) {
@@ -39,15 +75,6 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     } else if (direction === "right" && currentPage > 0) {
       setCurrentPage(currentPage - 1);
     }
-  };
-
-  const toggleExpand = () => {
-    Animated.spring(animatedHeight, {
-      toValue: isExpanded ? 50 : 250,
-      friction: 5,
-      useNativeDriver: false,
-    }).start();
-    setIsExpanded(!isExpanded);
   };
 
   const renderMembersWithAutoScroll = (
@@ -170,7 +197,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           source={{ uri: image }}
           style={styles.image}
           imageStyle={styles.imageStyle}
-          blurRadius={currentPage > 0 ? 10 : 0}
+          blurRadius={currentPage > 0 ? 10 : 0} // Adjust blur as we need
         >
           <View style={styles.cardInner}>
             {renderMainContent()}
@@ -181,16 +208,31 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
             >
               <Text style={styles.name}>{name}</Text>
               <Animated.View
-                style={{ height: animatedHeight, overflow: "hidden" }}
+                style={{
+                  height: animatedHeight,
+                  backgroundColor: `rgba(0, 0, 0, ${animatedOpacity})`,
+                  overflow: "hidden",
+                }}
               >
+                {/* This hidden View is used to measure the actual height */}
+                <View
+                  style={{ position: "absolute", opacity: 0, top: -1000 }}
+                  onLayout={onBioLayout}
+                >
+                  <Text style={styles.bio}>{bio}</Text>
+                </View>
+
+                {/* Actual display of bio text */}
                 <Text
-                  style={[styles.bio, !isExpanded ? styles.fadedBio : null]}
+                  style={styles.bio}
                   numberOfLines={isExpanded ? undefined : 2}
                 >
                   {bio}
                 </Text>
               </Animated.View>
             </TouchableOpacity>
+
+            {/* Swipe areas for pagination */}
             <TouchableOpacity
               style={styles.swipeAreaLeft}
               onPress={() => handleSwipe("right")}
@@ -203,6 +245,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         </ImageBackground>
 
         <View style={styles.pagination}>
+          {/* Render pagination indicators */}
           {Array.from({ length: numPages }).map((_, index) => (
             <View
               key={index}
