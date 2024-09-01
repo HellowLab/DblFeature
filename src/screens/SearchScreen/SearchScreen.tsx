@@ -91,6 +91,9 @@ const SearchScreen = () => {
       if (movieResultResponse.status === 200) {
         setSelectedMovieResult(movieResultResponse.data);
       }
+      else {
+        setSelectedMovieResult(null);
+      }
     } catch (error) {
       // Log any errors encountered while fetching movie details
       console.error("Error fetching movie details:", error);

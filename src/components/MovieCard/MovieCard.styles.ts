@@ -106,33 +106,88 @@ export const styles = StyleSheet.create({
   },
   centeredContent: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     color: "white",
-    marginBottom: 15,
+    marginTop: 25,
+    marginBottom: 10,
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+    textAlign: "center",
   },
-  section: {
-    marginBottom: 10,
+  castCrewContainer: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    width: "100%",
+  },
+  horizontalList: {
+    flexDirection: "row",
     alignItems: "center",
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#ccc",
-    marginBottom: 10,
+  gridItem: {
+    width: 100,
+    height: 20,
+    marginBottom: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
   },
-  member: {
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    marginVertical: 5,
+  },
+  placeholderImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#e0e0e0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  initialsText: {
     fontSize: 18,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  autoScrollName: {
+    width: "100%",
+    height: 20,
+  },
+  autoScrollTitle: {
+    width: "100%",
+    height: 15,
+  },
+  backButton: {
+    marginTop: 20, // Add some space at the top
+    paddingVertical: 10, // Vertical padding for the button
+    paddingHorizontal: 20, // Horizontal padding for the button
+    backgroundColor: "#007BFF", // Blue background color for visibility
+    borderRadius: 5, // Rounded corners
+    alignSelf: "center", // Center the button horizontally
+  },
+  backButtonText: {
+    color: "#FFFFFF", // White text color for contrast
+    fontSize: 16, // Font size for the text
+    fontWeight: "bold", // Bold text
+    textAlign: "center", // Center the text within the button
+  },
+  memberText: {
+    fontSize: 14,
     color: "white",
-    marginBottom: 5,
+    textAlign: "center",
+  },
+  memberName: {
+    fontSize: 12,
+    color: "#ccc",
     textAlign: "center",
   },
   review: {
@@ -140,5 +195,13 @@ export const styles = StyleSheet.create({
     color: "white",
     marginVertical: 5,
     textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ccc",
+    marginVertical: 5,
+    marginLeft: 10,
+    textAlign: "left",
   },
 });

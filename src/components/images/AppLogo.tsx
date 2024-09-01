@@ -1,7 +1,7 @@
 
 import React from 'react';
 import {Image, View} from 'react-native';
-import useThemeStore from '@/src/utils/store/ThemeStore';
+import { useTheme } from '@react-navigation/native';
 
 // Import custom styles
 import { myStyles } from "@/src/utils/constants/styles";
@@ -30,11 +30,11 @@ const AppLogoDarkMode: React.FC = () => {
  * @returns {JSX.Element} - The rendered light mode logo.
  */
 export const AppLogo: React.FC = () => {
-  const { theme } = useThemeStore();
+  const { dark  } = useTheme();
 
   return (
     <View>
-      {theme === 'dark' ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
+      {dark === true ? (<AppLogoDarkMode/>) : (<AppLogoLightMode/>)}
     </View>
   )
 }

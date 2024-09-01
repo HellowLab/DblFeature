@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, useWindowDimensions } from "react-native";
-import { fetchMovies } from "@/src/utils/APIs/TMDB";
+import { fetchMovies, getMovieCredits } from "@/src/utils/APIs/TMDB";
 import LoadingIndicator from "../../components/LoadingIndicator";
 //@ts-ignore
 import LIKE from "../../assets/images/LIKE.png";
@@ -10,7 +10,7 @@ import MovieCard, { MovieCardProps } from "@/src/components/MovieCard";
 import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
 import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
-import { tmdbMovie } from "@/src/utils/types/types"
+import { tmdbMovie, tmdbCredits } from "@/src/utils/types/types";
 
 import { DjangoMovie } from "@/src/utils/types/types";
 import { getMovieResults } from "@/src/utils/APIs/api";
@@ -26,15 +26,11 @@ import { tmdb_index_type } from "@/src/utils/types/types";
  * allows users to swipe left or right to indicate their preference for each movie.
  */
 const HomeScreen = () => {
-  // Get the screen width using the useWindowDimensions hook.
   const { width: screenWidth } = useWindowDimensions();
-
-  // Create animated values for handling swipe interactions.
   const likeOpacity = useRef(new Animated.Value(0)).current;
   const nopeOpacity = useRef(new Animated.Value(0)).current;
   const cardPositionX = useRef(new Animated.Value(0)).current;
 
-  // State to hold the list of movies and loading state.
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchMoreMovies, setFetchMoreMovies] = useState(true);
@@ -44,11 +40,13 @@ const HomeScreen = () => {
 
   // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
+
     const getMovies = async () => {
       let fetchMoreData = true; // Controls the loop for fetching additional movies
       let myMoviesList: number[] = []; // List of TMDB IDs fetched from your backend
       let newMovies: tmdbMovie[] = []; // New movies fetched from TMDB API
-      let allMovies: tmdbMovie[] = []; // Combined list of all fetched movies
+      let allMovies: MovieCardProps[] = []; // Combined list of all fetched movies
+      let moviesWithCredits: MovieCardProps[] = []; // Movies with detailed cast and crew info
       let tempIndex = tmdbIndex; // Index for tracking the page number for the TMDB API
 
       // Fetch the list of movies from your backend
@@ -81,42 +79,51 @@ const HomeScreen = () => {
       while (fetchMoreData) {
         try {
           console.log("Fetching movies from TMDB API... index:", tempIndex);
-          newMovies = await fetchMovies(tempIndex); // Fetch movies from TMDB API
+          newMovies = await fetchMovies(tempIndex); // Fetch new list of movies from TMDB API
           tempIndex += 1; // Increment the page index for the next API call
+
+          // Add detailed cast and crew information to each new movie item
+          moviesWithCredits = await Promise.all(
+            newMovies.map(async (movie) => {
+              const credits: tmdbCredits = await getMovieCredits(movie.id);
+
+              // Use detailed cast and crew information
+              return {
+                id: movie.id,
+                name: movie.title,
+                image: movie.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                  : "",
+                bio: movie.overview,
+                cast: credits.cast.slice(0, 10), // Take the top 10 cast members
+                crew: credits.crew.slice(0, 10), // Take the top 10 crew members
+                reviews: [], // TODO: get array of reviews
+              };
+            })
+          );
 
           // Filter out movies already in myMoviesList
           if (myMoviesList.length > 0) {
-            newMovies = newMovies.filter(
+            moviesWithCredits = moviesWithCredits.filter(
               (movie) => !myMoviesList.includes(movie.id)
             );
           }
 
           // Combine previously fetched movies with newMovies, ensuring uniqueness
-          allMovies = Array.from(new Set([...allMovies, ...newMovies]));
+          allMovies = Array.from(new Set([...allMovies, ...moviesWithCredits]));
 
           // Stop fetching if more than 15 movies are accumulated
           if (allMovies.length > 15) {
             fetchMoreData = false;
           }
+
+          // Update state with the new movie list and manage loading indicators
+          setMovies((prevMovies) => [...prevMovies, ...moviesWithCredits]);
+          
         } catch (error) {
           console.error("Error fetching movies. App will not retry:", error);
           fetchMoreData = false;
         } finally {
-          // Format the fetched movies for display
-          const formattedMovies: MovieCardProps[] = allMovies.map((movie) => ({
-            id: movie.id,
-            name: movie.title,
-            image: movie.poster_path
-              ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-              : "",
-            bio: movie.overview,
-            cast: [], // TODO: Fetch array of cast members
-            crew: [], // TODO: Fetch array of crew members
-            reviews: [], // TODO: Fetch array of reviews
-          }));
-
-          // Update state with the new movie list and manage loading indicators
-          setMovies((prevMovies) => [...prevMovies, ...formattedMovies]);
           setLoading(false);
           setTmdbIndex(tempIndex);
           setFetchMoreMovies(false);
@@ -132,22 +139,15 @@ const HomeScreen = () => {
     }
   }, [fetchMoreMovies]); // Re-run the effect when fetchMoreMovies changes
 
-  // Interpolation for card scaling based on swipe position.
   const scaleAnim = cardPositionX.interpolate({
     inputRange: [-screenWidth, 0, screenWidth],
     outputRange: [1.0, 0.8, 1.0],
     extrapolate: "clamp",
   });
 
-  // Current and next movies to be displayed in the swiper.
   const currentMovie = movies[currentIndex] ?? null;
   const nextMovie = movies[currentIndex + 1] ?? null;
 
-  /**
-   * Handles the swipe action by the user.
-   *
-   * @param {string} direction - The direction of the swipe ("left" or "right").
-   */
   const handleSwipe = (direction: string) => {
     if (direction === "right") {
       // console.log("Swiped Right:", currentMovie);
@@ -156,7 +156,6 @@ const HomeScreen = () => {
       // console.log("Swiped Left:", currentMovie);
       onSwipeLeft(currentMovie);
     }
-    // Reset card position and update the index for the next movie.
     cardPositionX.setValue(0);
     setCurrentIndex((prevIndex) => prevIndex + 1);
 
@@ -170,14 +169,12 @@ const HomeScreen = () => {
     console.log("Movies Remaining in Queue: ", movies.length - currentIndex);
   };
 
-  // Display a loading indicator while movies are being fetched.
   if (loading) {
     return <LoadingIndicator />;
   }
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {/* Render the next movie card with a scale animation */}
       {nextMovie && (
         <Animated.View
           style={[
@@ -188,8 +185,6 @@ const HomeScreen = () => {
           <MovieCard movie={nextMovie} />
         </Animated.View>
       )}
-
-      {/* Render the current movie card and the swipe interface */}
       {currentMovie && (
         <Swiper
           key={currentIndex}
@@ -197,6 +192,7 @@ const HomeScreen = () => {
           overlay={{ likeOpacity, nopeOpacity }}
           preventSwipe={["up", "down"]}
           cardPositionX={cardPositionX}
+          swipeThreshold={0.5}
         >
           <Animated.View style={styles.currentCardContainer}>
             <Animated.Image

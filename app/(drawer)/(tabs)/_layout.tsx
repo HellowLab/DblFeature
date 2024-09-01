@@ -38,7 +38,7 @@ export default function Stack2Layout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="(matches)"
           options={{
             headerShown: false,
@@ -46,7 +46,7 @@ export default function Stack2Layout() {
               <Ionicons name="checkmark" color={color} size={size} />
             ),
           }}
-        />
+        /> */}
       </Tabs>
     </GestureHandlerRootView>
   );
