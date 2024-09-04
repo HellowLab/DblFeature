@@ -58,12 +58,14 @@ export const myfetch = async (
   params?: object
 ) => {
   console.log(fetchtype + ": " + (API_BASE_URL + url));
-  console.log(JSON.stringify(params));
 
-  const maxRetries = 3;
+  if (data) console.log(JSON.stringify(data));
+  if (params) console.log(JSON.stringify(params));
+
+  const maxRetries = 1;
   let retry = 0;
   let res = null;
-  while (retry < maxRetries) {
+  while (retry <= maxRetries) {
     // try to make the api call
     try {
       if (fetchtype == "POST") {
@@ -82,19 +84,29 @@ export const myfetch = async (
       }
       return res;
     } catch (error) {
+      retry += 1; // increment retry count
+
       // handle any errors that occur
       // if the error is an Axios error caused by the api response.status
       if (axios.isAxiosError(error)) {
         // if error is caused by user not being authenticated, try to refresh the users token
         if (error.response?.status == 401) {
-          const refreshSuccess = await refreshToken();
-          if (refreshSuccess) {
-            console.log("Token refreshed");
-            retry += 1;
+          // if retry count is <= max retries, try to refresh token
+          if (retry <= maxRetries) {
+            // refresh token
+            const refreshSuccess = await refreshToken();
+
+            // if token refresh is successful, retry api call
+            if (refreshSuccess) {
+              console.log("Token refreshed");
+            } else {
+              router.push("/(login)");
+            }
           } else {
-            retry = maxRetries + 1; // exit loop
+            // if retry count is > max retries, redirect to login
             router.push("/(login)");
           }
+          
         } else {
           // Axios error
           const errorResponse = handleAxiosError(
@@ -125,8 +137,14 @@ const handleAxiosError = (axiosError: AxiosError<ErrorResponse>) => {
     return axiosError.response;
   } else if (axiosError.request) {
     // The request was made, but no response was received
-    console.error("No response received:", axiosError.request);
+    console.error("No response received.");
     // setError('Error: No response received from server.');
+
+    const apiRes: APIResponse = {
+      data: axiosError.request,
+      status: axiosError.request.status,
+      message: "No response received from server.",
+    };
     return axiosError.request;
   } else {
     // Something happened in setting up the request that triggered an Error
@@ -136,6 +154,24 @@ const handleAxiosError = (axiosError: AxiosError<ErrorResponse>) => {
   return axiosError;
 };
 
+const handle401Error = async () => {
+  // check if token is valid
+  if (await isTokenValid()) {
+    // if token is valid, refresh token
+    // if token refresh is successful, retry api call
+    if (await refreshToken()) {
+      // retry api call
+    } else {
+      // redirect to login
+    }
+  }
+
+  // if token is valid, refresh token
+
+  // if refresh token is successful, retry api call
+
+
+}
 /**
  *
  * @param username username for user to be logged in
@@ -204,17 +240,19 @@ export const refreshToken = async () => {
  * @param token The current users access token
  * @returns true if the token is valid, false otherwise
  */
-export const isTokenValid = async (token: string) => {
+export const isTokenValid = async () => {
+  const token = await getToken();
   const data = { token: token };
   try {
     const response = await myfetch("auth/token/verify/", "POST", data);
-    // console.log(response)
     if (response.status == 200) {
       return true;
     }
     return false;
   } catch (error) {
-    console.log("Error in isTokenValid function in api.tsx");
+    console.log("Error in isTokenValid function in api.tsx");    
+    console.log("isTokenValid response: ", error);
+
     if (axios.isAxiosError(error)) {
       // Axios error
       const errorResponse = handleAxiosError(
@@ -227,6 +265,25 @@ export const isTokenValid = async (token: string) => {
     }
     return false;
   }
+};
+
+/**
+ * retrieves the current user's information from the backend
+ * @returns api response
+ */
+export const getMyUserInfo = async () => {
+  const response = await myfetch("auth/myuser/", "GET");
+
+  if (response.status == 200) {
+    const apiRes: APIResponse = {
+      data: response.data,
+      status: response.status,
+      message: "User Info Returned",
+    };
+    return apiRes;
+  }
+  return response;
+
 };
 
 /**
