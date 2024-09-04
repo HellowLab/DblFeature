@@ -100,13 +100,12 @@ export const myfetch = async (
             if (refreshSuccess) {
               console.log("Token refreshed");
             } else {
-              router.push("/(login)");
+              router.replace("/(login)");
             }
           } else {
             // if retry count is > max retries, redirect to login
-            router.push("/(login)");
+            router.replace("/(login)");
           }
-          
         } else {
           // Axios error
           const errorResponse = handleAxiosError(
@@ -169,9 +168,7 @@ const handle401Error = async () => {
   // if token is valid, refresh token
 
   // if refresh token is successful, retry api call
-
-
-}
+};
 /**
  *
  * @param username username for user to be logged in
@@ -250,7 +247,7 @@ export const isTokenValid = async () => {
     }
     return false;
   } catch (error) {
-    console.log("Error in isTokenValid function in api.tsx");    
+    console.log("Error in isTokenValid function in api.tsx");
     console.log("isTokenValid response: ", error);
 
     if (axios.isAxiosError(error)) {
@@ -283,7 +280,6 @@ export const getMyUserInfo = async () => {
     return apiRes;
   }
   return response;
-
 };
 
 /**
@@ -485,7 +481,6 @@ export const getMyMovie = async (id?: number, tmdb_id?: number) => {
   }
 };
 
-
 /**
  *
  * @param popular_index index of the popular movies
@@ -520,20 +515,25 @@ export const updateTmdbIndex = async (popular_index: number) => {
       console.error("Error:", error);
     }
   }
-}
+};
 
 import { tmdb_index_type } from "../types/types";
 /**
  *
  * @returns api response
  */
-export const getTmdbIndex = async (type?: tmdb_index_type ) => {
+export const getTmdbIndex = async (type?: tmdb_index_type) => {
   const params = {
     type: type,
   };
 
   try {
-    const res = await myfetch("dblfeature/tmdbindex/", "GET", undefined, params);
+    const res = await myfetch(
+      "dblfeature/tmdbindex/",
+      "GET",
+      undefined,
+      params
+    );
     console.log("res: ", res.data);
     if (res.status == 200) {
       const apiRes: APIResponse = {
@@ -555,7 +555,7 @@ export const getTmdbIndex = async (type?: tmdb_index_type ) => {
         data: 1,
         status: errorResponse.status,
         message: "API call error",
-      }
+      };
       return apiRes;
     } else {
       // Non-Axios error
@@ -569,4 +569,4 @@ export const getTmdbIndex = async (type?: tmdb_index_type ) => {
       return apiRes;
     }
   }
-}
+};

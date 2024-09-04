@@ -22,7 +22,7 @@ const Index = () => {
     try {
       // Check if the token is valid
       const validToken = await isTokenValid();
-      
+
       if (validToken) {
         // if token is valid, get my user info using token
         const userRes = await getMyUserInfo();
@@ -30,26 +30,24 @@ const Index = () => {
         // if user info is successfully fetched, navigate to the drawer screen
         if (userRes.status === 200) {
           setUser(userRes.data);
-          router.push("/(drawer)");
-        }
-        else {
+          router.replace("/(drawer)");
+        } else {
           // if user info cannot be fetched, redirect to the login screen
-          router.push("/(login)");
-        } 
-      //   // Add a 3-second delay before navigating to the drawer screen
-      //   setTimeout(() => {
-      //     // this is a good opportunity to refresh other app level data while still in the splash screen
-      //     router.push("/(drawer)");
-      //   }, 3000);
-      }
-      else {
+          router.replace("/(login)");
+        }
+        //   // Add a 3-second delay before navigating to the drawer screen
+        //   setTimeout(() => {
+        //     // this is a good opportunity to refresh other app level data while still in the splash screen
+        //     router.push("/(drawer)");
+        //   }, 3000);
+      } else {
         // if the token cannot be found or refreshed, redirect to the login screen
-        router.push("/(login)");
+        router.replace("/(login)");
       }
       setIsLoading(false);
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
-      router.push("/(login)");
+      router.replace("/(login)");
       setIsLoading(false);
     }
   };
