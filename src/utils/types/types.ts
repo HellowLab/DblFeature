@@ -29,3 +29,6 @@ export interface APIResponse {
   status: number;
   message?: string;
 }
+
+// Define the type for the TMDB index
+export type tmdb_index_type = "popular" | "top_rated" | "upcoming" | "now_playing" | "none";
