@@ -1,41 +1,55 @@
-import React from "react";
+// MovieCardOne.tsx
+import React, { useState, useRef } from "react";
 import {
   View,
   ImageBackground,
   TouchableOpacity,
   Animated,
+  Dimensions,
 } from "react-native";
 import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@react-navigation/native";
 import { tmdbMovie, DjangoMovie, APIResponse } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 import MyText from "../TextOutput/TextOutput";
 import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
+import AutoScroll from "../AutoScroll"; // Import the AutoScroll component
 
 interface MovieCardProps {
   movie: tmdbMovie;
   movieResult?: DjangoMovie | null;
 }
 
+/**
+ * A component that displays movie details, including the title, overview,
+ * and interactive buttons for liking, disliking, and rating the movie.
+ * Incorporates auto-scrolling for long overviews.
+ *
+ * @param {tmdbMovie} movie - The movie object containing details from TMDB.
+ * @param {DjangoMovie | null} movieResult - Optional movie result object from Django API.
+ * @returns {JSX.Element} The rendered movie card component.
+ */
 const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   // State variables to track user interactions
-  const [isLiked, setIsLiked] = React.useState<boolean>(
+  const [isLiked, setIsLiked] = useState<boolean>(
     movieResult ? movieResult.liked === 1 : false // Initialize based on existing data if available
   );
-  const [isDisliked, setIsDisliked] = React.useState<boolean>(
+  const [isDisliked, setIsDisliked] = useState<boolean>(
     movieResult ? movieResult.liked === 0 : false // Initialize based on existing data if available
   );
-  const [rating, setRating] = React.useState<number>(
+  const [rating, setRating] = useState<number>(
     movieResult?.myRating ?? 0 // Initialize rating from movieResult, default to 0 if not present
   );
-  const [isTextVisible, setIsTextVisible] = React.useState<boolean>(true); // Track visibility of the footer text
+  const [isTextVisible, setIsTextVisible] = useState<boolean>(true); // Track visibility of the footer text
 
   // Full path for the movie poster
   const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
 
   // Animated value to control the opacity of the footer text
-  const textOpacity = React.useRef(new Animated.Value(1)).current;
+  const textOpacity = useRef(new Animated.Value(1)).current;
+
+  // Get the window height
+  const windowHeight = Dimensions.get("window").height;
 
   /**
    * Toggles the visibility of the footer text with a fade animation.
@@ -51,7 +65,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
 
   /**
    * Handles the logic for like and dislike button presses.
-   * @param button - 1 for 'like', 0 for 'dislike'
+   * @param {number} button - 1 for 'like', 0 for 'dislike'
    */
   const handleLikeButtons = async (button: number) => {
     let likedValue = 2; // Default value (neither liked nor disliked)
@@ -98,7 +112,7 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
 
   /**
    * Handles the logic when a user presses a star to rate the movie.
-   * @param newRating - The new rating selected by the user.
+   * @param {number} newRating - The new rating selected by the user.
    */
   const handleStarPress = async (newRating: number) => {
     let res: APIResponse;
@@ -139,14 +153,40 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
         activeOpacity={1}
         onPress={toggleTextVisibility} // Toggle footer visibility on press
       >
-        {/* Animated footer with movie details */}
-        <Animated.View style={[styles.footer, { opacity: textOpacity }]}>
+        {/* Animated container for movie details */}
+        <Animated.View
+          style={[
+            styles.footer,
+            { opacity: textOpacity, flex: 1, justifyContent: "space-between" },
+          ]}
+        >
+          {/* Movie Title */}
           <MyText color="white" size="xxlarge" bold={true} align="center">
             {movie.title}
           </MyText>
-          <MyText color="white" size="large" bold={true} align="center">
-            {movie.overview}
-          </MyText>
+
+          {/* Bio with AutoScroll */}
+          <View
+            style={{
+              flex: 1, // Allow bio to take up available space
+              marginVertical: 10,
+            }}
+          >
+            <AutoScroll
+              isHorizontal={false}
+              duration={40000} // Adjust the duration as needed
+              delay={4000}
+              endPaddingWidth={30}
+            >
+              <View>
+                <MyText color="white" size="large" align="center">
+                  {movie.overview}
+                </MyText>
+              </View>
+            </AutoScroll>
+          </View>
+
+          {/* Buttons and Additional Info */}
           <View style={{ gap: 8 }}>
             <View
               style={{ flexDirection: "row", justifyContent: "space-evenly" }}
