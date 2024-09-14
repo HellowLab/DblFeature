@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
   StyleSheet,
   TouchableWithoutFeedback,
+  TouchableOpacity,
+  Platform,
+  Appearance,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 
@@ -12,36 +15,145 @@ import MyButton from "../Buttons/Button";
 import MyText from "../TextOutput/TextOutput";
 import useThemeStore from "@/src/utils/store/ThemeStore";
 
+// Import Icons
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { ColorSchemeName } from "@/src/utils/types/types";
+
+// Type definition for the props passed to the BottomSheetModal
 type BottomSheetModalProps = {
-  isVisible: boolean;
-  setIsVisible: (visible: boolean) => void;
+  isVisible: boolean; // Controls modal visibility
+  setIsVisible: (visible: boolean) => void; // Function to toggle modal visibility
 };
 
-const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({ isVisible, setIsVisible }) => {
+/**
+ * ThemeBottomSheet component
+ * A modal that allows the user to select between light, dark, or system themes.
+ *
+ * @param {boolean} isVisible - Determines whether the modal is visible.
+ * @param {(visible: boolean) => void} setIsVisible - Callback to update modal visibility.
+ */
+const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({
+  isVisible,
+  setIsVisible,
+}) => {
+  // Retrieve theme colors from navigation's theme
   const { colors } = useTheme();
-  const { setTheme } = useThemeStore();
 
+  // Access theme and theme update method from the theme store
+  const { theme, setTheme } = useThemeStore();
+
+  // Local state to track the currently selected theme
+  const [selectedTheme, setSelectedTheme] = useState<ColorSchemeName | null>(
+    theme
+  );
+
+  // Track the system-wide theme (light/dark) preference
+  const [systemTheme, setSystemTheme] = useState(Appearance.getColorScheme());
+
+  // Effect to update selected theme based on changes in the current theme or system settings
+  useEffect(() => {
+    if (theme === "system") {
+      // Set to system theme if the user's preference is set to 'system'
+      const currentSystemTheme = Appearance.getColorScheme();
+      setSelectedTheme(currentSystemTheme);
+    } else {
+      // Otherwise, set to the selected theme (light/dark)
+      setSelectedTheme(theme);
+    }
+
+    // Add listener for system theme changes and update accordingly
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      setSystemTheme(colorScheme);
+      if (theme === "system") {
+        setSelectedTheme(colorScheme);
+      }
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => subscription.remove();
+  }, [theme]);
+
+  // Function to close the modal
   const closeModal = () => {
     setIsVisible(false);
   };
 
+  // Function to apply a new theme
+  const applyTheme = (newTheme: ColorSchemeName) => {
+    setTheme(newTheme); // Update the global theme state
+    if (newTheme === "system") {
+      const currentSystemTheme = Appearance.getColorScheme();
+      setSelectedTheme(currentSystemTheme); // Use the current system theme if 'system' is selected
+    } else {
+      setSelectedTheme(newTheme); // Otherwise, use the selected theme (light/dark)
+    }
+  };
+
+  // Handlers for each theme option
   const handleLightThemePress = () => {
-    // Set light theme using zustand store
-    setTheme("light");
-    closeModal();
-  }
+    applyTheme("light");
+  };
 
   const handleDarkThemePress = () => {
-    // Set dark theme using zustand store
-    setTheme("dark");
-    closeModal();
-  }
+    applyTheme("dark");
+  };
 
   const handleSystemThemePress = () => {
-    // Set system theme using zustand store
-    setTheme("system");
-    closeModal();
-  }
+    applyTheme("system");
+  };
+
+  // Type definition for the ThemeOptionButton props
+  type ThemeOptionButtonProps = {
+    label: string; // Text label for the button
+    iconName: string; // Icon name for the button
+    isSelected: boolean; // Indicates if this button's option is selected
+    onPress: () => void; // Function to handle button press
+    fullWidth?: boolean; // Optional: Whether the button takes up full width
+  };
+
+  /**
+   * ThemeOptionButton component
+   * A reusable button to display theme options (light, dark, system).
+   *
+   * @param {string} label - The label displayed on the button.
+   * @param {string} iconName - The name of the icon to be displayed.
+   * @param {boolean} isSelected - Indicates if this option is currently selected.
+   * @param {() => void} onPress - Callback to be invoked when the button is pressed.
+   * @param {boolean} [fullWidth] - Optional prop to make the button span the full width.
+   */
+  const ThemeOptionButton: React.FC<ThemeOptionButtonProps> = ({
+    label,
+    iconName,
+    isSelected,
+    onPress,
+    fullWidth,
+  }) => (
+    <TouchableOpacity
+      style={[
+        styles.themeOptionButton,
+        isSelected && styles.themeOptionButtonSelected, // Highlight if selected
+        fullWidth && styles.themeOptionButtonFullWidth, // Apply full width style if passed
+      ]}
+      onPress={onPress}
+    >
+      {/* Icon representing the theme option */}
+      <Icon
+        name={iconName}
+        size={24}
+        color={isSelected ? "#fff" : "#000"} // Change icon color based on selection
+        style={styles.themeOptionIcon}
+      />
+      {/* Label for the theme option */}
+      <MyText
+        style={[
+          styles.themeOptionText,
+          isSelected && styles.themeOptionTextSelected, // Highlight text if selected
+        ]}
+      >
+        {label}
+      </MyText>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -49,70 +161,128 @@ const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({ isVisible, setIsVis
         animationType="slide"
         transparent={true}
         visible={isVisible}
-        onRequestClose={closeModal}
+        onRequestClose={closeModal} // Close modal when back button is pressed
       >
-        {/* Shaded background */}
+        {/* Shaded background behind the modal */}
         <TouchableWithoutFeedback onPress={closeModal}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
 
-        {/* Bottom sheet modal */}
+        {/* Bottom sheet modal content */}
         <View style={[styles.bottomSheet, { backgroundColor: colors.card }]}>
-          <View style={{paddingBottom: 20}}>
-            <MyText size="large" bold>Select Your Theme</MyText>
+          {/* Modal header with draggable handle */}
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHandle} />
           </View>
-          <MyButton width="full" onPress={handleLightThemePress}>
-            Always Light Theme
-          </MyButton>
-          <MyButton width="full" onPress={handleDarkThemePress}>
-            Always Dark Theme
-          </MyButton>
-          <MyButton width="full" onPress={handleSystemThemePress}>
-            Use System Theme
-          </MyButton>
+
+          {/* Light and Dark theme options */}
+          <View style={styles.themeOptionsContainer}>
+            <ThemeOptionButton
+              label="Light"
+              iconName="wb-sunny"
+              isSelected={selectedTheme === "light"} // Highlight if light theme is selected
+              onPress={handleLightThemePress}
+            />
+            <ThemeOptionButton
+              label="Dark"
+              iconName="nightlight-round"
+              isSelected={selectedTheme === "dark"} // Highlight if dark theme is selected
+              onPress={handleDarkThemePress}
+            />
+          </View>
+
+          {/* Separator between theme options and system theme */}
+          <View style={styles.separator} />
+
+          {/* System theme option */}
+          <ThemeOptionButton
+            label="Use System Theme"
+            iconName="settings"
+            isSelected={theme === "system"} // Highlight if system theme is selected
+            onPress={handleSystemThemePress}
+            fullWidth={true} // Full-width button
+          />
         </View>
       </Modal>
     </View>
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)", // Semi-transparent backdrop
   },
   bottomSheet: {
-    padding: 20,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === "ios" ? 30 : 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: "#000",
+    shadowColor: "#000", // iOS shadow
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 5,
-    gap: 8,
+    elevation: 20, // Android shadow
   },
-  sheetTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  sheetHeader: {
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  sheetHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#ccc", // Draggable handle
+  },
+  themeOptionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  themeOptionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    marginHorizontal: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+  },
+  themeOptionButtonSelected: {
+    borderColor: "#007BFF", // Blue highlight for selected option
+    backgroundColor: "#007BFF",
+  },
+  themeOptionButtonFullWidth: {
+    flex: 1,
+    marginHorizontal: 0,
     marginBottom: 10,
   },
-  closeButton: {
-    marginTop: 20,
-    backgroundColor: "#007BFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+  themeOptionIcon: {
+    marginRight: 8,
   },
-  closeButtonText: {
-    color: "white",
+  themeOptionText: {
     fontSize: 16,
-    textAlign: "center",
+    color: "#000", // Default text color
+  },
+  themeOptionTextSelected: {
+    color: "#fff", // White text for selected option
+    fontWeight: "bold",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 10,
   },
 });
 
