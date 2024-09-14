@@ -1,73 +1,79 @@
 import React from "react";
 import {
   View,
-  Text,
   ImageBackground,
   TouchableOpacity,
-  Button,
+  Animated,
 } from "react-native";
-import FlipCard from "react-native-flip-card";
 import { styles } from "./MovieFlipCard.styles";
-import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { tmdbMovie, DjangoMovie, APIResponse } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 import MyText from "../TextOutput/TextOutput";
-
 import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
 
-// Define the props for the MovieFlipCard component
 interface MovieCardProps {
   movie: tmdbMovie;
   movieResult?: DjangoMovie | null;
 }
 
-/**
- * MovieFlipCard component that displays a movie card with flip functionality.
- * The card shows the movie poster on the front and details on the back.
- *
- * @param {MovieCardProps} props - The props for the component.
- * @param {tmdbMovie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
- * @param {DjangoMovie} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
- * @returns {JSX.Element} The MovieFlipCard component.
- */
 const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
-  const { colors } = useTheme();
-  const [showMovieText, setShowMovieText] = React.useState<boolean>(true);
+  // State variables to track user interactions
   const [isLiked, setIsLiked] = React.useState<boolean>(
-    movieResult ? movieResult.liked === 1 : false
+    movieResult ? movieResult.liked === 1 : false // Initialize based on existing data if available
   );
   const [isDisliked, setIsDisliked] = React.useState<boolean>(
-    movieResult ? movieResult.liked === 0 : false
+    movieResult ? movieResult.liked === 0 : false // Initialize based on existing data if available
   );
-  const [rating, setRating] = React.useState<number>(movieResult?.myRating ?? 0);
+  const [rating, setRating] = React.useState<number>(
+    movieResult?.myRating ?? 0 // Initialize rating from movieResult, default to 0 if not present
+  );
+  const [isTextVisible, setIsTextVisible] = React.useState<boolean>(true); // Track visibility of the footer text
 
+  // Full path for the movie poster
   const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
 
+  // Animated value to control the opacity of the footer text
+  const textOpacity = React.useRef(new Animated.Value(1)).current;
+
+  /**
+   * Toggles the visibility of the footer text with a fade animation.
+   */
+  const toggleTextVisibility = () => {
+    Animated.timing(textOpacity, {
+      toValue: isTextVisible ? 0 : 1, // Fade out or in based on current visibility
+      duration: 115, // Duration of the animation
+      useNativeDriver: true, // Optimize animation with native driver
+    }).start();
+    setIsTextVisible(!isTextVisible); // Update the state to reflect new visibility
+  };
+
+  /**
+   * Handles the logic for like and dislike button presses.
+   * @param button - 1 for 'like', 0 for 'dislike'
+   */
   const handleLikeButtons = async (button: number) => {
-    let likedValue = 2; // set default value to "neither"
+    let likedValue = 2; // Default value (neither liked nor disliked)
     if (button === 1) {
-      // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
       if (!isLiked) {
-        likedValue = 1; // set to "liked" if prev val of isLiked is false
+        likedValue = 1; // Set as liked
       }
-      setIsLiked(!isLiked); // toggle the like state
-      setIsDisliked(false); // anytime like is pressed, set dislike to false
+      setIsLiked(!isLiked); // Toggle like state
+      setIsDisliked(false); // Reset dislike state when liked
     } else if (button === 0) {
-      // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
       if (!isDisliked) {
-        likedValue = 0; // set to "liked" if prev val of isLiked is false
+        likedValue = 0; // Set as disliked
       }
-      setIsDisliked(!isDisliked); // toggle the dislike state
-      setIsLiked(false); // anytime dislike is pressed, set like to false
+      setIsDisliked(!isDisliked); // Toggle dislike state
+      setIsLiked(false); // Reset like state when disliked
     }
 
     let res: APIResponse;
-    // if the movie exists update the result. otherwise create a new movieResult in
+    // Update existing movie result or create a new one based on whether movieResult exists
     if (movieResult) {
       res = await updateMovieResult(movieResult.id, likedValue);
     } else {
-      // const fullPosterPath = "https://image.tmdb.org/t/p/w500/" + movie.poster_path;
       res = await createMovieResult(
         movie.id,
         movie.title,
@@ -76,12 +82,12 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
       );
     }
 
-    // if res is successful 200 or 201, set the movieResult to the response data
-    // else set error text and revert the button state
+    // Handle API response
     if (res.status === 200 || res.status === 201) {
-      movieResult = res.data;
+      // Success, no further action needed
     } else {
-      console.error(res.message);
+      console.error(res.message); // Log error message
+      // Revert the state change in case of error
       if (button === 1) {
         setIsLiked(!isLiked);
       } else {
@@ -90,95 +96,108 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
     }
   };
 
-  const handleStarPress = async (rating: number) => {
+  /**
+   * Handles the logic when a user presses a star to rate the movie.
+   * @param newRating - The new rating selected by the user.
+   */
+  const handleStarPress = async (newRating: number) => {
     let res: APIResponse;
-    const oldRating = rating;
-    setRating(rating);
+    const oldRating = rating; // Save current rating to restore in case of error
+    setRating(newRating); // Update UI with new rating immediately
     if (movieResult) {
-      res = await updateMovieResult(movieResult?.id, movieResult.liked, rating);
+      res = await updateMovieResult(
+        movieResult?.id,
+        movieResult.liked,
+        newRating
+      );
     } else {
-      // create a new movie result with the rating, set the liked to 2 (neither liked nor disliked)
       res = await createMovieResult(
         movie.id,
         movie.title,
-        2,
+        2, // Default liked status to 'neither'
         fullPosterPath,
-        rating
+        newRating // Pass the new rating
       );
     }
 
-    // if res is successful 200 or 201, set the movieResult to the response data
-    // else set error text and revert the button state
-    if (res.status === 200 || res.status === 201) {
-      movieResult = res.data;
-    } else {
-      console.error(res.message);
-      setRating(oldRating);
+    // Handle API response
+    if (res.status !== 200 && res.status !== 201) {
+      console.error(res.message); // Log error message
+      setRating(oldRating); // Revert rating in case of error
     }
   };
 
   return (
     <ImageBackground
-      source={{ uri: fullPosterPath }}
+      source={{ uri: fullPosterPath }} // Set the movie poster as the background
       style={styles.cardImageBackground}
       imageStyle={styles.backgroundImage}
     >
-      {/* pressable component, on press call handleBackgroundPress */}
+      {/* Wrap the entire card in a TouchableOpacity to enable interaction */}
       <TouchableOpacity
         style={styles.movieCardContainer}
-        onPress={() => setShowMovieText(!showMovieText)}
+        activeOpacity={1}
+        onPress={toggleTextVisibility} // Toggle footer visibility on press
       >
-        {showMovieText && (
-          <View style={styles.footer}>
-            <MyText color="white" size="xxlarge" bold={true} align="center">
-              {movie.title}
-            </MyText>
-            <MyText color="white" size="large" bold={true} align="center">
-              {movie.overview}
-            </MyText>
-            <View style={{ gap: 8 }}>
-              <View
-                style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+        {/* Animated footer with movie details */}
+        <Animated.View style={[styles.footer, { opacity: textOpacity }]}>
+          <MyText color="white" size="xxlarge" bold={true} align="center">
+            {movie.title}
+          </MyText>
+          <MyText color="white" size="large" bold={true} align="center">
+            {movie.overview}
+          </MyText>
+          <View style={{ gap: 8 }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+            >
+              {/* Dislike button */}
+              <TouchableOpacity
+                onPress={() => handleLikeButtons(0)} // Handle dislike button press
+                activeOpacity={0.7}
               >
-                <TouchableOpacity onPress={() => handleLikeButtons(0)}>
-                  <Ionicons
-                    name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
-                    type="ionicons"
-                    color={isDisliked ? "red" : colors.white}
-                    size={30}
-                  />
-                </TouchableOpacity>
-                <StarRating
-                  maxStars={5}
-                  initialRating={rating}
-                  onRatingChange={handleStarPress}
+                <Ionicons
+                  name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
+                  color={isDisliked ? "red" : "white"} // Update icon and color based on state
+                  size={30}
                 />
-                <TouchableOpacity onPress={() => handleLikeButtons(1)}>
-                  <Ionicons
-                    name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
-                    type="ionicons"
-                    color={isLiked ? "green" : colors.white}
-                    size={30}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
+              </TouchableOpacity>
+              {/* Star rating component */}
+              <StarRating
+                maxStars={5}
+                initialRating={rating} // Pass current rating
+                onRatingChange={handleStarPress} // Handle star press
+              />
+              {/* Like button */}
+              <TouchableOpacity
+                onPress={() => handleLikeButtons(1)} // Handle like button press
+                activeOpacity={0.7}
               >
-                <MyText color="white" align="center">
-                  Release Date: {movie.release_date}
-                </MyText>
-                <MyText color="white" align="center">
-                  TMDB Rating: {movie.vote_average}
-                </MyText>
-              </View>
+                <Ionicons
+                  name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
+                  color={isLiked ? "green" : "white"} // Update icon and color based on state
+                  size={30}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              {/* Display release date */}
+              <MyText color="white" align="center">
+                Release Date: {movie.release_date}
+              </MyText>
+              {/* Display TMDB rating */}
+              <MyText color="white" align="center">
+                TMDB Rating: {movie.vote_average}
+              </MyText>
             </View>
           </View>
-        )}
+        </Animated.View>
       </TouchableOpacity>
     </ImageBackground>
   );
