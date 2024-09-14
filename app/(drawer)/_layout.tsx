@@ -1,34 +1,26 @@
+import React, { useState, useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import { View } from "react-native";
+import { View, Text, Appearance, ColorSchemeName } from "react-native"; // Import ColorSchemeName
 import { useRouter } from "expo-router";
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-} from "@react-navigation/drawer";
-
-// Import Custom Components
+import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { AppLogo } from "@/src/components/images/AppLogo";
-import MyButton from "@/src/components/Buttons/Button";
-
-// Import Styles
 import { myStyles } from "@/src/utils/constants/styles";
-
-// Import Stores
-import useThemeStore from "@/src/utils/store/ThemeStore";
-import { useUserStore } from "@/src/utils/store/UserStore";
-import { deleteToken } from "@/src/utils/store/TokenStore";
+import appConfig from "@/appConfig";
+import { MaterialIcons } from "@expo/vector-icons";
+import { styles } from "./drawer.styles";
 import MyText from "@/src/components/TextOutput/TextOutput";
 
 import { createMovieResult } from "@/src/utils/APIs/api";
-import React, { useState } from "react";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
+import useThemeStore from "@/src/utils/store/ThemeStore";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
  * This includes multiple screens such as Home, My Movies, My Matches, Search, and a Tab Navigator.
- * @returns The root view with gesture handling enabled and a configured drawer component.
+ * The layout component is wrapped in a GestureHandlerRootView to ensure proper gesture support.
+ *
+ * @returns {JSX.Element} The root view with gesture handling enabled and a configured drawer component.
  */
 export default function Layout() {
   return (
@@ -42,9 +34,8 @@ export default function Layout() {
         }}
         // Screen options with header hidden
         screenOptions={{ headerShown: false }}
-        initialRouteName="(tabs)"
       >
-        {/* Define different screens available in the drawer */}
+        {/* The drawer screen for the tab navigator */}
         <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
       </Drawer>
     </GestureHandlerRootView>
@@ -52,80 +43,78 @@ export default function Layout() {
 }
 
 /**
- * CustomDrawerContent component to render custom content inside the navigation drawer.
- * @param props The properties passed from the Drawer component.
- * @returns The custom drawer UI, including a logo, user greeting, drawer items, and action buttons.
+ * CustomDrawerContent component renders the custom content inside the navigation drawer.
+ * This includes the app logo, welcome message, navigation items, theme selection, and logout button.
+ *
+ * @param {object} props - The properties passed from the Drawer component, including navigation controls.
+ * @returns {JSX.Element} The custom drawer UI with app navigation and user actions.
  */
 function CustomDrawerContent(props: any) {
-  // Access theme toggle function from the theme store
-  const { toggleTheme } = useThemeStore();
-
-  // Access user management functions from the user store
-  const { clearUser, user } = useUserStore();
-
-  // Access the router for navigation
-  const router = useRouter();
-
-  const [bottomSheetIsVisible, setBottomSheetIsVisible] = useState(false);
-
-
-  /**
-   * Handles the logout button press. Clears user data, deletes the token,
-   * and redirects the user to the login screen.
-   */
-  const handleLogoutPress = () => {
-    clearUser();
-    deleteToken();
-    router.replace("/(login)");
-  };
-
-  const handleThemePress = () => {
-    console.log("Theme Pressed");
-    setBottomSheetIsVisible(true);
-  }
+  const [bottomSheetIsVisible, setBottomSheetIsVisible] = useState(false); // State to control the visibility of the theme selection modal
+  const router = useRouter(); // Hook to control app routing
+  const { theme } = useThemeStore(); // Retrieve the app's theme from the state management store
 
   return (
-    <DrawerContentScrollView {...props}>
-      {/* Display the app logo */}
-      <View style={myStyles.LogoStyle}>
-        <AppLogo />
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={{ flex: 1, justifyContent: "space-between" }}
+    >
+      {/* Top section of the drawer */}
+      <View>
+        {/* Display the app logo, styled based on the current theme */}
+        <View style={myStyles.LogoStyle}>
+          <AppLogo />
+        </View>
+
+        {/* Welcome message for the user */}
+        <View style={{ alignItems: "center", marginBottom: 8 }}>
+          <MyText size="large">Welcome back, user!</MyText>
+        </View>
+
+        {/* Navigation item for 'Home' */}
+        <DrawerItem
+          label="Home"
+          labelStyle={{ fontSize: 16 }}
+          icon={({ color, size }) => (
+            <MaterialIcons name="home" size={size} color={color} />
+          )}
+          onPress={() => props.navigation.navigate("(tabs)")}
+        />
+
+        {/* Navigation item for selecting the app theme */}
+        <DrawerItem
+          label="App Theme"
+          labelStyle={{ fontSize: 16 }}
+          icon={({ color, size }) => (
+            <MaterialIcons name="palette" size={size} color={color} />
+          )}
+          onPress={() => {
+            setBottomSheetIsVisible(true); // Show the theme selection bottom sheet
+          }}
+        />
       </View>
 
-      {/* Display a greeting message with the username */}
-      <View style={{ alignItems: "center", marginBottom: 8 }}>
-        <MyText size="large">Welcome {user?.username}</MyText>
-      </View>
+      {/* Bottom section of the drawer */}
+      <View style={styles.bottomSection}>
+        {/* Logout Button */}
+        <DrawerItem
+          label="Logout"
+          labelStyle={{ fontSize: 16 }}
+          icon={({ color, size }) => (
+            <MaterialIcons name="exit-to-app" size={size} color={color} />
+          )}
+          onPress={() => router.replace("/(login)")} // Navigate to the login screen
+        />
 
-      {/* Render the list of drawer items */}
-      <DrawerItemList {...props} />
+        {/* Display the app version from configuration */}
+        <Text style={styles.versionText}>Version {appConfig.version}</Text>
 
-      {/* Render action buttons for logout and theme toggling */}
-      <View
-        style={{
-          flex: 1,
-          alignContent: "center",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        {/* Logout button */}
-        <MyButton
-          width="full"
-          color="primary"
-          textcolor="white"
-          rounded={false}
-          onPress={handleLogoutPress}
-        >
-          Logout
-        </MyButton>
-
-        {/* Theme toggle button */}
-        <MyButton width="full" onPress={handleThemePress} rounded={false}>
-          App Theme
-        </MyButton>
-        <ThemeBottomsheet isVisible={bottomSheetIsVisible} setIsVisible={setBottomSheetIsVisible} />
+        {/* Bottom sheet modal for theme selection */}
+        <ThemeBottomsheet
+          isVisible={bottomSheetIsVisible}
+          setIsVisible={setBottomSheetIsVisible}
+        />
       </View>
     </DrawerContentScrollView>
   );
 }
-
