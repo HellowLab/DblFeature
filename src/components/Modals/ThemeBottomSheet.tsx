@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   View,
@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Platform,
+  Animated,
   Appearance,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
@@ -50,6 +51,12 @@ const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({
   // Track the system-wide theme (light/dark) preference
   const [systemTheme, setSystemTheme] = useState(Appearance.getColorScheme());
 
+  // Animation for the card
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  // Animation for the backdrop
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
   // Effect to update selected theme based on changes in the current theme or system settings
   useEffect(() => {
     if (theme === "system") {
@@ -73,9 +80,55 @@ const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({
     return () => subscription.remove();
   }, [theme]);
 
+  // Animate when modal visibility changes
+  useEffect(() => {
+    if (isVisible) {
+      // Start animations when modal becomes visible
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 1, // Slide card up
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1, // Fade in backdrop
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Reverse animations when modal hides
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0, // Slide card down
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0, // Fade out backdrop
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isVisible]);
+
   // Function to close the modal
   const closeModal = () => {
-    setIsVisible(false);
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsVisible(false); // Only hide the modal after animation completes
+    });
   };
 
   // Function to apply a new theme
@@ -156,55 +209,69 @@ const ThemeBottomSheet: React.FC<BottomSheetModalProps> = ({
   );
 
   return (
-    <View style={styles.container}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isVisible}
-        onRequestClose={closeModal} // Close modal when back button is pressed
+    <Modal
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={closeModal} // Close modal when back button is pressed
+    >
+      {/* Animated backdrop */}
+      <TouchableWithoutFeedback onPress={closeModal}>
+        <Animated.View
+          style={[styles.backdrop, { opacity: opacityAnim }]} // Fade the backdrop
+        />
+      </TouchableWithoutFeedback>
+
+      {/* Animated bottom sheet */}
+      <Animated.View
+        style={[
+          styles.bottomSheet,
+          {
+            backgroundColor: colors.card,
+            transform: [
+              {
+                translateY: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [300, 0], // Adjust the slide-up motion
+                }),
+              },
+            ],
+          },
+        ]}
       >
-        {/* Shaded background behind the modal */}
-        <TouchableWithoutFeedback onPress={closeModal}>
-          <View style={styles.backdrop} />
-        </TouchableWithoutFeedback>
+        {/* Modal header with draggable handle */}
+        <View style={styles.sheetHeader}>
+          <View style={styles.sheetHandle} />
+        </View>
 
-        {/* Bottom sheet modal content */}
-        <View style={[styles.bottomSheet, { backgroundColor: colors.card }]}>
-          {/* Modal header with draggable handle */}
-          <View style={styles.sheetHeader}>
-            <View style={styles.sheetHandle} />
-          </View>
-
-          {/* Light and Dark theme options */}
-          <View style={styles.themeOptionsContainer}>
-            <ThemeOptionButton
-              label="Light"
-              iconName="wb-sunny"
-              isSelected={selectedTheme === "light"} // Highlight if light theme is selected
-              onPress={handleLightThemePress}
-            />
-            <ThemeOptionButton
-              label="Dark"
-              iconName="nightlight-round"
-              isSelected={selectedTheme === "dark"} // Highlight if dark theme is selected
-              onPress={handleDarkThemePress}
-            />
-          </View>
-
-          {/* Separator between theme options and system theme */}
-          <View style={styles.separator} />
-
-          {/* System theme option */}
+        {/* Light and Dark theme options */}
+        <View style={styles.themeOptionsContainer}>
           <ThemeOptionButton
-            label="Use System Theme"
-            iconName="settings"
-            isSelected={theme === "system"} // Highlight if system theme is selected
-            onPress={handleSystemThemePress}
-            fullWidth={true} // Full-width button
+            label="Light"
+            iconName="wb-sunny"
+            isSelected={selectedTheme === "light"} // Highlight if light theme is selected
+            onPress={handleLightThemePress}
+          />
+          <ThemeOptionButton
+            label="Dark"
+            iconName="nightlight-round"
+            isSelected={selectedTheme === "dark"} // Highlight if dark theme is selected
+            onPress={handleDarkThemePress}
           />
         </View>
-      </Modal>
-    </View>
+
+        {/* Separator between theme options and system theme */}
+        <View style={styles.separator} />
+
+        {/* System theme option */}
+        <ThemeOptionButton
+          label="Use System Theme"
+          iconName="settings"
+          isSelected={theme === "system"} // Highlight if system theme is selected
+          onPress={handleSystemThemePress}
+          fullWidth={true} // Full-width button
+        />
+      </Animated.View>
+    </Modal>
   );
 };
 
@@ -215,7 +282,10 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)", // Semi-transparent backdrop
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   bottomSheet: {
     position: "absolute",
