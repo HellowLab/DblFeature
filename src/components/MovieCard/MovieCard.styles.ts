@@ -84,6 +84,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   reviewCard: {
+    width: "100%",
     marginBottom: 15,
     padding: 15,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
