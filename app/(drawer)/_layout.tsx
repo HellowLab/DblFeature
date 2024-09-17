@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import { View, Text, Appearance, ColorSchemeName } from "react-native"; // Import ColorSchemeName
+import { useTheme } from "@react-navigation/native"; // Import useTheme to access colors
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { AppLogo } from "@/src/components/images/AppLogo";
@@ -10,10 +11,7 @@ import appConfig from "@/appConfig";
 import { MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./drawer.styles";
 import MyText from "@/src/components/TextOutput/TextOutput";
-
-import { createMovieResult } from "@/src/utils/APIs/api";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
-import useThemeStore from "@/src/utils/store/ThemeStore";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -24,16 +22,14 @@ import useThemeStore from "@/src/utils/store/ThemeStore";
  */
 export default function Layout() {
   return (
-    // GestureHandlerRootView is required to enable gesture handling in the app
-    // Flex 1 ensures that the component takes up the full height of its parent
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
-        // Custom drawer content defined by CustomDrawerContent component
+        screenOptions={{
+          headerShown: false, // Disable the Drawer header
+        }}
         drawerContent={(props) => {
           return <CustomDrawerContent {...props} />;
         }}
-        // Screen options with header hidden
-        screenOptions={{ headerShown: false }}
       >
         {/* The drawer screen for the tab navigator */}
         <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
@@ -52,12 +48,16 @@ export default function Layout() {
 function CustomDrawerContent(props: any) {
   const [bottomSheetIsVisible, setBottomSheetIsVisible] = useState(false); // State to control the visibility of the theme selection modal
   const router = useRouter(); // Hook to control app routing
-  const { theme } = useThemeStore(); // Retrieve the app's theme from the state management store
+  const { colors } = useTheme(); // Access colors from the current theme
 
   return (
     <DrawerContentScrollView
       {...props}
-      contentContainerStyle={{ flex: 1, justifyContent: "space-between" }}
+      contentContainerStyle={{
+        flex: 1,
+        justifyContent: "space-between",
+        backgroundColor: colors.background, // Apply theme background color
+      }}
     >
       {/* Top section of the drawer */}
       <View>
@@ -67,16 +67,19 @@ function CustomDrawerContent(props: any) {
         </View>
 
         {/* Welcome message for the user */}
-        <View style={{ alignItems: "center", marginBottom: 8 }}>
-          <MyText size="large">Welcome back, user!</MyText>
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <MyText size="large" style={{ color: colors.text }}>
+            {/* Apply theme text color */}
+            Welcome back, user!
+          </MyText>
         </View>
 
         {/* Navigation item for 'Home' */}
         <DrawerItem
           label="Home"
-          labelStyle={{ fontSize: 16 }}
-          icon={({ color, size }) => (
-            <MaterialIcons name="home" size={size} color={color} />
+          labelStyle={{ fontSize: 16, color: colors.text }} // Apply theme text color
+          icon={({ size }) => (
+            <MaterialIcons name="home" size={size} color={colors.text} /> // Apply theme icon color
           )}
           onPress={() => props.navigation.navigate("(tabs)")}
         />
@@ -84,9 +87,9 @@ function CustomDrawerContent(props: any) {
         {/* Navigation item for selecting the app theme */}
         <DrawerItem
           label="App Theme"
-          labelStyle={{ fontSize: 16 }}
-          icon={({ color, size }) => (
-            <MaterialIcons name="palette" size={size} color={color} />
+          labelStyle={{ fontSize: 16, color: colors.text }} // Apply theme text color
+          icon={({ size }) => (
+            <MaterialIcons name="palette" size={size} color={colors.text} /> // Apply theme icon color
           )}
           onPress={() => {
             setBottomSheetIsVisible(true); // Show the theme selection bottom sheet
@@ -99,15 +102,17 @@ function CustomDrawerContent(props: any) {
         {/* Logout Button */}
         <DrawerItem
           label="Logout"
-          labelStyle={{ fontSize: 16 }}
-          icon={({ color, size }) => (
-            <MaterialIcons name="exit-to-app" size={size} color={color} />
+          labelStyle={{ fontSize: 16, color: colors.text }} // Apply theme text color
+          icon={({ size }) => (
+            <MaterialIcons name="exit-to-app" size={size} color={colors.text} /> // Apply theme icon color
           )}
           onPress={() => router.replace("/(login)")} // Navigate to the login screen
         />
 
         {/* Display the app version from configuration */}
-        <Text style={styles.versionText}>Version {appConfig.version}</Text>
+        <Text style={[styles.versionText, { color: colors.text }]}>
+          Version {appConfig.version}
+        </Text>
 
         {/* Bottom sheet modal for theme selection */}
         <ThemeBottomsheet

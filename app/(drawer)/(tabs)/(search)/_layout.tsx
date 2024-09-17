@@ -10,17 +10,7 @@ export default function HomeLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.primary },
-        headerTitleStyle: { fontWeight: "bold", color: colors.white },
-        // headerLeft: () => <MaterialIcons name="menu" size={24} color="black" />,
-        headerLeft: () => <DrawerToggleButton tintColor={colors.white} />,
-        headerRight: () => (
-          <MaterialIcons
-            name="account-circle"
-            size={24}
-            color={colors.white}
-          />
-        ),
+        headerShown: false,
       }}
     >
       <Stack.Screen options={{ title: "Search" }} name="index" />
