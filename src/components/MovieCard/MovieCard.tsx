@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   Text,
   View,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AutoScroll from "../AutoScroll";
 import { styles } from "./MovieCard.styles";
-import { CastMember, CrewMember } from "@/src/utils/types/types";
+import { CastMember, CrewMember, tmdbReview } from "@/src/utils/types/types";
 
 export interface MovieCardProps {
   id: number;
@@ -21,7 +21,7 @@ export interface MovieCardProps {
   bio: string;
   cast: CastMember[];
   crew: CrewMember[];
-  reviews: string[];
+  reviews: tmdbReview[];
 }
 
 /**
@@ -210,6 +210,74 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   );
 
   /**
+   * Renders user reviews with vertical auto-scrolling.
+   *
+   * @returns {JSX.Element} - Rendered reviews.
+   */
+  const renderReviews = () => {
+    if (!reviews || reviews.length === 0) {
+      return <Text style={styles.noReviewsText}>No reviews available</Text>;
+    }
+
+    return (
+      <View style={styles.reviewsContainer}>
+        <AutoScroll
+          isHorizontal={false}
+          delay={2000}
+          duration={170000}
+          style={styles.autoScrollContainer}
+        >
+          <View style={styles.reviewsContent}>
+            {reviews.map((review, index) => (
+              <View key={index} style={styles.reviewCard}>
+                {/* Author Info */}
+                <View style={styles.authorContainer}>
+                  {review.author_details.avatar_path ? (
+                    <Image
+                      source={{
+                        uri: review.author_details.avatar_path.startsWith(
+                          "/https"
+                        )
+                          ? review.author_details.avatar_path.substring(1)
+                          : `https://image.tmdb.org/t/p/w185${review.author_details.avatar_path}`,
+                      }}
+                      style={styles.authorAvatar}
+                    />
+                  ) : (
+                    <View style={styles.authorAvatarPlaceholder}>
+                      <Text style={styles.authorInitials}>
+                        {getInitials(
+                          review.author_details.username || review.author
+                        )}
+                      </Text>
+                    </View>
+                  )}
+                  <View style={styles.authorInfo}>
+                    <Text style={styles.authorName}>
+                      {review.author_details.username || review.author}
+                    </Text>
+                    {review.author_details.rating !== null && (
+                      <Text style={styles.authorRating}>
+                        Rating: {review.author_details.rating}/10
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                {/* Review Content */}
+                <Text style={styles.reviewContent}>{review.content}</Text>
+                {/* Review Date */}
+                <Text style={styles.reviewDate}>
+                  {new Date(review.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </AutoScroll>
+      </View>
+    );
+  };
+
+  /**
    * Renders the main content of the movie card based on the current page.
    *
    * @returns {JSX.Element|null} - Rendered content for the current page.
@@ -236,11 +304,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         return (
           <View style={styles.centeredContent}>
             <Text style={styles.title}>Reviews</Text>
-            {reviews.map((review, index) => (
-              <Text key={index} style={styles.review}>
-                {review}
-              </Text>
-            ))}
+            {renderReviews()}
           </View>
         );
       default:

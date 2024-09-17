@@ -68,6 +68,83 @@ export const styles = StyleSheet.create({
   fadedBio: {
     opacity: 0.75,
   },
+  reviewsContainer: {
+    flex: 1,
+    width: "93%",
+    borderRadius: 20, // Rounded corners for the container
+    overflow: "hidden", // Clip overflowing content
+    marginBottom: 10,
+  },
+  autoScrollContainer: {
+    flex: 1,
+    width: "100%",
+    // Do not set overflow or borderRadius here
+  },
+  reviewsContent: {
+    alignItems: "center",
+  },
+  reviewCard: {
+    marginBottom: 15,
+    padding: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  authorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  authorAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  authorAvatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#cccccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  authorInitials: {
+    fontSize: 18,
+    color: "#ffffff",
+    fontWeight: "bold",
+  },
+  authorInfo: {
+    marginLeft: 10,
+  },
+  authorName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333333",
+  },
+  authorRating: {
+    fontSize: 14,
+    color: "#777777",
+  },
+  reviewContent: {
+    fontSize: 14,
+    color: "#555555",
+    marginBottom: 10,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: "#999999",
+    textAlign: "right",
+  },
+  noReviewsText: {
+    fontSize: 16,
+    color: "white",
+    textAlign: "center",
+    marginTop: 20,
+  },
   pagination: {
     flexDirection: "row",
     justifyContent: "center",
@@ -115,7 +192,7 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
     marginTop: 25,
-    marginBottom: 10,
+    marginBottom: 5,
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -126,6 +203,10 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "flex-start",
     width: "100%",
+    flex: 1,
+    borderRadius: 20, // Rounded corners for the container
+    overflow: "hidden", // Clip overflowing content
+    marginBottom: 10,
   },
   horizontalList: {
     flexDirection: "row",
