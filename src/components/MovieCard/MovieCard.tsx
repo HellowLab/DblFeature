@@ -6,6 +6,9 @@ import {
   ImageBackground,
   TouchableOpacity,
   Animated,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from "react-native";
 import AutoScroll from "../AutoScroll";
 import { styles } from "./MovieCard.styles";
@@ -21,69 +24,59 @@ export interface MovieCardProps {
   reviews: string[];
 }
 
-// Function to extract initials from a name
-const getInitials = (name: string) => {
+/**
+ * Extracts initials from a given name.
+ *
+ * @param {string} name - The full name.
+ * @returns {string} - Initials of the name.
+ */
+const getInitials = (name: string): string => {
   const nameParts = name.split(" ");
   const initials = nameParts.map((part) => part[0]).join("");
   return initials.toUpperCase();
 };
 
+// Enable LayoutAnimation for Android
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+/**
+ * MovieCard component
+ * Displays detailed information about a movie, including bio, cast, crew, reviews, and animated swipe transitions.
+ *
+ * @param {MovieCardProps} props - The properties for the movie card.
+ * @returns {JSX.Element} - The rendered movie card component.
+ */
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
   const { name, image, bio, cast, crew, reviews } = props.movie;
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [bioHeight, setBioHeight] = useState(0); // Measured bio height
-  const [contentHeight, setContentHeight] = useState(50); // Initial height set to 50
-  const [currentPage, setCurrentPage] = useState(0); // For pagination
-  const numPages = 3; // Number of pages to swipe through
+  const [isExpanded, setIsExpanded] = useState(false); // Controls bio expansion
+  const [currentPage, setCurrentPage] = useState(0); // Controls pagination
+  const numPages = 3; // Number of content pages
 
-  const animatedHeight = useRef(new Animated.Value(50)).current; // Default initial height
-  const animatedOpacity = animatedHeight.interpolate({
-    inputRange: [50, Math.max(50, contentHeight)], // Ensure non-decreasing inputRange
-    outputRange: [0.5, 1], // Gradually increase opacity as it expands
-    extrapolate: "clamp",
-  });
-  const animatedScale = useRef(new Animated.Value(1)).current; // For bounce effect on card
-  const leftCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for left semicircle
-  const rightCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for right semicircle
+  const animatedScale = useRef(new Animated.Value(1)).current; // Scale animation for bounce effect
+  const leftCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for left swipe indication
+  const rightCircleOpacity = useRef(new Animated.Value(0)).current; // Opacity for right swipe indication
 
-  // Function to measure content height
-  const onBioLayout = useCallback((event: any) => {
-    const { height } = event.nativeEvent.layout;
-    setBioHeight(height);
-  }, []);
-
-  // Update animated height based on bio length
-  useEffect(() => {
-    if (bioHeight > 0) {
-      setContentHeight(bioHeight + 10); // Add 10 pixels buffer to calculated height
-    }
-  }, [bioHeight]);
-
-  // Animation for expanding bio
-  useEffect(() => {
-    Animated.spring(animatedHeight, {
-      toValue: isExpanded ? contentHeight : 50,
-      friction: 5,
-      useNativeDriver: false, // Cannot use native driver with height
-    }).start();
-  }, [isExpanded, contentHeight]);
-
-  // Function to toggle bio expansion
-  const toggleExpand = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
-
-  // Function to handle swipe and add bounce effect
+  /**
+   * Handles swipe actions, adding bounce and swipe animations.
+   *
+   * @param {"left" | "right"} direction - The direction of the swipe.
+   */
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
-      // Determine which semicircle to animate based on swipe direction
+      // Determine which semicircle to animate based on the swipe direction
       const targetOpacity =
         direction === "left" ? rightCircleOpacity : leftCircleOpacity;
 
+      // Start parallel animations for bounce effect and opacity changes
       Animated.parallel([
         Animated.sequence([
           Animated.timing(animatedScale, {
-            toValue: 1.025, // Slightly increase size
+            toValue: 1.025, // Slightly increase the size
             duration: 90,
             useNativeDriver: true,
           }),
@@ -95,7 +88,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         ]),
         Animated.sequence([
           Animated.timing(targetOpacity, {
-            toValue: 0.25, // Fade to half opacity
+            toValue: 0.25, // Fade to partial opacity
             duration: 90,
             useNativeDriver: true,
           }),
@@ -107,7 +100,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         ]),
       ]).start();
 
-      // Change page
+      // Handle page navigation
       if (direction === "left" && currentPage < numPages - 1) {
         setCurrentPage(currentPage + 1);
       } else if (direction === "right" && currentPage > 0) {
@@ -117,7 +110,14 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     [currentPage, numPages, leftCircleOpacity, rightCircleOpacity]
   );
 
-  // Render cast and crew with auto-scroll
+  /**
+   * Renders cast or crew members with auto-scrolling feature.
+   *
+   * @param {Array<CastMember | CrewMember>} members - The list of members (cast or crew).
+   * @param {boolean} isCast - Flag to indicate if the members are cast.
+   * @param {boolean} invertDirection - Flag to invert scrolling direction.
+   * @returns {JSX.Element} - Rendered members in auto-scroll view.
+   */
   const renderMembersWithAutoScroll = useCallback(
     (
       members: (CastMember | CrewMember)[],
@@ -128,6 +128,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
         return <Text style={styles.memberText}>No members available</Text>;
       }
 
+      // Split members into two rows
       const half = Math.ceil(members.length / 2);
       const firstRow = members.slice(0, half);
       const secondRow = members.slice(half);
@@ -208,7 +209,11 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     []
   );
 
-  // Render main content based on the current page
+  /**
+   * Renders the main content of the movie card based on the current page.
+   *
+   * @returns {JSX.Element|null} - Rendered content for the current page.
+   */
   const renderMainContent = () => {
     switch (currentPage) {
       case 1:
@@ -243,6 +248,19 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
     }
   };
 
+  /**
+   * Toggles the bio expansion using LayoutAnimation for smooth transitions.
+   */
+  const toggleExpand = useCallback(() => {
+    LayoutAnimation.configureNext({
+      duration: 200, // Animation duration
+      update: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+    });
+    setIsExpanded((prev) => !prev);
+  }, []);
+
   return (
     <View style={styles.cardWrapper}>
       <Animated.View
@@ -252,7 +270,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           source={{ uri: image }}
           style={styles.image}
           imageStyle={styles.imageStyle}
-          blurRadius={currentPage > 0 ? 10 : 0} // Adjust blur as needed
+          blurRadius={currentPage > 0 ? 10 : 0} // Apply blur based on page
         >
           <View style={styles.cardInner}>
             {/* Left Semicircle */}
@@ -262,8 +280,8 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
                 left: 0,
                 top: 0,
                 width: "65%",
-                height: "100%", // Full height of the card
-                borderTopRightRadius: 100, // Large radius to create a smooth curve
+                height: "100%",
+                borderTopRightRadius: 100,
                 borderBottomRightRadius: 100,
                 backgroundColor: `rgba(0, 0, 0, 0.5)`,
                 opacity: leftCircleOpacity,
@@ -276,8 +294,8 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
                 right: 0,
                 top: 0,
                 width: "65%",
-                height: "100%", // Full height of the card
-                borderTopLeftRadius: 100, // Large radius to create a smooth curve
+                height: "100%",
+                borderTopLeftRadius: 100,
                 borderBottomLeftRadius: 100,
                 backgroundColor: `rgba(0, 0, 0, 0.5)`,
                 opacity: rightCircleOpacity,
@@ -291,29 +309,15 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
               activeOpacity={0.8}
             >
               <Text style={styles.name}>{name}</Text>
-              <Animated.View
-                style={{
-                  height: animatedHeight,
-                  backgroundColor: `rgba(0, 0, 0, ${animatedOpacity})`,
-                  overflow: "hidden",
-                }}
-              >
-                {/* This hidden View is used to measure the actual height */}
-                <View
-                  style={{ position: "absolute", opacity: 0, top: -1000 }}
-                  onLayout={onBioLayout}
-                >
-                  <Text style={styles.bio}>{bio}</Text>
-                </View>
-
-                {/* Actual display of bio text */}
+              {/* Bio Section */}
+              <View>
                 <Text
                   style={styles.bio}
                   numberOfLines={isExpanded ? undefined : 2}
                 >
                   {bio}
                 </Text>
-              </Animated.View>
+              </View>
             </TouchableOpacity>
 
             {/* Swipe areas for pagination */}
@@ -328,8 +332,8 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
           </View>
         </ImageBackground>
 
+        {/* Pagination Dots */}
         <View style={styles.pagination}>
-          {/* Render pagination indicators */}
           {Array.from({ length: numPages }).map((_, index) => (
             <View
               key={index}

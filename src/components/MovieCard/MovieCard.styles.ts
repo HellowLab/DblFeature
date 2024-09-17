@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 5,
     paddingBottom: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: 20,
   },
   name: {
