@@ -54,12 +54,13 @@ const HomeScreen = () => {
         const response = await getMovieResults();
         if (response.status === 200) {
           // Extract the TMDB IDs from the response
-          myMoviesList = response.data.map((movie: DjangoMovie) =>
+          const myMoviesList = response.data.map((movie: DjangoMovie) =>
             Number(movie.tmdb_id)
           );
         }
       } catch (error) {
         console.error("Error fetching my movies from the backend:", error);
+        return
       }
 
       // Fetch the current TMDB index from your backend
@@ -112,8 +113,8 @@ const HomeScreen = () => {
           // Combine previously fetched movies with newMovies, ensuring uniqueness
           allMovies = Array.from(new Set([...allMovies, ...moviesWithCredits]));
 
-          // Stop fetching if more than 15 movies are accumulated
-          if (allMovies.length > 15) {
+          // Stop fetching if more than 20 movies are accumulated
+          if (allMovies.length > 20) {
             fetchMoreData = false;
           }
 
@@ -149,6 +150,13 @@ const HomeScreen = () => {
   const nextMovie = movies[currentIndex + 1] ?? null;
 
   const handleSwipe = (direction: string) => {
+
+    // print all movie names
+    movies.map((movie) => {
+      console.log(movie.name);
+    }
+    )
+
     if (direction === "right") {
       // console.log("Swiped Right:", currentMovie);
       onSwipeRight(currentMovie);
@@ -160,7 +168,7 @@ const HomeScreen = () => {
     setCurrentIndex((prevIndex) => prevIndex + 1);
 
     // check the remaining qty of movies in the queue, if less than 5, pull more movies
-    if (movies.length - currentIndex < 5) {
+    if (movies.length - currentIndex < 10) {
       console.log("Fetching more movies...");
       setFetchMoreMovies(true);
       // fetch more movies
