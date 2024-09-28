@@ -14,15 +14,12 @@ import MovieCard, { MovieCardProps } from "@/src/components/MovieCard";
 import { styles } from "@/src/screens/HomeScreen/HomeScreen.styles";
 import Swiper from "@/src/components/Swiper";
 import { onSwipeLeft, onSwipeRight } from "@/src/utils/callbacks";
-import { tmdbMovie } from "@/src/utils/types/types";
+import { tmdbMovie, DjangoMovie, tmdb_index_type, tmdbCredits, tmdbReview } from "@/src/utils/types/types";
 
-import { DjangoMovie } from "@/src/utils/types/types";
-import { getMovieResults } from "@/src/utils/APIs/api";
 
-import { getTmdbIndex, updateTmdbIndex } from "@/src/utils/APIs/api";
-import { tmdb_index_type } from "@/src/utils/types/types";
-import { tmdbCredits } from "@/src/utils/types/types";
-import MyText from "@/src/components/TextOutput/TextOutput";
+import { getTmdbIndex, updateTmdbIndex, getMovieResults } from "@/src/utils/APIs/api";
+
+
 /**
  * HomeScreen Component
  *
@@ -41,7 +38,6 @@ const HomeScreen = () => {
   const [currentMovie, setCurrentMovie] = useState<MovieCardProps | null>(null); // Current movie card
   const [nextMovie, setNextMovie] = useState<MovieCardProps | null>(null); // Next movie card
   const [currentIndex, setCurrentIndex] = useState(0); // Index of the current movie card
-  const [fetchMoreMovies, setFetchMoreMovies] = useState(true); // State to trigger fetching more movies
   const [tmdbIndex, setTmdbIndex] = useState(1); // Index for fetching movies from the TMDB API
   const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular"); // Type of movies to fetch from the TMDB API
 
@@ -50,106 +46,86 @@ const HomeScreen = () => {
   // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
     const getMovies = async () => {
-      let fetchMoreData = true; // Controls the loop for fetching additional movies
-      let myMoviesList: number[] = []; // List of TMDB IDs fetched from your backend
-      let newMovies: tmdbMovie[] = []; // New movies fetched from TMDB API
-      let allMovies: MovieCardProps[] = []; // Combined list of all fetched movies
-      let moviesWithDetails: MovieCardProps[] = []; // Movies with detailed cast and crew info
-      let tempIndex = tmdbIndex; // Index for tracking the page number for the TMDB API
-
-      // Fetch the current TMDB index from your backend
       try {
-        const res = await getTmdbIndex(tmdbType);
-        if (res.status === 200) {
-          // If the date from the backend matches today's date, update the tempIndex
-          if (res.data.date === new Date().toISOString().split("T")[0]) {
-            tempIndex = res.data.index;
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching TMDB index from backend:", error);
-      }
+        let tempIndex: number = await fetchTmdbIndex();
+        const myMoviesList: number[] = await fetchMyMovies();
+        
+        const allMovies: MovieCardProps = await fetchAndCompileMovies(tempIndex, myMoviesList);
+        
+        // Update state with the combined list of movies
+        setMovies((prevMovies) => [...new Set([...prevMovies, ...allMovies])]);
 
-      // Fetch the list of movies from your backend
-      try {
-        const response = await getMovieResults();
-        if (response.status === 200) {
-          // Extract the TMDB IDs from the response
-          const myMoviesList = response.data.map((movie: DjangoMovie) =>
-            Number(movie.tmdb_id)
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching my movies from the backend:", error);
-        return;
-      }
+        // Set current and next movies if not already set
+        if (!currentMovie && allMovies.length > 0) setCurrentMovie(allMovies[0]);
+        if (!nextMovie && allMovies.length > 1) setNextMovie(allMovies[1]);
 
-      // Loop to fetch movies from the TMDB API until conditions are met
-      while (fetchMoreData) {
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTmdbIndex = async () => {
+      const res = await getTmdbIndex(tmdbType);
+      if (res.status === 200 && res.data.date === new Date().toISOString().split("T")[0]) {
+        return res.data.index;
+      }
+      return tmdbIndex; // Return original index if no valid response
+    };
+
+    const fetchMyMovies = async () => {
+      const response = await getMovieResults();
+      if (response.status === 200) {
+        return response.data.map((movie: DjangoMovie) => Number(movie.tmdb_id));
+      }
+      return [];
+    };
+
+    const fetchAndCompileMovies = async (startIndex: number, myMoviesList: number[]) => {
+      let tempIndex: number = startIndex;
+      let allMovies: MovieCardProps[] = [];
+      
+      while (allMovies.length <= 20) {
         try {
-          console.log("Fetching movies from TMDB API... index:", tempIndex);
-          newMovies = await fetchMovies(tempIndex); // Fetch new list of movies from TMDB API
-          tempIndex += 1; // Increment the page index for the next API call
+          const newMovies: tmdbMovie[] = await fetchMovies(tempIndex++);
+          const moviesWithDetails: MovieCardProps[] = await getMoviesWithDetails(newMovies);
+          
+          // Filter out already existing movies
+          const filteredMovies = moviesWithDetails.filter((movie) => !myMoviesList.includes(movie.id));
 
-          // Add detailed cast and crew information to each new movie item
-          moviesWithDetails = await Promise.all(
-            newMovies.map(async (movie) => {
-              const [credits, reviews] = await Promise.all([
-                getMovieCredits(movie.id), // Fetch credits (cast and crew)
-                getMovieReviews(movie.id), // Fetch reviews
-              ]);
+          // Combine and ensure uniqueness
+          allMovies = [...new Set([...allMovies, ...filteredMovies])];
 
-              return {
-                id: movie.id,
-                name: movie.title,
-                image: movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` // Movie poster image
-                  : "",
-                bio: movie.overview, // Movie description
-                cast: credits.cast.slice(0, 10), // Take the first 10 cast members
-                crew: credits.crew.slice(0, 10), // Take the first 10 crew members
-                reviews: reviews.slice(0, 5), // Take the first 5 reviews
-              };
-            })
-          );
-
-          // Filter out movies already in myMoviesList
-          if (myMoviesList.length > 0) {
-            moviesWithDetails = moviesWithDetails.filter(
-              (movie) => !myMoviesList.includes(movie.id)
-            );
-          }
-
-          // Combine previously fetched movies with newMovies into a list, but using a set to ensure uniqueness
-          allMovies = [...new Set([...allMovies, ...moviesWithDetails])];
-
-          // Stop fetching if more than 20 movies are accumulated
-          if (allMovies.length > 20) {
-            fetchMoreData = false;
-          }
-
-          // Update state with the new movie list
-          setMovies((prevMovies) => [
-            ...new Set([...prevMovies, ...moviesWithDetails]),
-          ]);
-
-          // Set the current movie card and the next movie card if they are not already set
-          if (!currentMovie) {
-            setCurrentMovie(allMovies[0]);
-          }
-          if (!nextMovie) {
-            setNextMovie(allMovies[1]);
-          }
+          // if (newMovies.length === 0) break; // Break if no new movies are fetched
         } catch (error) {
-          console.error("Error fetching movies. App will not retry:", error);
-          fetchMoreData = false;
-        } finally {
-          setLoading(false);
-          setTmdbIndex(tempIndex);
-          setFetchMoreMovies(false);
-          updateTmdbIndex(tempIndex - 1); // Update backend index to avoid skipping movies
+          console.error("Error fetching movies from TMDB API:", error);
+          break; // Break the loop on error
         }
       }
+
+      // Update the index for the next fetch
+      updateTmdbIndex(tempIndex - 1);
+      return allMovies;
+    };
+
+    const getMoviesWithDetails = async (movies: tmdbMovie[]) => {
+      return Promise.all(movies.map(async (movie) => {
+        const [credits, reviews] = await Promise.all([
+          getMovieCredits(movie.id),
+          getMovieReviews(movie.id),
+        ]);
+
+        return {
+          id: movie.id,
+          name: movie.title,
+          image: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "",
+          bio: movie.overview,
+          cast: credits.cast.slice(0, 10),
+          crew: credits.crew.slice(0, 10),
+          reviews: reviews.slice(0, 5),
+        };
+      }));
     };
 
     console.log("Movies Remaining in Queue: ", movies.length);
