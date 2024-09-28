@@ -36,18 +36,19 @@ const HomeScreen = () => {
   const nopeOpacity = useRef(new Animated.Value(0)).current; // Animation value for the nope icon
   const cardPositionX = useRef(new Animated.Value(0)).current; // X position of the card for swiping
 
-  const [movies, setMovies] = useState<MovieCardProps[]>([]); // State to store fetched movies
   const [loading, setLoading] = useState(true); // Loading state to show a loader while fetching movies
+  const [movies, setMovies] = useState<MovieCardProps[]>([]); // State to store fetched movies
+  const [currentMovie, setCurrentMovie] = useState<MovieCardProps | null>(null); // Current movie card
+  const [nextMovie, setNextMovie] = useState<MovieCardProps | null>(null); // Next movie card
   const [currentIndex, setCurrentIndex] = useState(0); // Index of the current movie card
-  const [fetchMoreMovies, setFetchMoreMovies] = useState(true);
-  const [tmdbIndex, setTmdbIndex] = useState(1);
-  const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular");
+  const [fetchMoreMovies, setFetchMoreMovies] = useState(true); // State to trigger fetching more movies
+  const [tmdbIndex, setTmdbIndex] = useState(1); // Index for fetching movies from the TMDB API
+  const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular"); // Type of movies to fetch from the TMDB API
 
   const REM_MOVIES_THRESHOLD = 15; // Threshold for fetching more movies when remaining movies are less than this value
 
   // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
-
     const getMovies = async () => {
       let fetchMoreData = true; // Controls the loop for fetching additional movies
       let myMoviesList: number[] = []; // List of TMDB IDs fetched from your backend
@@ -120,7 +121,7 @@ const HomeScreen = () => {
           }
 
           // Combine previously fetched movies with newMovies into a list, but using a set to ensure uniqueness
-          allMovies = [...new Set([...allMovies, ...moviesWithDetails])]; 
+          allMovies = [...new Set([...allMovies, ...moviesWithDetails])];
 
           // Stop fetching if more than 20 movies are accumulated
           if (allMovies.length > 20) {
@@ -128,12 +129,20 @@ const HomeScreen = () => {
           }
 
           // Update state with the new movie list
-          setMovies((prevMovies) => [...new Set([...prevMovies, ...moviesWithDetails])]);
+          setMovies((prevMovies) => [
+            ...new Set([...prevMovies, ...moviesWithDetails]),
+          ]);
 
+          // Set the current movie card and the next movie card if they are not already set
+          if (!currentMovie) {
+            setCurrentMovie(allMovies[0]);
+          }
+          if (!nextMovie) {
+            setNextMovie(allMovies[1]);
+          }
         } catch (error) {
           console.error("Error fetching movies. App will not retry:", error);
           fetchMoreData = false;
-
         } finally {
           setLoading(false);
           setTmdbIndex(tempIndex);
@@ -143,12 +152,13 @@ const HomeScreen = () => {
       }
     };
 
-    // Trigger the movie fetching if conditions are met
-    if (fetchMoreMovies && movies.length - currentIndex < REM_MOVIES_THRESHOLD) {
+    console.log("Movies Remaining in Queue: ", movies.length);
+    // Trigger the movie fetching if the queue is too low
+    if (movies.length < REM_MOVIES_THRESHOLD){
       console.log("Fetching movies...");
       getMovies();
     }
-  }, [fetchMoreMovies]); // Re-run the effect when fetchMoreMovies changes
+  }, [currentIndex]); // Re-run the effect when the currentIndex changes (Each time a movie is swiped)
 
   // Animation for scaling the next card based on the swiping progress of the current card
   const scaleAnim = cardPositionX.interpolate({
@@ -157,39 +167,22 @@ const HomeScreen = () => {
     extrapolate: "clamp",
   });
 
-  // Current and next movies based on the current index
-  const currentMovie = movies[currentIndex] ?? null;
-  const nextMovie = movies[currentIndex + 1] ?? null;
-
   // Handle swipe actions (left for nope, right for like)
   const handleSwipe = (direction: string) => {
-
-    // print all movie names
-    // movies.map((movie) => {
-    //   console.log(movie.name);
-    //   }
-    // )
-
-    if (direction === "right") {
-      // console.log("Swiped Right:", currentMovie);
-      onSwipeRight(currentMovie); // Trigger the right swipe action
-    } else if (direction === "left") {
-      // console.log("Swiped Left:", currentMovie);
-      onSwipeLeft(currentMovie); // Trigger the left swipe action
+    if (currentMovie) {
+      if (direction === "right") {
+        onSwipeRight(currentMovie); // Trigger the right swipe action
+      } else if (direction === "left") {
+        onSwipeLeft(currentMovie); // Trigger the left swipe action
+      }
     }
     cardPositionX.setValue(0); // Reset card position after the swipe
 
-    // TODO: pop the current movie from the queue vs incrementing the index......
-    setCurrentIndex((prevIndex) => prevIndex + 1); // Move to the next movie
-
-    // check the remaining qty of movies in the queue, if less than , pull more movies
-    if (movies.length - currentIndex < REM_MOVIES_THRESHOLD) {
-      console.log("Fetching more movies...");
-      setFetchMoreMovies(true);
-      // fetch more movies
-    }
-
-    console.log("Movies Remaining in Queue: ", movies.length - currentIndex);
+    const shiftedMovies = movies.slice(1); // Remove the current movie from the queue 
+    setMovies(shiftedMovies); // Update the movie queue
+    setCurrentMovie(shiftedMovies[0]); // Update the current movie card
+    setNextMovie(shiftedMovies[1]); // Update the next movie card
+    setCurrentIndex(currentIndex + 1); // Increment the index -- this is used to track the current movie card / swiper
   };
 
   // Show a loading indicator while fetching data
