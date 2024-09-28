@@ -48,20 +48,34 @@ export interface CastMember {
   profile_path: string | null; // Path to the profile image, can be null
 }
 
-// Define the structure for a Crew member
 export interface CrewMember {
   credit_id: string;
-  department: string; // Department like Directing, Writing, etc.
-  gender: number | null; // 1 for female, 2 for male, null if not specified
-  id: number;
-  job: string; // Job title, like Director, Writer, etc.
-  name: string;
-  profile_path: string | null; // Path to the profile image, can be null
+  department: string; // Department the crew member belongs to (e.g., Directing, Writing, etc.)
+  gender: number | null; // Gender identifier: 1 for female, 2 for male, or null if unspecified
+  id: number; // Unique ID for the crew member
+  job: string; // Specific job or role (e.g., Director, Writer)
+  name: string; // Full name of the crew member
+  profile_path: string | null; // Path to the profile image, null if not available
 }
 
-// Define the structure for TMDB credits, including cast and crew
+// Define the structure for TMDB credits, including cast and crew members
 export interface tmdbCredits {
-  id: number; // Movie ID
-  cast: CastMember[]; // Array of cast members
-  crew: CrewMember[]; // Array of crew members
+  id: number; // Movie ID associated with the credits
+  cast: CastMember[]; // Array of cast members involved in the movie
+  crew: CrewMember[]; // Array of crew members involved in the movie
+}
+
+export interface tmdbReview {
+  author: string; // Name of the review author
+  author_details: {
+    name: string; // Display name of the author
+    username: string; // Author's username
+    avatar_path: string | null; // Path to the author's avatar image, can be null
+    rating: number | null; // Author's rating of the movie, can be null if not provided
+  };
+  content: string; // Full text content of the review
+  created_at: string; // Date when the review was created
+  id: string; // Unique identifier for the review
+  updated_at: string; // Date when the review was last updated
+  url: string; // URL link to the full review on TMDB
 }

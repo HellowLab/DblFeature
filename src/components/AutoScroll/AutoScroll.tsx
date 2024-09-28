@@ -80,17 +80,24 @@ const AutoScrolling: React.FC<AutoScrollingProps> = ({
       if (contentHeight.current === newContentSize) return;
       contentHeight.current = newContentSize;
 
-      // Calculate the new divider height based on content and container size
-      let newDividerHeight = endPaddingWidth;
-      if (contentHeight.current < containerHeight.current) {
-        newDividerHeight = containerHeight.current - contentHeight.current;
+      // If content fits within container, disable auto-scrolling
+      if (contentHeight.current <= containerHeight.current) {
+        setIsAutoScrollEnabled(false);
+        offsetY.setValue(0); // Reset position
+        return;
       }
+
+      // Content exceeds container; enable auto-scroll
+      let newDividerHeight = endPaddingWidth;
+
       setDividerHeight(newDividerHeight);
       setIsAutoScrollEnabled(true);
 
       // Set initial offset value for reverse scrolling (BTT or RTL)
       if (isBTT || isRTL) {
         offsetY.setValue(-(newContentSize + newDividerHeight));
+      } else {
+        offsetY.setValue(0);
       }
 
       // Start the auto-scrolling animation loop

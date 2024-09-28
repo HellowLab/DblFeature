@@ -10,15 +10,14 @@ export const styles = StyleSheet.create({
     width: width * 0.9,
     borderRadius: 20,
   },
-  cardContainer: {
-  },
+  cardContainer: {},
   card: {
     width: width * 0.9,
     height: 500,
     borderRadius: 20,
     justifyContent: "center",
     borderWidth: 4,
-    borderColor: "bbb"
+    borderColor: "bbb",
   },
   cardShadow: {
     width: width * 0.9,
@@ -38,7 +37,7 @@ export const styles = StyleSheet.create({
     height: 500,
     width: width * 0.9,
     borderRadius: BORDER_RADIUS,
-   },
+  },
   cardBack: {
     justifyContent: "flex-start",
     gap: 16,
@@ -58,12 +57,12 @@ export const styles = StyleSheet.create({
   footer: {
     flex: 1,
     width: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.8)", // Make the footer slightly transparent
+    backgroundColor: "rgba(0, 0, 0, 0.65)", // Make the footer slightly transparent
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: BORDER_RADIUS
+    borderRadius: BORDER_RADIUS,
   },
   movieTitle: {
     fontSize: 24,

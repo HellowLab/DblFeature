@@ -2,11 +2,11 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useTheme } from "@react-navigation/native"; // Import useTheme
 import { styles } from "./SearchItem.styles";
-import { Movie } from "@/src/utils/APIs/TMDB";
+import { tmdbMovie } from "@/src/utils/types/types";
 
 // Define the properties expected by the SearchItem component
 interface SearchItemProps {
-  movie: Movie; // A movie object containing movie details
+  movie: tmdbMovie; // A movie object containing movie details
   onPress: () => void; // A callback function to handle press events
 }
 

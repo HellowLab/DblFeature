@@ -1,5 +1,5 @@
 import axios from "axios";
-import { tmdbCredits, tmdbMovie } from "../types/types";
+import { tmdbCredits, tmdbMovie, tmdbReview } from "../types/types";
 
 // API endpoint to get popular movies from TMDB
 const API_URL_POPULAR_MOVIES = "https://api.themoviedb.org/3/movie/popular";
@@ -136,5 +136,36 @@ export const getMovieCredits = async (
     console.error("Error fetching movie credits:", error);
     // Return an empty object or rethrow the error based on your application's needs
     return { id: movieId, cast: [], crew: [] };
+  }
+};
+
+/**
+ * Fetch reviews for a movie from The Movie Database (TMDB).
+ *
+ * @param {number} movieId - The ID of the movie to fetch reviews for.
+ * @returns {Promise<tmdbReview[]>} - A promise that resolves to an array of TMDB reviews.
+ */
+export const getMovieReviews = async (
+  movieId: number
+): Promise<tmdbReview[]> => {
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}/reviews`,
+      {
+        headers: {
+          accept: "application/json", // Specify that the response should be JSON
+          Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`, // Use the API token for authentication
+        },
+        params: {
+          language: "en-US", // Fetch reviews in English
+          page: 1, // Specify the page of reviews to fetch
+        },
+      }
+    );
+    console.log(`Reviews for movie ID ${movieId}:`, response.data);
+    return response.data.results; // Return the array of reviews from the API response
+  } catch (error) {
+    console.error("Error fetching movie reviews:", error);
+    return []; // Return an empty array in case of an error
   }
 };
