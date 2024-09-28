@@ -13,6 +13,7 @@ import logoblack from "@/src/assets/images/logo/mainlogo_512_black.png";
 
 // Import useThemeStore to get the current theme
 import useThemeStore from "@/src/utils/store/ThemeStore";
+import { useColorScheme } from "react-native";
 
 /**
  * Functional component that renders the app logo for light mode.
@@ -42,8 +43,15 @@ export const AppLogoDarkMode: React.FC = () => {
  */
 export const AppLogo: React.FC = () => {
   const { theme } = useThemeStore(); // Get the app's theme from the store
+  const colorScheme = useColorScheme(); // Get the device's color scheme
 
-  // Render the logo based on the current theme
+  // if the theme is using the system theme, use the device's color scheme
+  if (theme === "system") {
+    // If the theme is set to system, use the device's color scheme
+    return colorScheme === "dark" ? <AppLogoDarkMode /> : <AppLogoLightMode />;
+  }
+
+  // Otherwse, render the logo based on the current selected theme
   return (
     <View>{theme === "dark" ? <AppLogoDarkMode /> : <AppLogoLightMode />}</View>
   );

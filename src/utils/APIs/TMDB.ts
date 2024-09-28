@@ -162,7 +162,7 @@ export const getMovieReviews = async (
         },
       }
     );
-    console.log(`Reviews for movie ID ${movieId}:`, response.data);
+    // console.log(`Reviews for movie ID ${movieId}:`, response.data);
     return response.data.results; // Return the array of reviews from the API response
   } catch (error) {
     console.error("Error fetching movie reviews:", error);

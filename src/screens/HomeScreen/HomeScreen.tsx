@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Animated, useWindowDimensions } from "react-native";
+import { View, Animated, useWindowDimensions, Text } from "react-native";
 import {
   fetchMovies,
   getMovieCredits,
@@ -22,6 +22,7 @@ import { getMovieResults } from "@/src/utils/APIs/api";
 import { getTmdbIndex, updateTmdbIndex } from "@/src/utils/APIs/api";
 import { tmdb_index_type } from "@/src/utils/types/types";
 import { tmdbCredits } from "@/src/utils/types/types";
+import MyText from "@/src/components/TextOutput/TextOutput";
 /**
  * HomeScreen Component
  *
@@ -42,6 +43,8 @@ const HomeScreen = () => {
   const [tmdbIndex, setTmdbIndex] = useState(1);
   const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular");
 
+  const REM_MOVIES_THRESHOLD = 15; // Threshold for fetching more movies when remaining movies are less than this value
+
   // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
 
@@ -50,22 +53,8 @@ const HomeScreen = () => {
       let myMoviesList: number[] = []; // List of TMDB IDs fetched from your backend
       let newMovies: tmdbMovie[] = []; // New movies fetched from TMDB API
       let allMovies: MovieCardProps[] = []; // Combined list of all fetched movies
-      let moviesWithCredits: MovieCardProps[] = []; // Movies with detailed cast and crew info
+      let moviesWithDetails: MovieCardProps[] = []; // Movies with detailed cast and crew info
       let tempIndex = tmdbIndex; // Index for tracking the page number for the TMDB API
-
-      // Fetch the list of movies from your backend
-      try {
-        const response = await getMovieResults();
-        if (response.status === 200) {
-          // Extract the TMDB IDs from the response
-          const myMoviesList = response.data.map((movie: DjangoMovie) =>
-            Number(movie.tmdb_id)
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching my movies from the backend:", error);
-        return
-      }
 
       // Fetch the current TMDB index from your backend
       try {
@@ -80,6 +69,20 @@ const HomeScreen = () => {
         console.error("Error fetching TMDB index from backend:", error);
       }
 
+      // Fetch the list of movies from your backend
+      try {
+        const response = await getMovieResults();
+        if (response.status === 200) {
+          // Extract the TMDB IDs from the response
+          const myMoviesList = response.data.map((movie: DjangoMovie) =>
+            Number(movie.tmdb_id)
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching my movies from the backend:", error);
+        return;
+      }
+
       // Loop to fetch movies from the TMDB API until conditions are met
       while (fetchMoreData) {
         try {
@@ -88,46 +91,49 @@ const HomeScreen = () => {
           tempIndex += 1; // Increment the page index for the next API call
 
           // Add detailed cast and crew information to each new movie item
-          moviesWithCredits = await Promise.all(
+          moviesWithDetails = await Promise.all(
             newMovies.map(async (movie) => {
-              const credits: tmdbCredits = await getMovieCredits(movie.id);
+              const [credits, reviews] = await Promise.all([
+                getMovieCredits(movie.id), // Fetch credits (cast and crew)
+                getMovieReviews(movie.id), // Fetch reviews
+              ]);
 
-              // Use detailed cast and crew information
               return {
                 id: movie.id,
                 name: movie.title,
                 image: movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` // Movie poster image
                   : "",
-                bio: movie.overview,
-                cast: credits.cast.slice(0, 10), // Take the top 10 cast members
-                crew: credits.crew.slice(0, 10), // Take the top 10 crew members
-                reviews: [], // TODO: get array of reviews
+                bio: movie.overview, // Movie description
+                cast: credits.cast.slice(0, 10), // Take the first 10 cast members
+                crew: credits.crew.slice(0, 10), // Take the first 10 crew members
+                reviews: reviews.slice(0, 5), // Take the first 5 reviews
               };
             })
           );
 
           // Filter out movies already in myMoviesList
           if (myMoviesList.length > 0) {
-            moviesWithCredits = moviesWithCredits.filter(
+            moviesWithDetails = moviesWithDetails.filter(
               (movie) => !myMoviesList.includes(movie.id)
             );
           }
 
-          // Combine previously fetched movies with newMovies, ensuring uniqueness
-          allMovies = Array.from(new Set([...allMovies, ...moviesWithCredits]));
+          // Combine previously fetched movies with newMovies into a list, but using a set to ensure uniqueness
+          allMovies = [...new Set([...allMovies, ...moviesWithDetails])]; 
 
           // Stop fetching if more than 20 movies are accumulated
           if (allMovies.length > 20) {
             fetchMoreData = false;
           }
 
-          // Update state with the new movie list and manage loading indicators
-          setMovies((prevMovies) => [...prevMovies, ...moviesWithCredits]);
-          
+          // Update state with the new movie list
+          setMovies((prevMovies) => [...new Set([...prevMovies, ...moviesWithDetails])]);
+
         } catch (error) {
           console.error("Error fetching movies. App will not retry:", error);
           fetchMoreData = false;
+
         } finally {
           setLoading(false);
           setTmdbIndex(tempIndex);
@@ -138,44 +144,11 @@ const HomeScreen = () => {
     };
 
     // Trigger the movie fetching if conditions are met
-    if (fetchMoreMovies && movies.length - currentIndex < 5) {
+    if (fetchMoreMovies && movies.length - currentIndex < REM_MOVIES_THRESHOLD) {
       console.log("Fetching movies...");
       getMovies();
     }
   }, [fetchMoreMovies]); // Re-run the effect when fetchMoreMovies changes
-// INCOMING CHANGES TO CHECK ON OR DELETE
-  //       const moviesData: tmdbMovie[] = await fetchMovies(1); // Fetch list of movies from TMDB
-  //       const moviesWithDetails: MovieCardProps[] = await Promise.all(
-  //         moviesData.map(async (movie) => {
-  //           const [credits, reviews] = await Promise.all([
-  //             getMovieCredits(movie.id), // Fetch credits (cast and crew)
-  //             getMovieReviews(movie.id), // Fetch reviews
-  //           ]);
-
-  //           return {
-  //             id: movie.id,
-  //             name: movie.title,
-  //             image: movie.poster_path
-  //               ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` // Movie poster image
-  //               : "",
-  //             bio: movie.overview, // Movie description
-  //             cast: credits.cast.slice(0, 10), // Take the first 10 cast members
-  //             crew: credits.crew.slice(0, 10), // Take the first 10 crew members
-  //             reviews: reviews.slice(0, 5), // Take the first 5 reviews
-  //           };
-  //         })
-  //       );
-
-  //       setMovies(moviesWithDetails); // Set the movies state with detailed movie data
-  //     } catch (error) {
-  //       console.error("Error fetching movies:", error); // Log error if fetching fails
-  //     } finally {
-  //       setLoading(false); // Stop loading indicator
-  //     }
-  //   };
-
-  //   getMovies(); // Trigger the movie fetch on component mount
-  // }, []);
 
   // Animation for scaling the next card based on the swiping progress of the current card
   const scaleAnim = cardPositionX.interpolate({
@@ -192,10 +165,10 @@ const HomeScreen = () => {
   const handleSwipe = (direction: string) => {
 
     // print all movie names
-    movies.map((movie) => {
-      console.log(movie.name);
-    }
-    )
+    // movies.map((movie) => {
+    //   console.log(movie.name);
+    //   }
+    // )
 
     if (direction === "right") {
       // console.log("Swiped Right:", currentMovie);
@@ -205,10 +178,12 @@ const HomeScreen = () => {
       onSwipeLeft(currentMovie); // Trigger the left swipe action
     }
     cardPositionX.setValue(0); // Reset card position after the swipe
+
+    // TODO: pop the current movie from the queue vs incrementing the index......
     setCurrentIndex((prevIndex) => prevIndex + 1); // Move to the next movie
 
-    // check the remaining qty of movies in the queue, if less than 5, pull more movies
-    if (movies.length - currentIndex < 10) {
+    // check the remaining qty of movies in the queue, if less than , pull more movies
+    if (movies.length - currentIndex < REM_MOVIES_THRESHOLD) {
       console.log("Fetching more movies...");
       setFetchMoreMovies(true);
       // fetch more movies
