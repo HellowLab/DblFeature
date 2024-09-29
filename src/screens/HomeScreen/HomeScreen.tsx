@@ -49,26 +49,31 @@ const HomeScreen = () => {
       try {
         let tempIndex: number = await fetchTmdbIndex();
         const myMoviesList: number[] = await fetchMyMovies();
-        
-        const allMovies: MovieCardProps = await fetchAndCompileMovies(tempIndex, myMoviesList);
-        
-        // Update state with the combined list of movies
-        setMovies((prevMovies) => [...new Set([...prevMovies, ...allMovies])]);
+        const allMovies: MovieCardProps[] = await fetchAndCompileMovies(
+          tempIndex,
+          myMoviesList
+        );
 
+        setMovies(allMovies);
+        
         // Set current and next movies if not already set
-        if (!currentMovie && allMovies.length > 0) setCurrentMovie(allMovies[0]);
+        if (!currentMovie && allMovies.length > 0)
+          setCurrentMovie(allMovies[0]);
         if (!nextMovie && allMovies.length > 1) setNextMovie(allMovies[1]);
-
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false after fetching movies
+        setCurrentIndex(currentIndex+1); // Increment the index/key after fetching movies to trigger card re-render with latest movies
       }
     };
 
     const fetchTmdbIndex = async () => {
       const res = await getTmdbIndex(tmdbType);
-      if (res.status === 200 && res.data.date === new Date().toISOString().split("T")[0]) {
+      if (
+        res.status === 200 &&
+        res.data.date === new Date().toISOString().split("T")[0]
+      ) {
         return res.data.index;
       }
       return tmdbIndex; // Return original index if no valid response
@@ -82,21 +87,29 @@ const HomeScreen = () => {
       return [];
     };
 
-    const fetchAndCompileMovies = async (startIndex: number, myMoviesList: number[]) => {
+    const fetchAndCompileMovies = async (
+      startIndex: number,
+      myMoviesList: number[]
+    ) => {
       let tempIndex: number = startIndex;
-      let allMovies: MovieCardProps[] = [];
-      
-      while (allMovies.length <= 20) {
+      let allMovies: MovieCardProps[] = movies;
+
+      while (allMovies.length <= 17) {
+        console.log("Fetching movies - Current length: ", allMovies.length);
         try {
           const newMovies: tmdbMovie[] = await fetchMovies(tempIndex++);
-          const moviesWithDetails: MovieCardProps[] = await getMoviesWithDetails(newMovies);
-          
+
           // Filter out already existing movies
-          const filteredMovies = moviesWithDetails.filter((movie) => !myMoviesList.includes(movie.id));
+          const filteredMovies = newMovies.filter(
+            (movie) => !myMoviesList.includes(movie.id)
+          );
 
-          // Combine and ensure uniqueness
-          allMovies = [...new Set([...allMovies, ...filteredMovies])];
+          const moviesWithDetails: MovieCardProps[] =
+            await getMoviesWithDetails(filteredMovies);
 
+          // Combine allMovies and moviesWithDetails, ensuring unique IDs
+          allMovies = getUniqiuMovies(allMovies, moviesWithDetails);
+          
           // if (newMovies.length === 0) break; // Break if no new movies are fetched
         } catch (error) {
           console.error("Error fetching movies from TMDB API:", error);
@@ -105,35 +118,53 @@ const HomeScreen = () => {
       }
 
       // Update the index for the next fetch
-      updateTmdbIndex(tempIndex - 1);
+      tempIndex = tempIndex - 1;
+      updateTmdbIndex(tempIndex);
+
       return allMovies;
     };
 
     const getMoviesWithDetails = async (movies: tmdbMovie[]) => {
-      return Promise.all(movies.map(async (movie) => {
-        const [credits, reviews] = await Promise.all([
-          getMovieCredits(movie.id),
-          getMovieReviews(movie.id),
-        ]);
+      return Promise.all(
+        movies.map(async (movie) => {
+          const [credits, reviews] = await Promise.all([
+            getMovieCredits(movie.id),
+            getMovieReviews(movie.id),
+          ]);
 
-        return {
-          id: movie.id,
-          name: movie.title,
-          image: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "",
-          bio: movie.overview,
-          cast: credits.cast.slice(0, 10),
-          crew: credits.crew.slice(0, 10),
-          reviews: reviews.slice(0, 5),
-        };
-      }));
+          return {
+            id: movie.id,
+            name: movie.title,
+            image: movie.poster_path
+              ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+              : "",
+            bio: movie.overview,
+            cast: credits.cast.slice(0, 10),
+            crew: credits.crew.slice(0, 10),
+            reviews: reviews.slice(0, 5),
+          };
+        })
+      );
     };
 
-    console.log("Movies Remaining in Queue: ", movies.length);
-    // Trigger the movie fetching if the queue is too low
-    if (movies.length < REM_MOVIES_THRESHOLD){
+    const getUniqiuMovies = (movies1: MovieCardProps[], movies2:MovieCardProps[]) => {
+      const movieMap = new Map();
+
+      // Combine allMovies and moviesWithDetails, ensuring unique IDs
+      [...movies1, ...movies2].forEach((movie) => {
+        movieMap.set(movie.id, movie); // Map uses 'id' as the key to ensure uniqueness
+      });
+
+      return Array.from(movieMap.values()); // Convert the Map back to an array
+    }
+
+    console.log("Movie Queue: ", movies.length); // Print the number of movies in the queue
+      // Trigger the movie fetching if the queue is too low
+    if (movies.length < REM_MOVIES_THRESHOLD) {
       console.log("Fetching movies...");
       getMovies();
     }
+  
   }, [currentIndex]); // Re-run the effect when the currentIndex changes (Each time a movie is swiped)
 
   // Animation for scaling the next card based on the swiping progress of the current card
@@ -151,19 +182,45 @@ const HomeScreen = () => {
       } else if (direction === "left") {
         onSwipeLeft(currentMovie); // Trigger the left swipe action
       }
-    }
+    } 
     cardPositionX.setValue(0); // Reset card position after the swipe
+    updateCurrentMovie(); // Update the current and next movie cards
+  };
 
-    const shiftedMovies = movies.slice(1); // Remove the current movie from the queue 
-    setMovies(shiftedMovies); // Update the movie queue
+  // Update the current movie card and the next movie card by slicing the first item off of the movies array
+  const updateCurrentMovie = () => {
+    const shiftedMovies = movies.slice(1); // Remove the current movie from the queue
+    setMovies(shiftedMovies); // Update the movies queue
+
+    // this can be deleted, the movies are already filtered for uniqueness in the fetchAndCompileMovies function
+    // setMovies(() => {
+    //   const movieMap = new Map();
+
+    //   // Populate the Map, using movie IDs as keys to ensure uniqueness
+    //   shiftedMovies.forEach((movie) => {
+    //     movieMap.set(movie.id, movie); // Map uses 'id' as the key to ensure uniqueness
+    //   });
+
+    //   return Array.from(movieMap.values()); // Convert the Map back to an array
+    // });
+     
     setCurrentMovie(shiftedMovies[0]); // Update the current movie card
     setNextMovie(shiftedMovies[1]); // Update the next movie card
     setCurrentIndex(currentIndex + 1); // Increment the index -- this is used to track the current movie card / swiper
-  };
+    printMovies(shiftedMovies);
+  }   
+  
+  // Print the movie IDs to the console -- for testing purposes only
+  const printMovies = (movies: MovieCardProps[]) => {
+    movies.forEach((movie) => {
+      console.log(movie.id);
+    });
+
+  }
 
   // Show a loading indicator while fetching data
   if (loading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator />; 
   }
 
   return (
