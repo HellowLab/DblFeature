@@ -10,7 +10,6 @@ import {
 import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
-import MovieFlipCard from "@/src/components/MovieFlipCard";
 import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
 
 import { searchMovies, getMovieDetails } from "@/src/utils/APIs/TMDB";
@@ -90,6 +89,8 @@ const SearchScreen = () => {
       console.log("movieResultResponse", movieResultResponse);
       if (movieResultResponse.status === 200) {
         setSelectedMovieResult(movieResultResponse.data);
+      } else {
+        setSelectedMovieResult(null);
       }
     } catch (error) {
       // Log any errors encountered while fetching movie details
@@ -129,7 +130,7 @@ const SearchScreen = () => {
       {/* Show loading indicator when fetching data */}
       {loading && <ActivityIndicator size="large" color={colors.primary} />}
 
-      {/* Display search results if available, otherwise show the selected movie */}
+      {/* Display search results if available */}
       {results.length > 0 && (
         <FlatList
           data={results}
@@ -138,26 +139,33 @@ const SearchScreen = () => {
           style={styles.resultsList}
         />
       )}
+
+      {/* Modal with Semi-Transparent Overlay */}
       {selectedMovie && (
         <Modal
-          animationType="slide"
+          animationType="fade"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
+          {/* Close modal when tapping outside the modal content */}
           <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
             <View
               style={{
                 flex: 1,
+                backgroundColor: "rgba(0, 0, 0, 0.75)", // Semi-transparent overlay
                 justifyContent: "center",
                 alignItems: "center",
               }}
             >
+              {/* Prevent closing modal when tapping inside the modal content */}
               <TouchableWithoutFeedback>
-                <MovieCardOne
-                  movie={selectedMovie}
-                  movieResult={selectedMovieResult}
-                />
+                <View>
+                  <MovieCardOne
+                    movie={selectedMovie}
+                    movieResult={selectedMovieResult}
+                  />
+                </View>
               </TouchableWithoutFeedback>
             </View>
           </TouchableWithoutFeedback>
