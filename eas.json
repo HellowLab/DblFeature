@@ -4,15 +4,13 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_TMDB_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MTQwN2RlZGVlZTA4NWRiZGUyZDFmMGQ2NDQxNTc2OCIsIm5iZiI6MTcyMTA3OTE1NS4yOTc5MDQsInN1YiI6IjY2OTU5NGQ1NDM0MWViNmE0OTM1NzM2OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.AzTBN5VqbavRPnPpTH2MY2xf2H4bnwERMSrKCFMGH1g",
         "EXPO_PUBLIC_API_BASE_URL": "https://dblfeature.mgbcengineering.com/"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_TMDB_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MTQwN2RlZGVlZTA4NWRiZGUyZDFmMGQ2NDQxNTc2OCIsIm5iZiI6MTcyMTA3OTE1NS4yOTc5MDQsInN1YiI6IjY2OTU5NGQ1NDM0MWViNmE0OTM1NzM2OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.AzTBN5VqbavRPnPpTH2MY2xf2H4bnwERMSrKCFMGH1g",
-        "EXPO_PUBLIC_API_BASE_URL": "https://dblfeature.mgbcengineering.com/"
+        "EXPO_PUBLIC_API_BASE_URL": "https://hellowlab.mgcbengineering.com/"
       }
     },
     "production": {}
