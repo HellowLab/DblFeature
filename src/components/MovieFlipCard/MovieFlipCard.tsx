@@ -1,12 +1,25 @@
 import React from "react";
-import { View, Text, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import FlipCard from "react-native-flip-card";
-import { Movie } from "@/src/utils/APIs/TMDB";
 import { styles } from "./MovieFlipCard.styles";
+import { Ionicons } from "@expo/vector-icons"; // Import icons for the add button
+import { useTheme } from "@react-navigation/native";
+import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
+import StarRating from "../StarRating/StarRating";
+import MyText from "../TextOutput/TextOutput";
+
+import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
 
 // Define the props for the MovieFlipCard component
 interface MovieCardProps {
-  movie: Movie;
+  movie: tmdbMovie;
+  movieResult?: DjangoMovie | null;
 }
 
 /**
@@ -14,10 +27,55 @@ interface MovieCardProps {
  * The card shows the movie poster on the front and details on the back.
  *
  * @param {MovieCardProps} props - The props for the component.
- * @param {Movie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
+ * @param {tmdbMovie} props.movie - The movie object containing details such as title, poster path, overview, release date, and rating.
+ * @param {DjangoMovie} [props.movieResult] - The movie result object containing additional custom details from the backend api. Optional.
  * @returns {JSX.Element} The MovieFlipCard component.
  */
-const MovieFlipCard: React.FC<MovieCardProps> = ({ movie }) => {
+const MovieFlipCard: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
+  const { colors } = useTheme();
+  const [isLiked, setIsLiked] = React.useState<boolean>(
+    movieResult?.liked == 1|| false
+  );
+  const [isDisliked, setIsDisliked] = React.useState<boolean>(
+    movieResult?.liked == 0 || false
+  );
+
+  const handleLikePress = () => {
+    let likedValue = 2; // set default value to "neither"
+    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+    if (!isLiked) {
+      likedValue = 1; // set to "liked" if prev val of isLiked is false
+    }
+
+    setIsLiked(!isLiked); // toggle the like state
+    setIsDisliked(false); // anytime like is pressed, set dislike to false
+
+    // if the movie exists update the result. otherwise create a new movieResult in
+    if (movieResult) {
+      updateMovieResult(movieResult.id, likedValue);
+    } else {
+      createMovieResult(movie.id, movie.title, likedValue);
+    }
+  };
+
+  const handleDislikePress = () => {
+    let likedValue = 2; // set default value to "neither"
+    // this if statement is based on the previous value of isLiked -- so we check if the prev value was false
+    if (!isDisliked) {
+      likedValue = 0; // set to "liked" if prev val of isLiked is false
+    }
+
+    setIsDisliked(!isDisliked); // toggle the dislike state
+    setIsLiked(false); // anytime dislike is pressed, set like to false
+
+    // if the movie exists update the result. otherwise create a new movieResult in
+    if (movieResult) {
+      updateMovieResult(movieResult?.id, likedValue);
+    } else {
+      createMovieResult(movie.id, movie.title, likedValue);
+    }
+  };
+
   return (
     <View style={styles.movieCardContainer}>
       <FlipCard
@@ -27,28 +85,129 @@ const MovieFlipCard: React.FC<MovieCardProps> = ({ movie }) => {
         clickable={true}
       >
         {/* Face Side of the Card */}
-        <View style={[styles.card, styles.cardFront]}>
-          <Image
+        <View style={styles.cardShadow}>
+          <ImageBackground
             source={{
               uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
             }}
-            style={styles.movieImage}
-          />
-          <Text style={styles.movieTitle}>{movie.title}</Text>
+            style={styles.cardImageBackground}
+            imageStyle={styles.backgroundImage}
+          >
+            <View style={styles.footer}>
+              <View
+                style={[
+                  styles.card,
+                  styles.cardBack,
+                  {
+                    justifyContent: "space-between",
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <MyText size="xxlarge" bold={true} align="center">
+                  {movie.title}
+                </MyText>
+                <MyText size="large" bold={true} color="normal" align="center">
+                  {movie.overview}
+                </MyText>
+                <View style={{ gap: 8 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <TouchableOpacity onPress={handleDislikePress}>
+                      <Ionicons
+                        name={
+                          isDisliked ? "thumbs-down" : "thumbs-down-outline"
+                        }
+                        type="ionicons"
+                        color={isDisliked ? "red" : colors.text}
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                    <StarRating />
+                    <TouchableOpacity onPress={handleLikePress}>
+                      <Ionicons
+                        name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
+                        type="ionicons"
+                        color={isLiked ? "green" : colors.text}
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <MyText color="normal" align="center">
+                      Release Date: {movie.release_date}
+                    </MyText>
+                    <MyText color="normal" align="center">
+                      TMDB Rating: {movie.vote_average}
+                    </MyText>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </ImageBackground>
         </View>
         {/* Back Side of the Card */}
-        <View style={[styles.card, styles.cardBack]}>
-          <ScrollView contentContainerStyle={styles.movieDetails}>
-            <Text style={styles.movieTitle}>{movie.title}</Text>
-            <Text style={styles.movieOverview}>{movie.overview}</Text>
-            <Text style={styles.movieDetailText}>
-              Release Date: {movie.release_date}
-            </Text>
-            <Text style={styles.movieDetailText}>
-              Rating: {movie.vote_average}
-            </Text>
-            {/* Additional movie details can be added here */}
-          </ScrollView>
+        <View
+          style={[
+            styles.card,
+            styles.cardBack,
+            {
+              justifyContent: "space-between",
+              backgroundColor: colors.background,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <MyText size="xxlarge" bold={true} align="center">
+            {movie.title}
+          </MyText>
+          <MyText size="large" color="normal" align="center">
+            {movie.overview}
+          </MyText>
+          <View style={{ gap: 8 }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+            >
+              <TouchableOpacity onPress={handleDislikePress}>
+                <Ionicons
+                  name={isDisliked ? "thumbs-down" : "thumbs-down-outline"}
+                  type="ionicons"
+                  color={isDisliked ? "red" : colors.text}
+                  size={30}
+                />
+              </TouchableOpacity>
+              <StarRating />
+              <TouchableOpacity onPress={handleLikePress}>
+                <Ionicons
+                  name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
+                  type="ionicons"
+                  color={isLiked ? "green" : colors.text}
+                  size={30}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <MyText color="normal" align="center">
+                Release Date: {movie.release_date}
+              </MyText>
+              <MyText color="normal" align="center">
+                TMDB Rating: {movie.vote_average}
+              </MyText>
+            </View>
+          </View>
+
+          {/* Additional movie details can be added here */}
         </View>
       </FlipCard>
     </View>

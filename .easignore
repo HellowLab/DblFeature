@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Build directories
+build/
+.gradle/
+.android/
+.ios/
+.expo/
+.expo-shared/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Secrets and keys
+*.pem
+*.key
+
+# Documentation
+README.md
+LICENSE
+
+# Testing files
+coverage/
+*.test.js
+jest.config.js
+
+# IDE/Editor configs
+.vscode/
+.idea/
+.DS_Store
+
+# Git files
+.git/

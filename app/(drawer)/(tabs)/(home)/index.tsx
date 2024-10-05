@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { styles } from "./index.styles";
 import HomeScreen from "@/src/screens/HomeScreen";
 import MatchesScreen from "@/src/screens/MatchesScreen";
-
+import Button from "@/src/components/Buttons/Button";
 /**
  * Main application component that displays movie cards with pan gestures.
  *

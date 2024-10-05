@@ -1,0 +1,22 @@
+{
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dblfeature.mgbcengineering.com/"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dnekcab.hellowlab.com/"
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dnekcab.hellowlab.com/"
+      }
+    }
+  }
+}
