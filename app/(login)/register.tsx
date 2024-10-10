@@ -35,8 +35,6 @@ const RegisterScreen = () => {
     if (
       !userName ||
       !userEmail ||
-      !firstName ||
-      !lastName ||
       !userPasswordOne ||
       !userPasswordTwo
     ) {
@@ -57,8 +55,6 @@ const RegisterScreen = () => {
         userEmail,
         userPasswordOne,
         userPasswordTwo,
-        firstName,
-        lastName,
         userName
       );
       // if the login is successful
@@ -114,15 +110,18 @@ const RegisterScreen = () => {
   }
   
   return (
-    <KeyboardAvoidingView enabled style={{    
-      flex: 1,
-      flexDirection: "column",
-      margin: 0,
-      padding: 0,
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-    }}>
+    <KeyboardAvoidingView
+      enabled
+      style={{
+        flex: 1,
+        flexDirection: "column",
+        margin: 0,
+        padding: 0,
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+      }}
+    >
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
@@ -134,39 +133,38 @@ const RegisterScreen = () => {
           paddingTop: 32,
         }}
       >
+        <MyText size="xsmall">Enter Email</MyText>
         <MyTextInput
-          width="large"
+          width="nearfull"
           placeholder="Enter email"
           onChangeText={setUserEmail}
+          autoCapitalize="none"
         />
         <MyTextInput
-          width="large"
+          width="nearfull"
           placeholder="Enter User Name"
           onChangeText={setUserName}
+          autoCapitalize="none"
         />
         <MyTextInput
-          width="large"
-          placeholder="Enter First Name"
-          onChangeText={setFirstName}
-        />
-        <MyTextInput
-          width="large"
-          placeholder="Enter Last Name"
-          onChangeText={setLastName}
-        />
-        <MyTextInput
-          width="large"
+          width="nearfull"
           placeholder="Enter Password"
           intent="password"
           onChangeText={setUserPasswordOne}
+          autoCapitalize="none"
         />
         <MyTextInput
-          width="large"
+          width="nearfull"
           placeholder="Re-enter Password"
           intent="password"
           onChangeText={setUserPasswordTwo}
+          autoCapitalize="none"
         />
-        <MyButton width="large" textsize="medium" onPress={handleSubmitButton}>
+        <MyButton
+          width="nearfull"
+          textsize="medium"
+          onPress={handleSubmitButton}
+        >
           Register
         </MyButton>
         {errorText != "" ? <MyText color="error"> {errorText} </MyText> : null}

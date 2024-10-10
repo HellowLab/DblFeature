@@ -51,7 +51,7 @@ const MyButton = ({
           width: '100%',
         },
         nearfull: {
-          width: '90%',
+          width: '95%',
         },
         auto: {
           width: 'auto',

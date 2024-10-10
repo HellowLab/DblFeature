@@ -41,7 +41,7 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
           width: '100%',
         },
         nearfull: {
-          width: '90%',
+          width: '95%',
         },
         auto: {
           width: 'auto',
@@ -58,16 +58,16 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
       },
       height: {
         small: {
-          height: 32,
-        },
-        medium: {
           height: 40,
         },
-        large: {
+        medium: {
           height: 48,
         },
-        xlarge: {
+        large: {
           height: 56,
+        },
+        xlarge: {
+          height: 64,
         },
       },
       intent: {
