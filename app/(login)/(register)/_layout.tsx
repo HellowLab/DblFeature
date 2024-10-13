@@ -12,7 +12,7 @@ export default function HomeLayout() {
   });
 
   return (
-    <Stack initialRouteName="username" screenOptions={{ headerShown: false }}>
+    <Stack initialRouteName="username" screenOptions={{}}>
       <Stack.Screen name="username" options={{ title: "Username" }} />
       <Stack.Screen name="email" options={{ title: "Email" }} />
       <Stack.Screen name="password" options={{ title: "Password" }} />
