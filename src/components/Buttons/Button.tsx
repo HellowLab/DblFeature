@@ -68,16 +68,18 @@ const MyButton = ({
       },
       height: {
         small: {
-          height: 32,
+          height: 40,
+          fontSize: 16,
         },
         medium: {
-          height: 40,
+          height: 48,
+          fontSize: 20,
         },
         large: {
-          height: 48,
+          height: 56,
         },
         xlarge: {
-          height: 56,
+          height: 64,
         },
       },
       color: {
@@ -125,19 +127,19 @@ const MyButton = ({
     variants: {
       textsize: {
         small: {
-          fontSize: 14,
-        },
-        medium: {
           fontSize: 16,
         },
-        large: {
+        medium: {
           fontSize: 18,
         },
-        xlarge: {
+        large: {
           fontSize: 20,
         },
-        xxlarge: {
+        xlarge: {
           fontSize: 22,
+        },
+        xxlarge: {
+          fontSize: 24,
         }, 
       },
       textcolor: {

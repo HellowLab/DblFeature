@@ -1,6 +1,13 @@
 // define custom color scheme name
 export type ColorSchemeName = "light" | "dark" | "system" | null | undefined;
 
+// User Registration Data
+export interface RegistrationData {
+  username: string | undefined;
+  email: string | undefined;
+  password: string | undefined;
+}
+
 // Define the Movie interface to type the movie data
 export interface tmdbMovie {
   id: number;
