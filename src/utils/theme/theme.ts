@@ -1,18 +1,18 @@
 import { DefaultTheme, DarkTheme } from "@react-navigation/native";
 
 // Updated Blues for Light Mode
-const lightAccent = "#4F7FB3"; // Slightly darker blue for actions
-const lightBackground = "#C2D4E6"; // Darker blue for background
-const lightCard = "#94B5D1"; // Slightly darker blue for cards
+const lightPrimary = "#3769A3"; // More pronounced blue for primary actions
+const lightBackground = "#F4F4F4"; // Off white for  background
+const lightCard = "#F8F8F8"; // Off white, slightly ligher than background for cards
+const lightAccent = "#9CBBDE"; // Slightly lighter blue for accents
 const lightText = "#223C54"; // Darker blue text for readability
-const lightPrimary = "#6A99C2"; // More pronounced blue for primary actions
 
 // Dark Mode (Unchanged)
-const darkAccent = "#1A355A"; // Deep blue for actions in dark mode
+const darkPrimary = lightPrimary; // Bright blue for accents in dark mode
 const darkBackground = "#0A1C30"; // Darkest blue background for dark mode
 const darkCard = "#142843"; // Slightly lighter blue for cards
+const darkAccent = "#2E5C9C"; // Deep blue for actions in dark mode
 const darkText = "#DDEAF6"; // Light blue text for dark mode
-const darkPrimary = "#3769A3"; // Bright blue for accents in dark mode
 
 export const Colors = {
   light: {
@@ -61,3 +61,88 @@ export const darkTheme = {
     ...Colors.dark, // Apply dark mode colors
   },
 };
+
+
+// theme.ts
+
+// colors that are used in both light & dark themes
+const error = '#ef4444';
+const success = '#10b981';
+const p1 = '#0284c7';
+const p2 = '#1b90cc';
+const p3 = '#349cd2';
+const p4 = '#4da8d7';
+const p5 = '#67b5dd';
+const p6 = '#80c1e3';
+const light = '#f2f2f2';
+const white = '#fff';
+const dark = '#1e2125';
+const black = '#000';
+
+
+// old colors for reference
+// export const Colors = {
+//   light: {
+//     light: light,
+//     dark: dark,
+//     white: white,
+//     black: black,
+//     primary: p1,
+//     p2: p2,
+//     p3: p3,
+//     p4: p4,
+//     p5: p5,
+//     p6: p6,
+//     background: light,
+//     b2: '#eceff1',
+//     b3: '#cfd8dc',
+//     b4: '#b0bec5',
+//     b5: '#90a4ae',
+//     b6: '#78909c',
+//     card: '#fff',
+//     text: '#222',
+//     textmuted: '#6b7280',
+//     textinverted: '#fff',
+//     error: error,
+//     success: success,
+//     border: '#d1d5db',
+//     inverted: '#121212',
+//     notification: 'FF453A',
+//     tint: '#0a7ea4',
+//     icon: '#687076',
+//     tabIconDefault: '#687076',
+//     tabIconSelected: '#0a7ea4',
+//   },
+//   dark: {
+//     light: light,
+//     dark: dark,
+//     white: white,
+//     black: black,
+//     primary: p1,
+//     p2: p2,
+//     p3: p3,
+//     p4: p4,
+//     p5: p5,
+//     p6: p6,
+//     background: dark,
+//     b2: '#23272b',
+//     b3: '#292e33',
+//     b4: '#575757',
+//     b5: '#717171',
+//     b6: '#8b8b8b',
+//     card: '#171a1d',
+//     text: '#fff',
+//     textmuted: '#ccc',
+//     textinverted: '#222',
+//     error: error,
+//     success: success,
+//     border: '#394148',
+//     inverted: '#fff',
+//     notification: 'FF453A',
+//     tint: '#fff',
+//     icon: '#9BA1A6',
+//     tabIconDefault: '#9BA1A6',
+//     tabIconSelected: '#fff',
+//   },
+// };
+
