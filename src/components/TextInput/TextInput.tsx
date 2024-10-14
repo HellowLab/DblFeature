@@ -21,10 +21,12 @@ type MyTextInputProps = TextInputVariantsProps & TextInputProps;
 const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent, ...props }) => {
   const { colors } = useTheme();
 
-
-  const textinput = sv({
+  const containerSV = sv({
     base: {
-      color: colors.text,
+      borderRadius: BORDERRADIUS,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 10,
     },
     variants: {
       color: {
@@ -55,28 +57,19 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
       height: {
         small: {
           height: 40,
-          fontSize: 16,
         },
         medium: {
           height: 48,
-          fontSize: 18,
         },
         large: {
           height: 56,
-          fontSize: 20,
         },
         xlarge: {
           height: 64,
-          fontSize: 22,
         },
       },
       intent: {
-        normal: {
-          borderRadius: BORDERRADIUS,
-          borderWidth: 1,
-          borderColor: colors.border,
-          paddingHorizontal: 10,
-        },
+        normal: {},
         password: {
           flexDirection: "row",
           alignItems: "center",
@@ -92,8 +85,46 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
     },
   });
 
+  const textSV = sv({
+    base: {
+      color: colors.text,
+    },
+    variants: {
+      size: {
+        small: {
+          fontSize: 16,
+        },
+        medium: {
+          fontSize: 18,
+        },
+        large: {
+          fontSize: 20,
+        },
+        xlarge: {
+          fontSize: 22,
+        },
+      },
+      intent: {
+        normal: {
+          
+        },
+        password: {
+          flex: 1,
+        },
+      },
+    },
+    defaultVariants: {
+      size: "medium",
+      intent: "normal",
+    },
+  });
 
-  const textInputStyles = textinput({
+  const textStyle = textSV({
+    size: height,
+    intent: intent,
+  });
+
+  const containerStyles = containerSV({
     width, 
     height,
     color,
@@ -102,24 +133,15 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
 
   if (intent == "password") {
     const [showPassword, setShowPassword] = useState(false);
-
     const togglePasswordVisibility = () => {
       setShowPassword((prevShowPassword) => !prevShowPassword);
     };
+
     return (
       <View
-        style={[
-          textInputStyles,
-          {
-            borderRadius: BORDERRADIUS,
-            borderWidth: 1,
-            borderColor: colors.border,
-            paddingHorizontal: 10,
-          },
-        ]}
-      >
+        style={containerStyles}>
         <TextInput
-          style={[textInputStyles, { flex: 1, borderWidth: 0 }]}
+          style={textStyle}
           placeholderTextColor={colors.text}
           secureTextEntry={!showPassword}
           {...props}
@@ -133,7 +155,7 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
 
   return (
       <TextInput
-        style={textInputStyles}
+        style={[containerStyles, textStyle]}
         placeholderTextColor={colors.text}
         {...props}
       />
