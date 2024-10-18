@@ -18,8 +18,9 @@
     },
     "android": {
       "package": "com.hellowlab.dblfeature",
-      "newArchEnabled": true, 
-      "usesClearTextTraffic": true 
+      "versionCode": 3,
+      "newArchEnabled": true,
+      "usesClearTextTraffic": true
     },
     "web": {
       "bundler": "metro",

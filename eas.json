@@ -1,6 +1,6 @@
 {
   "cli": {
-    "appVersionSource": "remote"
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -18,8 +18,7 @@
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://dnekcab.hellowlab.com/",
-        "autoIncrement": "true"
+        "EXPO_PUBLIC_API_BASE_URL": "https://dnekcab.hellowlab.com/"
       }
     }
   }
