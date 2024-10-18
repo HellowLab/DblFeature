@@ -25,6 +25,7 @@ import { DjangoMovie, tmdbMovie } from "@/src/utils/types/types";
 import { useTheme } from "@react-navigation/native";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
+import LoadingIndicator from "@/src/components/LoadingIndicator";
 
 /**
  * Displays a list of movies that the user has swiped left (disliked) or right (liked) on.
@@ -155,7 +156,11 @@ const MovieResultsScreen = (): JSX.Element => {
 
   // Show a loading indicator while data is being fetched
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <LoadingIndicator />
+      </View>
+    );
   }
 
   // Show a message if there are no movie results
