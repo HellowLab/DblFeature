@@ -21,14 +21,12 @@ type MyTextInputProps = TextInputVariantsProps & TextInputProps;
 const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent, ...props }) => {
   const { colors } = useTheme();
 
-
-  const textinput = sv({
+  const containerSV = sv({
     base: {
       borderRadius: BORDERRADIUS,
       borderWidth: 1,
       borderColor: colors.border,
-      color: colors.text,
-      paddingHorizontal: 10
+      paddingHorizontal: 10,
     },
     variants: {
       color: {
@@ -38,19 +36,19 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
       },
       width: {
         full: {
-          width: '100%',
+          width: "100%",
         },
         nearfull: {
-          width: '90%',
+          width: "95%",
         },
         auto: {
-          width: 'auto',
+          width: "auto",
         },
         small: {
-          width: 180
+          width: 180,
         },
         medium: {
-          width: 240
+          width: 240,
         },
         large: {
           width: 300,
@@ -58,38 +56,75 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
       },
       height: {
         small: {
-          height: 32,
-        },
-        medium: {
           height: 40,
         },
-        large: {
+        medium: {
           height: 48,
         },
-        xlarge: {
+        large: {
           height: 56,
+        },
+        xlarge: {
+          height: 64,
+        },
+      },
+      intent: {
+        normal: {},
+        password: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        },
+      },
+    },
+    defaultVariants: {
+      color: "card",
+      width: "auto",
+      height: "medium",
+      intent: "normal",
+    },
+  });
+
+  const textSV = sv({
+    base: {
+      color: colors.text,
+    },
+    variants: {
+      size: {
+        small: {
+          fontSize: 16,
+        },
+        medium: {
+          fontSize: 18,
+        },
+        large: {
+          fontSize: 20,
+        },
+        xlarge: {
+          fontSize: 22,
         },
       },
       intent: {
         normal: {
-
+          
         },
         password: {
-          flexDirection: "row",
-          alignItems: "center", 
-          justifyContent: "space-between"
-        }
-      }
+          flex: 1,
+        },
+      },
     },
     defaultVariants: {
-      color: 'card',
-      width: 'auto',
-      height: 'medium',
-      intent: 'normal',
+      size: "medium",
+      intent: "normal",
     },
   });
 
-  const textInputStyles = textinput({
+  const textStyle = textSV({
+    size: height,
+    intent: intent,
+  });
+
+  const containerStyles = containerSV({
     width, 
     height,
     color,
@@ -98,29 +133,29 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
 
   if (intent == "password") {
     const [showPassword, setShowPassword] = useState(false);
-
     const togglePasswordVisibility = () => {
       setShowPassword((prevShowPassword) => !prevShowPassword);
     };
+
     return (
-      <View style={textInputStyles} >
-        <TextInput 
-          style={{flex:1, color:colors.text}}
+      <View
+        style={containerStyles}>
+        <TextInput
+          style={textStyle}
           placeholderTextColor={colors.text}
           secureTextEntry={!showPassword}
           {...props}
         />
         <Pressable onPress={togglePasswordVisibility}>
-          {showPassword ? <EyeIcon /> : <EyeOffIcon /> }
+          {showPassword ? <EyeIcon /> : <EyeOffIcon />}
         </Pressable>
-        
       </View>
-    )
+    );
   }
 
   return (
       <TextInput
-        style={textInputStyles}
+        style={[containerStyles, textStyle]}
         placeholderTextColor={colors.text}
         {...props}
       />

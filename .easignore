@@ -36,3 +36,7 @@ jest.config.js
 
 # Git files
 .git/
+
+# Android & iOS folders
+/android
+/ios

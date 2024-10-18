@@ -20,7 +20,7 @@ export default function HomeLayout() {
         options={{ title: "Forgot Password" }}
         name="forgotpassword"
       />
-      <Stack.Screen options={{ title: "Register" }} name="register" />
+      <Stack.Screen options={{ title: "Register", headerShown: false }} name="(register)" />
       {/* <Stack.Screen options={{title:"Create Account"}} name="register" /> */}
     </Stack>
   );

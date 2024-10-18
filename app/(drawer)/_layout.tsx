@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./drawer.styles";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
+import { useUserStore } from "@/src/utils/store/UserStore";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -49,6 +50,7 @@ function CustomDrawerContent(props: any) {
   const [bottomSheetIsVisible, setBottomSheetIsVisible] = useState(false); // State to control the visibility of the theme selection modal
   const router = useRouter(); // Hook to control app routing
   const { colors } = useTheme(); // Access colors from the current theme
+  const { user } = useUserStore(); // Access the user data from the global store
 
   return (
     <DrawerContentScrollView
@@ -70,7 +72,7 @@ function CustomDrawerContent(props: any) {
         <View style={{ alignItems: "center", marginBottom: 20 }}>
           <MyText size="large" style={{ color: colors.text }}>
             {/* Apply theme text color */}
-            Welcome back, user!
+            Welcome back, {user?.username}!
           </MyText>
         </View>
 
