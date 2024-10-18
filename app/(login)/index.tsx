@@ -14,7 +14,6 @@ import React, {useState} from 'react';
 import { myStyles } from "@/src/utils/constants/styles";
 
 // Import Custom Components 
-import Loader from '@/src/components/loaders/Loader'
 import {AppLogo} from '@/src/components/images/AppLogo';
 import MyButton from '@/src/components/Buttons/Button';
 import MyTextInput from '@/src/components/TextInput/TextInput';

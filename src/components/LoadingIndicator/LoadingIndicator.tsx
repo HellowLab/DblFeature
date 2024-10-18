@@ -1,5 +1,6 @@
 import { ActivityIndicator } from "react-native";
 import React from "react";
+import { useTheme } from "@react-navigation/native";
 
 /**
  * LoadingIndicator component that displays a spinning activity indicator.
@@ -7,7 +8,8 @@ import React from "react";
  * @returns {JSX.Element} The loading indicator component.
  */
 const LoadingIndicator: React.FC<{}> = () => {
-  return <ActivityIndicator size="large" color="#F63A6E" />;
+  const { colors } = useTheme();
+  return <ActivityIndicator size="large" color={colors.primary} />;
 };
 
 export default LoadingIndicator;

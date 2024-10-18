@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { getToken, getRefreshToken } from "@/src/utils/store/TokenStore";
 import { View, ActivityIndicator } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
-import Loader from "@/src/components/loaders/Loader";
+import LoadingIndicator from "@/src/components/LoadingIndicator";
 
 import { getMyUserInfo, isTokenValid } from "@/src/utils/APIs/api";
 import { useUserStore } from "@/src/utils/store/UserStore";
@@ -61,7 +61,7 @@ const Index = () => {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <AppLogo />
-        <ActivityIndicator size="large" color="#0000ff" />
+        <LoadingIndicator />
       </View>
     );
   }
