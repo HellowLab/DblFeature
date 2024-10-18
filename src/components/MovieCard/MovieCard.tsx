@@ -10,6 +10,7 @@ import {
   Platform,
   UIManager,
 } from "react-native";
+import { useTheme } from "@react-navigation/native";
 import AutoScroll from "../AutoScroll";
 import { styles } from "./MovieCard.styles";
 import { CastMember, CrewMember, tmdbReview } from "@/src/utils/types/types";
@@ -52,6 +53,7 @@ if (
  * @returns {JSX.Element} - The rendered movie card component.
  */
 const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
+  const { colors } = useTheme(); // Access theme colors
   const { name, image, bio, cast, crew, reviews } = props.movie;
   const [isExpanded, setIsExpanded] = useState(false); // Controls bio expansion
   const [currentPage, setCurrentPage] = useState(0); // Controls pagination
@@ -403,7 +405,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
               key={index}
               style={[
                 styles.pageIndicator,
-                index === currentPage ? styles.activeIndicator : {},
+                index === currentPage ? {backgroundColor: colors.white} : {backgroundColor: colors.accent},
               ]}
             />
           ))}
