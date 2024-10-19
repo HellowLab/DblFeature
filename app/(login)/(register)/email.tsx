@@ -14,8 +14,18 @@ export default function EmailScreen() {
   const [errorText, setErrorText] = useState("");
   
   const handleNext = () => {
+    setErrorText(""); // reset error text
+    if (!email) {
+      setErrorText("Please enter a valid email");
+      return;
+    }
+    // check that the email is the correct format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorText("Please enter a valid email address");
+      return
+    }
     router.push({
-      pathname: "password",
+      pathname: "/password",
       params: { username, email },
     });
   };
@@ -45,6 +55,9 @@ export default function EmailScreen() {
       <MyButton width="nearfull" onPress={handleNext}>
         Next
       </MyButton>
+      {errorText != '' ? (
+          <MyText align="center" color='error'> {errorText} </MyText>
+        ) : null}
     </View>
   );
 }

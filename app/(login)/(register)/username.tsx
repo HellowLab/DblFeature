@@ -13,8 +13,26 @@ export default function UsernameScreen() {
   const [errorText, setErrorText] = useState("");
 
   const handleNext = () => {
+    setErrorText(""); // reset error text
+    if (!username) {
+      setErrorText("Please enter a valid username");
+      return;
+    }
+    if (username.length < 4) {
+      setErrorText("Username must be at least 4 characters long");
+      return;
+    }
+    if (username.length > 20) {
+      setErrorText("Username must be at most 20 characters long");
+      return
+    }
+    if (!/^[a-zA-Z0-9_]*$/.test(username)) {
+      setErrorText("Username must contain only alphanumeric characters and underscores");
+      return;
+    }
+
     router.push({
-      pathname: "email",
+      pathname: "/email",
       params: { username },
     });
   };
@@ -30,6 +48,9 @@ export default function UsernameScreen() {
         autoCapitalize="none"
       />
       <MyButton width="nearfull" onPress={handleNext}>Next</MyButton>
+      {errorText != '' ? (
+          <MyText align="center" color='error'> {errorText} </MyText>
+        ) : null}
     </View>
   );
 }

@@ -29,8 +29,18 @@ export default function PasswordScreen() {
 
   const handleSubmit = async () => {
     setErrorText("");
-    if (!password) {
-      setErrorText("Please enter a valid password");
+    // data quality checks
+    if (password.length < 8) {
+      setErrorText("Password must be at least 8 characters long");
+      return;
+    }
+    if (password.length > 50) {
+      setErrorText("Password must be at most 20 characters long");
+      return;
+    }
+    // password must contain at least 1 letter, 1 number, and 1 special character
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
+      setErrorText("Password must contain at least 1 letter, 1 number, and 1 special character");
       return;
     }
 
@@ -38,6 +48,12 @@ export default function PasswordScreen() {
     setLoading(true);
     const formData: RegistrationData = { username, email, password };
     try {
+      // if any data is null return
+      if (!formData.email || !formData.password || !formData.username) {
+        setErrorText("Email, password, and username are required. Please go back and ensure all fields are filled out.");
+        setLoading(false);
+        return;
+      }
       // send api request to register new user
       const res = await registerUser(
         formData.email,
@@ -59,8 +75,9 @@ export default function PasswordScreen() {
         const keys = Object.keys(res.data);
         // Assuming there's only one key and you want the first one
         const firstKey = keys[0];
+
         // Access the first item in the list associated with the first key - this is our error code
-        if(res.data[firstKey[0]]){
+        if(res.data[firstKey]){
           setErrorText(res.data[firstKey][0]);
         }
         else{
@@ -103,8 +120,9 @@ export default function PasswordScreen() {
       <MyButton width="nearfull" onPress={handleSubmit}>
         Submit
       </MyButton>
-      {errorText != "" ? <MyText color="error"> {errorText} </MyText> : null}
-
+      {errorText != '' ? (
+          <MyText align="center" color='error'> {errorText} </MyText>
+        ) : null}
       {/* Show loading indicator when fetching data */}
       {loading && <ActivityIndicator size="large" color={colors.primary} />}
     </View>
