@@ -71,7 +71,7 @@ export default function Index() {
   }
 
   const selectRegister = () => {
-    router.navigate("(register)/username")
+    router.navigate("/(register)/username")
   }
 
   const selectForgotPassword = () => {
@@ -99,7 +99,7 @@ export default function Index() {
         <MyButton width="large" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => handleLogin()}> Login </MyButton>
         <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
           <MyText onPress={selectRegister}>New User?</MyText>
-          <MyText onPress={selectForgotPassword}>Forgot Password?</MyText>
+          {/* <MyText onPress={selectForgotPassword}>Forgot Password?</MyText> */}
         </View>
         {errorText != '' ? (
           <MyText color='error'> {errorText} </MyText>

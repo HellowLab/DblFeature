@@ -60,8 +60,14 @@ export default function PasswordScreen() {
         // Assuming there's only one key and you want the first one
         const firstKey = keys[0];
         // Access the first item in the list associated with the first key - this is our error code
-        setErrorText(res.data[firstKey][0]);
-        setLoading(false);
+        if(res.data[firstKey[0]]){
+          setErrorText(res.data[firstKey][0]);
+        }
+        else{
+          // If the error code is not found, display a generic error message
+          setErrorText("Unable to create new account, please try again");
+        }
+          setLoading(false);
       }
     } catch (error) {
       console.error(error);
