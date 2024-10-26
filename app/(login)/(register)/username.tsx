@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { RegistrationData } from "@/src/utils/types/types";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyTextInput from "@/src/components/TextInput/TextInput";
 import MyButton from "@/src/components/Buttons/Button";
