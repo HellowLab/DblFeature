@@ -38,19 +38,24 @@ export default function UsernameScreen() {
   };
 
   return (
-    <View style={{flex:1, alignItems: "center", gap:16, marginTop:20, margin: 8}}>
-      <MyText align="left" size="xlarge" bold>Enter your desired username</MyText>
-      <MyText align="left" size="medium">This username will be your default login and the name other users will use to communicate with you</MyText>
-      <MyTextInput
-        width="nearfull"
-        placeholder="Enter username"
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
-      <MyButton width="nearfull" onPress={handleNext}>Next</MyButton>
-      {errorText != '' ? (
-          <MyText align="center" color='error'> {errorText} </MyText>
-        ) : null}
+    <View style={{flex: 1, alignContent: "space-between", marginVertical: 20, margin:8}}>
+      {/* Detail at top of screen to enter user info */}
+      <View style={{flex:1, alignItems: "center", gap:16}}>
+        <MyText align="left" size="xlarge" bold>Enter your desired username</MyText>
+        <MyText align="left" size="medium">This username will be your default login and the name other users will use to communicate with you</MyText>
+        <MyTextInput
+          width="nearfull"
+          placeholder="Enter username"
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
+        <MyButton width="nearfull" onPress={handleNext}>Next</MyButton>
+        {errorText != '' ? (
+            <MyText align="center" color='error'> {errorText} </MyText>
+          ) : null}
+      </View>
+      {/* Button to return to login page */}
+      <MyButton width="nearfull" rounded="full" color="card" onPress={() => router.replace("/")}>Return to Login Page</MyButton>
     </View>
   );
 }

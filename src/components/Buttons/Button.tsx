@@ -4,14 +4,14 @@ import sv, { VariantProps } from 'style-variants';
 import { useTheme } from '@react-navigation/native';
 
 type ButtonVariantsProps = {
-  color?: 'primary' | 'card' | 'error';
-  width?: 'full' | "nearfull" | 'auto' | 'small' | 'medium' | 'large';
-  height?: 'small' | 'medium' | 'large' | 'xlarge';
-  size?: 'small' | 'medium' | 'large';
+  color?: "primary" | "card" | "error";
+  width?: "full" | "nearfull" | "auto" | "small" | "medium" | "large";
+  height?: "small" | "medium" | "large" | "xlarge";
+  size?: "small" | "medium" | "large";
   disabled?: boolean;
-  rounded?: boolean;
-  textsize?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
-  textcolor?: 'primary' | 'white' | 'black' | 'error';
+  rounded?: "none" | "small" | "medium" | "large" | "full";
+  textsize?: "small" | "medium" | "large" | "xlarge" | "xxlarge";
+  textcolor?: "primary" | "white" | "black" | "error";
 };
 
 
@@ -29,6 +29,7 @@ const MyButton = ({
   disabled,
   textsize,
   textcolor,
+  rounded,
   ...props
 }: ButtonProps) => {
 
@@ -36,14 +37,8 @@ const MyButton = ({
     
   const button = sv({
     base: {
-      // borderWidth: 2,
-      // borderColor: 'transparent',
       alignItems: 'center',
-      justifyContent: 'center',
-      // borderRadius: 3,
-      // paddingVertical: 8,
-      // height: 40,
-      
+      justifyContent: 'center', 
     },
     variants: {
       width: {
@@ -92,7 +87,7 @@ const MyButton = ({
           borderWidth: 1,
         },
         error: {
-          backgroundColor: colors.notification,
+          backgroundColor: colors.error,
           borderColor: 'lightpink',
           borderWidth:1,
         },
@@ -103,11 +98,20 @@ const MyButton = ({
         },
       },
       rounded: {
-        true: {
+        none: {
+          borderRadius: 0,
+        },
+        small: {
           borderRadius: 3,
         },
-        false: {
-          borderRadius: 0,
+        medium: {
+          borderRadius: 6,
+        },
+        large: {
+          borderRadius: 12,
+        },
+        full: {
+          borderRadius: 9999,
         },
       },
     },
@@ -116,7 +120,7 @@ const MyButton = ({
       height: 'medium',
       color: 'primary',
       disabled: false,
-      rounded: true,
+      rounded: 'small',
     },
   });
 
@@ -153,7 +157,7 @@ const MyButton = ({
           color: colors.black
         },
         error: {
-          color: colors.notification,
+          color: colors.error,
         },
       },
     },
@@ -169,6 +173,7 @@ const MyButton = ({
     height,
     color,
     disabled,
+    rounded,
   });
 
   return (

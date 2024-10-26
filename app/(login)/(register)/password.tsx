@@ -97,34 +97,56 @@ export default function PasswordScreen() {
     <View
       style={{
         flex: 1,
-        alignItems: "center",
-        gap: 16,
-        marginTop: 20,
+        alignContent: "space-between",
+        marginVertical: 20,
         margin: 8,
       }}
     >
-      <MyText align="left" size="xlarge" bold>
-        Enter your password
-      </MyText>
-      <MyText align="left" size="medium">
-        You only need to enter your password once. Please double check that it
-        is correct prior to submiting.
-      </MyText>
-      <MyTextInput
-        intent="password"
-        width="nearfull"
-        placeholder="Enter password"
-        onChangeText={setPassword}
-        autoCapitalize="none"
-      />
-      <MyButton width="nearfull" onPress={handleSubmit}>
-        Submit
-      </MyButton>
-      {errorText != '' ? (
-          <MyText align="center" color='error'> {errorText} </MyText>
+      {/* Detail at top of screen to enter user info */}
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          gap: 16,
+          marginTop: 20,
+          margin: 8,
+        }}
+      >
+        <MyText align="left" size="xlarge" bold>
+          Enter your password
+        </MyText>
+        <MyText align="left" size="medium">
+          You only need to enter your password once. Please double check that it
+          is correct prior to submiting.
+        </MyText>
+        <MyTextInput
+          intent="password"
+          width="nearfull"
+          placeholder="Enter password"
+          onChangeText={setPassword}
+          autoCapitalize="none"
+        />
+        <MyButton width="nearfull" onPress={handleSubmit}>
+          Submit
+        </MyButton>
+        {errorText != "" ? (
+          <MyText align="center" color="error">
+            {" "}
+            {errorText}{" "}
+          </MyText>
         ) : null}
-      {/* Show loading indicator when fetching data */}
-      {loading && <ActivityIndicator size="large" color={colors.primary} />}
+        {/* Show loading indicator when fetching data */}
+        {loading && <ActivityIndicator size="large" color={colors.primary} />}
+      </View>
+      {/* Button to return to login page */}
+      <MyButton
+        width="nearfull"
+        rounded="full"
+        color="card"
+        onPress={() => router.replace("/")}
+      >
+        Return to Login Page
+      </MyButton>
     </View>
   );
 }
