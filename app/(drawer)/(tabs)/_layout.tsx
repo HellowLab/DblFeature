@@ -24,24 +24,24 @@ export default function Stack2Layout() {
         screenOptions={{
           tabBarShowLabel: false, // Hide labels under tab icons
           tabBarStyle: {
-            backgroundColor: colors.accent, // Set tab bar background to accent color
+            backgroundColor: colors.card, // Set tab bar background to accent color
             borderTopWidth: 0, // Remove border from the top of the tab bar
             height: 60, // Set tab bar height
           },
-          tabBarActiveTintColor: colors.primary, // Set active tab icon color to primary theme color
-          tabBarInactiveTintColor: colors.text, // Set inactive tab icon color to text color
+          tabBarActiveTintColor: colors.text, // Set active tab icon color to primary theme color
+          tabBarInactiveTintColor: colors.accent, // Set inactive tab icon color to text color
           tabBarItemStyle: {
             justifyContent: "center", // Center icons vertically
             alignItems: "center", // Center icons horizontally
             paddingTop: 8, // Add top padding to tab items
           },
           headerStyle: { backgroundColor: colors.primary }, // Set header background color
-          headerTintColor: colors.inverted, // Set header text color to inverted theme color
+          headerTintColor: colors.white, // Set header text color to inverted theme color
           headerTitleStyle: { fontWeight: "bold" }, // Set header title font to bold
 
           // Left side of the header contains a DrawerToggleButton
           headerLeft: (props) => (
-            <DrawerToggleButton {...props} tintColor={colors.inverted} /> // Set drawer toggle button color
+            <DrawerToggleButton {...props} tintColor={colors.white} /> // Set drawer toggle button color
           ),
 
           // Right side of the header contains a user icon with padding
@@ -51,7 +51,7 @@ export default function Stack2Layout() {
               <MaterialIcons
                 name="account-circle"
                 size={24}
-                color={colors.inverted} // Set icon color to inverted theme color
+                color={colors.white} // Set icon color to inverted theme color
               />
             </View>
           ),

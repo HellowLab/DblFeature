@@ -287,8 +287,6 @@ export const getMyUserInfo = async () => {
  * @param email email for new user
  * @param password1 password for new user
  * @param password2 password again for new user
- * @param firstname first name for new user
- * @param lastname last name for new user
  * @param username username for new user
  * @returns api response
  */
@@ -296,8 +294,6 @@ export const registerUser = async (
   email: string,
   password1: string,
   password2: string,
-  firstname: string,
-  lastname: string,
   username: string
 ) => {
   const data = {

@@ -72,7 +72,7 @@ export default function Index() {
   }
 
   const selectRegister = () => {
-    router.navigate("/register")
+    router.navigate("(register)/username")
   }
 
   const selectForgotPassword = () => {
@@ -95,16 +95,16 @@ export default function Index() {
         <View style={myStyles.LogoStyle}>
           <AppLogo />
         </View>
-          <MyTextInput width='large' placeholder='Username' onChangeText={setUsername} autoCapitalize='none'/>
-          <MyTextInput width='large' intent='password' placeholder='Password' onChangeText={setPassword} autoCapitalize='none' />
-          <MyButton width="large" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => handleLogin()}> Login </MyButton>
-          <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
-            <MyText onPress={selectRegister}>New User?</MyText>
-            <MyText onPress={selectForgotPassword}>Forgot Password?</MyText>
-          </View>
-          {errorText != '' ? (
-            <MyText color='error'> {errorText} </MyText>
-          ) : null}
+        <MyTextInput width='large' placeholder='Username' onChangeText={setUsername} autoCapitalize='none'/>
+        <MyTextInput width='large' intent='password' placeholder='Password' onChangeText={setPassword} autoCapitalize='none' />
+        <MyButton width="large" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => handleLogin()}> Login </MyButton>
+        <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
+          <MyText onPress={selectRegister}>New User?</MyText>
+          <MyText onPress={selectForgotPassword}>Forgot Password?</MyText>
+        </View>
+        {errorText != '' ? (
+          <MyText color='error'> {errorText} </MyText>
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
