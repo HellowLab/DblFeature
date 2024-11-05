@@ -14,7 +14,6 @@ import React, {useState} from 'react';
 import { myStyles } from "@/src/utils/constants/styles";
 
 // Import Custom Components 
-import Loader from '@/src/components/loaders/Loader'
 import {AppLogo} from '@/src/components/images/AppLogo';
 import MyButton from '@/src/components/Buttons/Button';
 import MyTextInput from '@/src/components/TextInput/TextInput';
@@ -72,7 +71,7 @@ export default function Index() {
   }
 
   const selectRegister = () => {
-    router.navigate("(register)/username")
+    router.navigate("/(register)/username")
   }
 
   const selectForgotPassword = () => {
@@ -100,7 +99,7 @@ export default function Index() {
         <MyButton width="large" height="medium" color="primary" textsize="medium" textcolor="white" onPress={() => handleLogin()}> Login </MyButton>
         <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
           <MyText onPress={selectRegister}>New User?</MyText>
-          <MyText onPress={selectForgotPassword}>Forgot Password?</MyText>
+          {/* <MyText onPress={selectForgotPassword}>Forgot Password?</MyText> */}
         </View>
         {errorText != '' ? (
           <MyText color='error'> {errorText} </MyText>

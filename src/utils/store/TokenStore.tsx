@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
 // Saving a token
-export const saveToken = async (token: string, refreshToken: string, tokenExpiration?, refreshTokenExpiration?): Promise<void> => {
+export const saveToken = async (token: string, refreshToken: string, tokenExpiration?: string, refreshTokenExpiration?: string): Promise<void> => {
   await SecureStore.setItemAsync('userToken', token);
   await SecureStore.setItemAsync('refreshToken', refreshToken || '');
 

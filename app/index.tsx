@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { getToken, getRefreshToken } from "@/src/utils/store/TokenStore";
 import { View, ActivityIndicator } from "react-native";
 import { AppLogo } from "@/src/components/images/AppLogo";
-import Loader from "@/src/components/loaders/Loader";
+import LoadingIndicator from "@/src/components/LoadingIndicator";
 
 import { getMyUserInfo, isTokenValid } from "@/src/utils/APIs/api";
 import { useUserStore } from "@/src/utils/store/UserStore";
@@ -19,6 +19,12 @@ const Index = () => {
    * @returns Redirects to the login screen if no token is found, otherwise redirects to the home screen
    */
   const isLoggedIn = async () => {
+    const token = await getToken();
+    if (!token) {
+      router.replace("/(login)");
+      setIsLoading(false);
+      return;
+    }
     try {
       // Check if the token is valid
       const validToken = await isTokenValid();
@@ -40,15 +46,19 @@ const Index = () => {
         //     // this is a good opportunity to refresh other app level data while still in the splash screen
         //     router.push("/(drawer)");
         //   }, 3000);
-      } else {
+      }
+       else {
         // if the token cannot be found or refreshed, redirect to the login screen
         router.replace("/(login)");
+        setIsLoading(false);
+        return;
       }
       setIsLoading(false);
     } catch (error) {
       console.error("Error in isLoggedIn:", error);
       router.replace("/(login)");
       setIsLoading(false);
+      return;
     }
   };
 
@@ -61,7 +71,7 @@ const Index = () => {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <AppLogo />
-        <ActivityIndicator size="large" color="#0000ff" />
+        <LoadingIndicator />
       </View>
     );
   }

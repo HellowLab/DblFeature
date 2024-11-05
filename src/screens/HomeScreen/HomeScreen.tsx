@@ -69,6 +69,8 @@ const HomeScreen = () => {
     };
 
     const fetchTmdbIndex = async () => {
+      if (tmdbIndex > 1) return tmdbIndex; // Return the current index if it's greater than 1
+      // else fetch the index from the API
       const res = await getTmdbIndex(tmdbType);
       if (
         res.status === 200 &&
@@ -108,18 +110,16 @@ const HomeScreen = () => {
             await getMoviesWithDetails(filteredMovies);
 
           // Combine allMovies and moviesWithDetails, ensuring unique IDs
-          allMovies = getUniqiuMovies(allMovies, moviesWithDetails);
+          allMovies = getUniqueMovies(allMovies, moviesWithDetails);
           
-          // if (newMovies.length === 0) break; // Break if no new movies are fetched
         } catch (error) {
           console.error("Error fetching movies from TMDB API:", error);
           break; // Break the loop on error
         }
       }
 
-      // Update the index for the next fetch
-      tempIndex = tempIndex - 1;
-      updateTmdbIndex(tempIndex);
+      setTmdbIndex(tempIndex); // update local tmdbIndex
+      if (tempIndex >= 3) updateTmdbIndex(tempIndex-2); // update the tmdbIndex in the database (use -2 to ensure movies just fethed are not counted)
 
       return allMovies;
     };
@@ -147,7 +147,7 @@ const HomeScreen = () => {
       );
     };
 
-    const getUniqiuMovies = (movies1: MovieCardProps[], movies2:MovieCardProps[]) => {
+    const getUniqueMovies = (movies1: MovieCardProps[], movies2:MovieCardProps[]) => {
       const movieMap = new Map();
 
       // Combine allMovies and moviesWithDetails, ensuring unique IDs

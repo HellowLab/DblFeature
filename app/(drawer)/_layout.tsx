@@ -13,6 +13,7 @@ import { styles } from "./drawer.styles";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
 import { useUserStore } from "@/src/utils/store/UserStore";
+import { deleteToken } from "@/src/utils/store/TokenStore";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -51,6 +52,19 @@ function CustomDrawerContent(props: any) {
   const router = useRouter(); // Hook to control app routing
   const { colors } = useTheme(); // Access colors from the current theme
   const { user } = useUserStore(); // Access the user data from the global store
+
+
+  // logout function
+  const logout = () => {
+    // Clear the user data from the global store
+    useUserStore.setState({ user: null });
+
+    // Clear the user token from the secure store
+    deleteToken();
+
+    // Navigate to the login screen
+    router.replace("/(login)");
+  };
 
   return (
     <DrawerContentScrollView
@@ -108,7 +122,7 @@ function CustomDrawerContent(props: any) {
           icon={({ size }) => (
             <MaterialIcons name="exit-to-app" size={size} color={colors.text} /> // Apply theme icon color
           )}
-          onPress={() => router.replace("/(login)")} // Navigate to the login screen
+          onPress={logout} // Navigate to the login screen
         />
 
         {/* Display the app version from configuration */}

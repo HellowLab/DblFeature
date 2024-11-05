@@ -29,8 +29,18 @@ export default function PasswordScreen() {
 
   const handleSubmit = async () => {
     setErrorText("");
-    if (!password) {
-      setErrorText("Please enter a valid password");
+    // data quality checks
+    if (password.length < 8) {
+      setErrorText("Password must be at least 8 characters long");
+      return;
+    }
+    if (password.length > 50) {
+      setErrorText("Password must be at most 20 characters long");
+      return;
+    }
+    // password must contain at least 1 letter, 1 number, and 1 special character
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
+      setErrorText("Password must contain at least 1 letter, 1 number, and 1 special character");
       return;
     }
 
@@ -38,6 +48,12 @@ export default function PasswordScreen() {
     setLoading(true);
     const formData: RegistrationData = { username, email, password };
     try {
+      // if any data is null return
+      if (!formData.email || !formData.password || !formData.username) {
+        setErrorText("Email, password, and username are required. Please go back and ensure all fields are filled out.");
+        setLoading(false);
+        return;
+      }
       // send api request to register new user
       const res = await registerUser(
         formData.email,
@@ -59,9 +75,16 @@ export default function PasswordScreen() {
         const keys = Object.keys(res.data);
         // Assuming there's only one key and you want the first one
         const firstKey = keys[0];
+
         // Access the first item in the list associated with the first key - this is our error code
-        setErrorText(res.data[firstKey][0]);
-        setLoading(false);
+        if(res.data[firstKey]){
+          setErrorText(res.data[firstKey][0]);
+        }
+        else{
+          // If the error code is not found, display a generic error message
+          setErrorText("Unable to create new account, please try again");
+        }
+          setLoading(false);
       }
     } catch (error) {
       console.error(error);
@@ -74,33 +97,56 @@ export default function PasswordScreen() {
     <View
       style={{
         flex: 1,
-        alignItems: "center",
-        gap: 16,
-        marginTop: 20,
+        alignContent: "space-between",
+        marginVertical: 20,
         margin: 8,
       }}
     >
-      <MyText align="left" size="xlarge" bold>
-        Enter your password
-      </MyText>
-      <MyText align="left" size="medium">
-        You only need to enter your password once. Please double check that it
-        is correct prior to submiting.
-      </MyText>
-      <MyTextInput
-        intent="password"
+      {/* Detail at top of screen to enter user info */}
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          gap: 16,
+          marginTop: 20,
+          margin: 8,
+        }}
+      >
+        <MyText align="left" size="xlarge" bold>
+          Enter your password
+        </MyText>
+        <MyText align="left" size="medium">
+          You only need to enter your password once. Please double check that it
+          is correct prior to submiting.
+        </MyText>
+        <MyTextInput
+          intent="password"
+          width="nearfull"
+          placeholder="Enter password"
+          onChangeText={setPassword}
+          autoCapitalize="none"
+        />
+        <MyButton width="nearfull" onPress={handleSubmit}>
+          Submit
+        </MyButton>
+        {errorText != "" ? (
+          <MyText align="center" color="error">
+            {" "}
+            {errorText}{" "}
+          </MyText>
+        ) : null}
+        {/* Show loading indicator when fetching data */}
+        {loading && <ActivityIndicator size="large" color={colors.primary} />}
+      </View>
+      {/* Button to return to login page */}
+      <MyButton
         width="nearfull"
-        placeholder="Enter password"
-        onChangeText={setPassword}
-        autoCapitalize="none"
-      />
-      <MyButton width="nearfull" onPress={handleSubmit}>
-        Submit
+        rounded="full"
+        color="card"
+        onPress={() => router.replace("/")}
+      >
+        Return to Login Page
       </MyButton>
-      {errorText != "" ? <MyText color="error"> {errorText} </MyText> : null}
-
-      {/* Show loading indicator when fetching data */}
-      {loading && <ActivityIndicator size="large" color={colors.primary} />}
     </View>
   );
 }

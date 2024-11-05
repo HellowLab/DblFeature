@@ -85,6 +85,7 @@ export const myfetch = async (
       return res;
     } catch (error) {
       retry += 1; // increment retry count
+      console.log("Error in myfetch function in api.tsx: ", error);
 
       // handle any errors that occur
       // if the error is an Axios error caused by the api response.status
@@ -303,7 +304,10 @@ export const registerUser = async (
     username: username,
   };
   try {
-    const response = await myfetch("auth/register/", "POST", data);
+    // use axios instead of api/myfetch because we don't want to send the token with this request
+    const response = await axios.post(API_BASE_URL + "auth/register/", data);
+    console.log("api.tsx response: ", response);
+    
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
