@@ -68,7 +68,7 @@ export const getStyles = (colors: any) =>
       padding: 15,
       borderRadius: 8,
       alignItems: "center",
-      marginTop: 30,
+      marginTop: 20,
       width: screenWidth - 40,
       backgroundColor: colors.primary,
     },

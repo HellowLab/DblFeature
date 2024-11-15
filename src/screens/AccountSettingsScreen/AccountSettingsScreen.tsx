@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -21,6 +21,56 @@ export default function AccountSettingsScreen() {
 
     // Navigate to the login screen
     router.replace("/(login)");
+  };
+
+  const deleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              // Replace with our actual URL with your actual delete account API endpoint
+              const response = await fetch(
+                "https://our_api_endpoint.com/delete-account",
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer YOUR_ACCESS_TOKEN`, // Replace with our token
+                  },
+                }
+              );
+
+              if (response.ok) {
+                // Clear user data on successful deletion
+                useUserStore.setState({ user: null });
+                deleteToken();
+                router.replace("/(login)");
+              } else {
+                const errorData = await response.json();
+                Alert.alert(
+                  "Error",
+                  errorData.message || "Failed to delete account."
+                );
+              }
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "An unexpected error occurred. Please try again."
+              );
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -121,6 +171,17 @@ export default function AccountSettingsScreen() {
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+
+      {/* Delete Account Button */}
+      <TouchableOpacity
+        style={[
+          styles.logoutButton,
+          { backgroundColor: colors.error, marginTop: 10 },
+        ]}
+        onPress={deleteAccount}
+      >
+        <Text style={styles.logoutText}>Delete Account</Text>
       </TouchableOpacity>
     </View>
   );
