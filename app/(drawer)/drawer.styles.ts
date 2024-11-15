@@ -11,4 +11,9 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     color: "#777",
   },
+  attributionText: {
+    fontSize: 8,
+    textAlign: "left",
+    flexShrink: 1,
+  },
 });

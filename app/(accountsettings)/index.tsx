@@ -1,7 +1,8 @@
 import React from "react";
 import { View } from "react-native";
 import { styles } from "./index.styles";
-import HomeScreen from "@/src/screens/HomeScreen";
+import AccountSettingsScreen from "@/src/screens/AccountSettingsScreen";
+
 /**
  * Main application component that displays movie cards with pan gestures.
  *
@@ -10,7 +11,7 @@ import HomeScreen from "@/src/screens/HomeScreen";
 const App = () => {
   return (
     <View style={styles.pageContainer}>
-      <HomeScreen />
+      <AccountSettingsScreen />
     </View>
   );
 };
