@@ -97,7 +97,7 @@ function CustomDrawerContent(props: any) {
           icon={({ size }) => (
             <MaterialIcons name="home" size={size} color={colors.text} /> // Apply theme icon color
           )}
-          onPress={() => props.navigation.navigate("(tabs)")}
+          onPress={() => props.navigation.navigate("(home)")}
         />
 
         {/* Navigation item for selecting the app theme */}
