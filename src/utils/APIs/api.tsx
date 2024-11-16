@@ -198,6 +198,32 @@ export const login = async (username: string, password: string) => {
 };
 
 /**
+ *
+ * @param username username for user to be logged in
+ * @param password password for user to be logged in
+ * @returns api response
+ */
+export const deleteUserAccount = async () => {
+  try {
+    const response = await myfetch("auth/delete-account/", "POST");
+    console.log("response: ", response?.data);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+      // setError('Error: An unexpected error occurred.');
+    }
+  }
+};
+
+/**
  * Attempt to refresh the user's access token using the refresh token in an API call to the backend.
  *
  * @returns true if the token was successfully refreshed, false otherwise

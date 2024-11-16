@@ -6,6 +6,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import { getStyles } from "./AccountSettingsScreenStyles";
+import { deleteUserAccount } from "@/src/utils/APIs/api";
 
 export default function AccountSettingsScreen() {
   const { colors } = useTheme();
@@ -36,20 +37,11 @@ export default function AccountSettingsScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
+            //   auth/delete-account
             try {
-              // Replace with our actual URL with your actual delete account API endpoint
-              const response = await fetch(
-                "https://our_api_endpoint.com/delete-account",
-                {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer YOUR_ACCESS_TOKEN`, // Replace with our token
-                  },
-                }
-              );
+             const response = await deleteUserAccount();
 
-              if (response.ok) {
+              if (response.status == 200) {
                 // Clear user data on successful deletion
                 useUserStore.setState({ user: null });
                 deleteToken();

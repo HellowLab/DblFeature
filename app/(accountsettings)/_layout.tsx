@@ -23,7 +23,7 @@ export default function AccountSettingsLayout() {
         headerLeft: () => (
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{ paddingLeft: 12 }}
+            style={{ paddingHorizontal: 12 }}
           >
             <MaterialIcons
               name="arrow-back"
