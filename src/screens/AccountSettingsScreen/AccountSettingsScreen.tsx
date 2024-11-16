@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -39,7 +46,7 @@ export default function AccountSettingsScreen() {
           onPress: async () => {
             //   auth/delete-account
             try {
-             const response = await deleteUserAccount();
+              const response = await deleteUserAccount();
 
               if (response.status == 200) {
                 // Clear user data on successful deletion
@@ -66,115 +73,119 @@ export default function AccountSettingsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Profile Picture Placeholder */}
-      <View style={styles.profilePictureContainer}>
-        <MaterialIcons
-          name="account-circle"
-          size={100}
-          color={colors.primary}
-        />
-        <Text style={styles.comingSoonText}>Profile Picture (Coming Soon)</Text>
-      </View>
+    <ScrollView>
+      <View style={styles.container}>
+        {/* Profile Picture Placeholder */}
+        <View style={styles.profilePictureContainer}>
+          <MaterialIcons
+            name="account-circle"
+            size={100}
+            color={colors.primary}
+          />
+          <Text style={styles.comingSoonText}>
+            Profile Picture (Coming Soon)
+          </Text>
+        </View>
 
-      {/* Add Bio */}
-      <View style={styles.bioContainer}>
-        <TextInput
-          style={styles.bioInput}
-          placeholder="Add Bio"
-          placeholderTextColor={colors.text}
-          editable={false}
-          multiline={true}
-          textAlign="center"
-        />
-        <Text style={styles.comingSoonText}>Coming Soon</Text>
-      </View>
-
-      {/* First Name and Last Name */}
-      <View style={styles.rowContainer}>
-        <View style={styles.halfInputContainer}>
+        {/* Add Bio */}
+        <View style={styles.bioContainer}>
           <TextInput
-            style={styles.input}
-            placeholder="Change First Name"
+            style={styles.bioInput}
+            placeholder="Add Bio"
+            placeholderTextColor={colors.text}
+            editable={false}
+            multiline={true}
+            textAlign="center"
+          />
+          <Text style={styles.comingSoonText}>Coming Soon</Text>
+        </View>
+
+        {/* First Name and Last Name */}
+        <View style={styles.rowContainer}>
+          <View style={styles.halfInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Change First Name"
+              placeholderTextColor={colors.text}
+              editable={false}
+              textAlign="center"
+            />
+            <Text style={styles.comingSoonText}>Coming Soon</Text>
+          </View>
+          <View style={styles.halfInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Change Last Name"
+              placeholderTextColor={colors.text}
+              editable={false}
+              textAlign="center"
+            />
+            <Text style={styles.comingSoonText}>Coming Soon</Text>
+          </View>
+        </View>
+
+        {/* Username and Email */}
+        <View style={styles.rowContainer}>
+          <View style={styles.halfInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Change Username"
+              placeholderTextColor={colors.text}
+              editable={false}
+              textAlign="center"
+            />
+            <Text style={styles.comingSoonText}>Coming Soon</Text>
+          </View>
+          <View style={styles.halfInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Change Email"
+              placeholderTextColor={colors.text}
+              editable={false}
+              textAlign="center"
+            />
+            <Text style={styles.comingSoonText}>Coming Soon</Text>
+          </View>
+        </View>
+
+        {/* Password Fields */}
+        <View style={styles.optionContainer}>
+          <TextInput
+            style={styles.fullWidthInput}
+            placeholder="Change Password"
             placeholderTextColor={colors.text}
             editable={false}
             textAlign="center"
           />
           <Text style={styles.comingSoonText}>Coming Soon</Text>
         </View>
-        <View style={styles.halfInputContainer}>
+        <View style={styles.optionContainer}>
           <TextInput
-            style={styles.input}
-            placeholder="Change Last Name"
+            style={styles.fullWidthInput}
+            placeholder="Confirm Change Password"
             placeholderTextColor={colors.text}
             editable={false}
             textAlign="center"
           />
           <Text style={styles.comingSoonText}>Coming Soon</Text>
         </View>
-      </View>
 
-      {/* Username and Email */}
-      <View style={styles.rowContainer}>
-        <View style={styles.halfInputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Change Username"
-            placeholderTextColor={colors.text}
-            editable={false}
-            textAlign="center"
-          />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
-        </View>
-        <View style={styles.halfInputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Change Email"
-            placeholderTextColor={colors.text}
-            editable={false}
-            textAlign="center"
-          />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
-        </View>
-      </View>
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
 
-      {/* Password Fields */}
-      <View style={styles.optionContainer}>
-        <TextInput
-          style={styles.fullWidthInput}
-          placeholder="Change Password"
-          placeholderTextColor={colors.text}
-          editable={false}
-          textAlign="center"
-        />
-        <Text style={styles.comingSoonText}>Coming Soon</Text>
+        {/* Delete Account Button */}
+        <TouchableOpacity
+          style={[
+            styles.logoutButton,
+            { backgroundColor: colors.error, marginTop: 10 },
+          ]}
+          onPress={deleteAccount}
+        >
+          <Text style={styles.logoutText}>Delete Account</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.optionContainer}>
-        <TextInput
-          style={styles.fullWidthInput}
-          placeholder="Confirm Change Password"
-          placeholderTextColor={colors.text}
-          editable={false}
-          textAlign="center"
-        />
-        <Text style={styles.comingSoonText}>Coming Soon</Text>
-      </View>
-
-      {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-
-      {/* Delete Account Button */}
-      <TouchableOpacity
-        style={[
-          styles.logoutButton,
-          { backgroundColor: colors.error, marginTop: 10 },
-        ]}
-        onPress={deleteAccount}
-      >
-        <Text style={styles.logoutText}>Delete Account</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }

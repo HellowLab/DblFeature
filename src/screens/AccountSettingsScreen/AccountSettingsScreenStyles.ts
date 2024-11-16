@@ -10,6 +10,7 @@ export const getStyles = (colors: any) =>
       alignItems: "center",
       paddingHorizontal: 20,
       backgroundColor: colors.background,
+      padding: 20,
     },
     profilePictureContainer: {
       alignItems: "center",
