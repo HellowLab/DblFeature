@@ -6,12 +6,9 @@ export const styles = StyleSheet.create({
     height: "95%",
     justifyContent: "center",
     alignItems: "center",
-    padding: 10,
   },
   card: {
     width: "100%",
-    minWidth: 400,
-    maxWidth: 400,
     height: "100%",
     borderRadius: 20,
     backgroundColor: "transparent",
