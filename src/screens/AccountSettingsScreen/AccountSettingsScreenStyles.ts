@@ -8,7 +8,6 @@ export const getStyles = (colors: any) =>
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: 20,
       backgroundColor: colors.background,
       padding: 20,
     },
