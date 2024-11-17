@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   RefreshControl,
+  ScrollView,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +18,7 @@ import {
   getMovieLists,
   getMovieResults,
   deleteMovieList,
+  addMovieToList,
 } from "@/src/utils/APIs/api";
 import { getMovieDetails } from "@/src/utils/APIs/TMDB";
 import { DjangoMovie, tmdbMovie } from "@/src/utils/types/types";
@@ -50,6 +52,16 @@ const MovieResultsScreen = (): JSX.Element => {
     useState<DjangoMovie | null>(null); // Selected movie result
   const [newListName, setNewListName] = useState(""); // Name for new movie list
   const [newListDescription, setNewListDescription] = useState(""); // Description for new movie list
+  const [longPressModalVisible, setLongPressModalVisible] = useState(false);
+  const [longPressedMovie, setLongPressedMovie] = useState<DjangoMovie | null>(
+    null
+  );
+  const [isAutoAddingToNewList, setIsAutoAddingToNewList] = useState(false); // Flag for auto-adding
+
+  const handleMovieLongPress = (movie: DjangoMovie) => {
+    setLongPressedMovie(movie);
+    setLongPressModalVisible(true); // Show modal
+  };
 
   /** CRUD Functions for Movie Lists */
 
@@ -81,17 +93,61 @@ const MovieResultsScreen = (): JSX.Element => {
         newListName,
         newListDescription || ""
       );
+
       if (response && response.status === 201) {
+        const newList = response.data; // Assume backend returns the new list
+
+        if (isAutoAddingToNewList && longPressedMovie) {
+          // Only add the movie if this flag is set
+          await handleAddMovieToList(newList, true);
+        }
+
         await fetchMovieLists(); // Refresh lists after creation
         setSelectedCategory(2); // Switch to "Lists" category
         setNewListName("");
         setNewListDescription(""); // Reset inputs
         setNewListModalVisible(false); // Close modal
+        setLongPressModalVisible(false); // Close long-press modal
       } else {
         console.error("Failed to create new list:", response);
       }
     } catch (error) {
       console.error("Error creating new list:", error);
+    } finally {
+      setIsAutoAddingToNewList(false); // Reset flag
+    }
+  };
+
+  // Function to add a movie to an existing list
+  const handleAddMovieToList = async (list: any, isNewList = false) => {
+    if (!longPressedMovie) return;
+
+    try {
+      // Only add the movie if it's not already in the list
+      const isInList = list.movies?.some(
+        (movie: { id: number }) => movie.id === longPressedMovie.id
+      );
+      if (isInList) {
+        console.log("Movie already in list, skipping addition.");
+        return;
+      }
+
+      const response = await addMovieToList(list.id, longPressedMovie.id);
+
+      if (response && (response.status === 200 || response.status === 201)) {
+        console.log(`Movie added to ${list.name}`);
+
+        if (isNewList) {
+          setNewListModalVisible(false); // Close the new list modal
+        }
+
+        setLongPressModalVisible(false); // Close the long-press modal
+        await fetchMovieLists(); // Refresh lists
+      } else {
+        console.error("Failed to add movie to list:", response);
+      }
+    } catch (error) {
+      console.error("Error adding movie to list:", error);
     }
   };
 
@@ -178,6 +234,7 @@ const MovieResultsScreen = (): JSX.Element => {
   const renderMovieItem = ({ item }: { item: DjangoMovie }) => (
     <TouchableOpacity
       onPress={() => handleMoviePress(item)}
+      onLongPress={() => handleMovieLongPress(item)} // Add long press handler
       style={styles.gridItem}
     >
       <Image
@@ -242,7 +299,7 @@ const MovieResultsScreen = (): JSX.Element => {
           </MyText>
         )}
       </View>
-      <MyText size="medium" color="primary" style={styles.movieCount}>
+      <MyText size="medium" style={styles.movieCount}>
         {item.movies?.length || 0} movies
       </MyText>
     </TouchableOpacity>
@@ -289,7 +346,7 @@ const MovieResultsScreen = (): JSX.Element => {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <MyText size="large" color={colors.text as any}>
+          <MyText size="large" style={{ color: colors.text, fontSize: 16 }}>
             You have no movie lists.
           </MyText>
         </View>
@@ -336,50 +393,27 @@ const MovieResultsScreen = (): JSX.Element => {
           <TouchableWithoutFeedback onPress={() => setPopupVisible(false)}>
             <View style={styles.modalOverlay}>
               <TouchableWithoutFeedback>
-                <View style={styles.modalContent}>
+                <View style={[styles.smallModalContent]}>
                   <MyText
                     size="large"
-                    style={{ marginBottom: 20, color: colors.text }}
-                    color="normal"
+                    style={[styles.headerText, { marginBottom: 15 }]}
                   >
                     Options
                   </MyText>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
+                  <View style={styles.optionsContainer}>
                     <TouchableOpacity
-                      style={[
-                        styles.createButton,
-                        {
-                          backgroundColor: colors.error,
-                          flex: 1,
-                          marginRight: 10,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        },
-                      ]}
+                      style={[styles.deleteButton]}
                       onPress={confirmDeleteList}
                     >
-                      <MyText size="medium" color="white">
+                      <MyText size="medium" style={{ color: "white" }}>
                         Delete
                       </MyText>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[
-                        styles.createButton,
-                        {
-                          backgroundColor: colors.primary,
-                          flex: 1,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        },
-                      ]}
+                      style={[styles.cancelButton]}
                       onPress={() => setPopupVisible(false)}
                     >
-                      <MyText size="medium" color="white">
+                      <MyText size="medium" style={{ color: "white" }}>
                         Cancel
                       </MyText>
                     </TouchableOpacity>
@@ -413,44 +447,143 @@ const MovieResultsScreen = (): JSX.Element => {
         </Modal>
       )}
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={newListModalVisible}
-        onRequestClose={() => setNewListModalVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setNewListModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContent}>
-                <MyText size="large">Create New List</MyText>
-                <TextInput
-                  placeholder="List Name"
-                  placeholderTextColor={colors.primary}
-                  value={newListName}
-                  onChangeText={setNewListName}
-                  style={styles.input}
-                />
-                <TextInput
-                  placeholder="Description (Optional)"
-                  placeholderTextColor={colors.primary}
-                  value={newListDescription}
-                  onChangeText={setNewListDescription}
-                  style={[styles.input, { marginTop: 10 }]}
-                />
-                <TouchableOpacity
-                  onPress={createNewList}
-                  style={styles.createButton}
-                >
-                  <MyText size="medium" color={colors.primary as any}>
-                    Create
+      {longPressModalVisible && longPressedMovie && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={longPressModalVisible}
+          onRequestClose={() => setLongPressModalVisible(false)}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => setLongPressModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={[styles.modalContent, { paddingVertical: 20 }]}>
+                  {/* Styled Header */}
+                  <MyText
+                    size="large"
+                    style={[styles.headerText, { marginBottom: 10 }]}
+                  >
+                    Add to List
                   </MyText>
-                </TouchableOpacity>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+
+                  {/* Scrollable List of Movie Lists */}
+                  <View style={{ flex: 1, width: "100%" }}>
+                    <ScrollView
+                      contentContainerStyle={{ flexGrow: 1, padding: 10 }}
+                    >
+                      {movieLists.map((list) => {
+                        const isInList = list.movies.some(
+                          (movie: { id: number }) =>
+                            movie.id === longPressedMovie.id
+                        );
+
+                        return (
+                          <TouchableOpacity
+                            key={list.id}
+                            style={[
+                              styles.listItem,
+                              isInList && { backgroundColor: colors.primary },
+                            ]}
+                            onPress={() => handleAddMovieToList(list)}
+                          >
+                            <MyText size="large" color="normal">
+                              {list.name}
+                            </MyText>
+                            {isInList && (
+                              <Ionicons
+                                name="checkmark-circle"
+                                size={24}
+                                color="green"
+                                style={{ marginLeft: "auto" }}
+                              />
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
+
+                  {/* Fixed Footer for Create New List */}
+                  <View style={styles.footer}>
+                    <TouchableOpacity
+                      style={styles.createNewListButton}
+                      onPress={() => {
+                        setIsAutoAddingToNewList(true); // Enable auto-adding for the new list
+                        setNewListModalVisible(true);
+                        setLongPressModalVisible(false); // Close the long-press modal
+                      }}
+                    >
+                      <MyText size="large" style={{ color: colors.primary }}>
+                        + Add to New List
+                      </MyText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
+
+      {newListModalVisible && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={newListModalVisible}
+          onRequestClose={() => setNewListModalVisible(false)}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => setNewListModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={[styles.modalContent, { paddingVertical: 20 }]}>
+                  {/* Styled Header */}
+                  <MyText
+                    size="large"
+                    style={[styles.headerText, { marginBottom: 10 }]}
+                  >
+                    Create New List
+                  </MyText>
+
+                  <View
+                    style={{ flex: 1, width: "100%", alignItems: "center" }}
+                  >
+                    <TextInput
+                      placeholder="List Name"
+                      placeholderTextColor={colors.primary}
+                      value={newListName}
+                      onChangeText={setNewListName}
+                      style={styles.input}
+                    />
+                    <TextInput
+                      placeholder="Description (Optional)"
+                      placeholderTextColor={colors.primary}
+                      value={newListDescription}
+                      onChangeText={setNewListDescription}
+                      style={[styles.input, { marginTop: 10 }]}
+                    />
+                  </View>
+
+                  {/* Footer with Create Button */}
+                  <View style={styles.footer}>
+                    <TouchableOpacity
+                      onPress={createNewList}
+                      style={styles.createNewListButton}
+                    >
+                      <MyText size="large" style={{ color: colors.primary }}>
+                        + Create New List
+                      </MyText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
     </View>
   );
 };

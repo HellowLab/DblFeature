@@ -520,6 +520,34 @@ export const deleteMovieList = async (listId: number) => {
 };
 
 /**
+ * Adds a movie to an existing list.
+ *
+ * @param listId The ID of the list.
+ * @param tmdbId The ID of the TMDB movie to add.
+ * @returns API response.
+ */
+export const addMovieToList = async (listId: number, tmdbId: number) => {
+  try {
+    const data = { tmdb_id: tmdbId }; // Correct the key to match backend expectation
+    const response = await myfetch(
+      `dblfeature/movielists/${listId}/items/`,
+      "POST",
+      data
+    );
+    if (response.status === 201) {
+      return {
+        status: response.status,
+        message: "Movie added to list successfully.",
+        data: response.data,
+      };
+    }
+    return response; // Pass through other response cases
+  } catch (error) {
+    return handleAxiosError(error as AxiosError<ErrorResponse>); // Use your existing error handling
+  }
+};
+
+/**
  *
  * @param movieId tmdb ID of the movie
  * @param movieName name of the move
