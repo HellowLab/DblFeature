@@ -7,13 +7,14 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
-import { styles } from "./MovieFlipCard.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { tmdbMovie, DjangoMovie, APIResponse } from "@/src/utils/types/types";
 import StarRating from "../StarRating/StarRating";
 import MyText from "../TextOutput/TextOutput";
 import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
 import AutoScroll from "../AutoScroll"; // Import the AutoScroll component
+import { useTheme } from "@react-navigation/native";
+import { createStyles } from "./MovieFlipCard.styles";
 
 interface MovieCardProps {
   movie: tmdbMovie;
@@ -30,6 +31,8 @@ interface MovieCardProps {
  * @returns {JSX.Element} The rendered movie card component.
  */
 const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
+  const { colors } = useTheme(); // Theme colors for consistent styling
+  const styles = createStyles(colors); // Dynamic styles based on theme colors
   // State variables to track user interactions
   const [isLiked, setIsLiked] = useState<boolean>(
     movieResult ? movieResult.liked === 1 : false // Initialize based on existing data if available

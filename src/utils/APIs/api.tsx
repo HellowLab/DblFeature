@@ -53,7 +53,7 @@ api.interceptors.request.use(
  */
 export const myfetch = async (
   url: string,
-  fetchtype: "GET" | "POST" | "PATCH" | "PUT",
+  fetchtype: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
   data?: object,
   params?: object
 ) => {
@@ -82,11 +82,18 @@ export const myfetch = async (
       if (fetchtype == "PUT") {
         res = await api.put(url, data, { params });
       }
+      if (fetchtype == "DELETE") {
+        res = await api.delete(url, { params });
+      }
       return res;
     } catch (error) {
       retry += 1; // increment retry count
-      console.log("Error in myfetch function in api.tsx: ", error, ". With error type: ", typeof error);
-    
+      console.log(
+        "Error in myfetch function in api.tsx: ",
+        error,
+        ". With error type: ",
+        typeof error
+      );
 
       // handle any errors that occur
       // if the error is an Axios error caused by the api response.status
@@ -337,7 +344,7 @@ export const registerUser = async (
     // use axios instead of api/myfetch because we don't want to send the token with this request
     const response = await axios.post(API_BASE_URL + "auth/register/", data);
     console.log("api.tsx response: ", response);
-    
+
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -412,6 +419,131 @@ export const getMovieResults = async () => {
       console.error("Error:", error);
       // setError('Error: An unexpected error occurred.');
     }
+  }
+};
+
+/**
+ * Fetches the current user's movie lists from the backend.
+ *
+ * @returns API response containing the user's movie lists.
+ */
+export const getMovieLists = async () => {
+  try {
+    const response = await myfetch("dblfeature/movielists/", "GET");
+    if (response.status === 200) {
+      const apiRes: APIResponse = {
+        data: response.data,
+        status: response.status,
+        message: "Movie lists fetched successfully.",
+      };
+      return apiRes;
+    }
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+    }
+  }
+};
+
+/**
+ * Creates a new movie list for the user.
+ *
+ * @param name Name of the new movie list.
+ * @param description (Optional) Description of the new movie list.
+ * @returns API response.
+ */
+export const createMovieList = async (
+  name: string,
+  description: string = ""
+) => {
+  const data = { name, description }; // Include description in the payload
+  try {
+    const response = await myfetch("dblfeature/movielists/", "POST", data);
+    if (response.status === 201) {
+      const apiRes: APIResponse = {
+        data: response.data,
+        status: response.status,
+        message: "Movie list created successfully.",
+      };
+      return apiRes;
+    }
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      console.error("Error:", error);
+    }
+  }
+};
+
+/**
+ * Deletes a movie list by its ID.
+ *
+ * @param listId The ID of the movie list to delete.
+ * @returns API response.
+ */
+export const deleteMovieList = async (listId: number) => {
+  try {
+    const response = await myfetch(
+      `dblfeature/movielists/${listId}/`,
+      "DELETE"
+    );
+    if (response.status === 204) {
+      return {
+        status: response.status,
+        message: "Movie list deleted successfully.",
+      };
+    }
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      console.error("Error:", error);
+    }
+  }
+};
+
+/**
+ * Adds a movie to an existing list.
+ *
+ * @param listId The ID of the list.
+ * @param tmdbId The ID of the TMDB movie to add.
+ * @returns API response.
+ */
+export const addMovieToList = async (listId: number, tmdbId: number) => {
+  try {
+    const data = { tmdb_id: tmdbId }; // Correct the key to match backend expectation
+    const response = await myfetch(
+      `dblfeature/movielists/${listId}/items/`,
+      "POST",
+      data
+    );
+    if (response.status === 201) {
+      return {
+        status: response.status,
+        message: "Movie added to list successfully.",
+        data: response.data,
+      };
+    }
+    return response; // Pass through other response cases
+  } catch (error) {
+    return handleAxiosError(error as AxiosError<ErrorResponse>); // Use your existing error handling
   }
 };
 
