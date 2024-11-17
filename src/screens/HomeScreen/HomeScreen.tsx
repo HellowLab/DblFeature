@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, useWindowDimensions, Text } from "react-native";
 import {
   fetchMovies,
+  getMovieContentRating,
   getMovieCredits,
   getMovieReviews,
 } from "@/src/utils/APIs/TMDB";
@@ -18,6 +19,7 @@ import { tmdbMovie, DjangoMovie, tmdb_index_type, tmdbCredits, tmdbReview } from
 
 
 import { getTmdbIndex, updateTmdbIndex, getMovieResults } from "@/src/utils/APIs/api";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 
 /**
@@ -109,8 +111,8 @@ const HomeScreen = () => {
           const moviesWithDetails: MovieCardProps[] =
             await getMoviesWithDetails(filteredMovies);
 
-          // Combine allMovies and moviesWithDetails, ensuring unique IDs
-          allMovies = getUniqueMovies(allMovies, moviesWithDetails);
+          // Combine allMovies and moviesWithDetails, filtering out duplicates and movies with unwanted contentRating
+          allMovies = filterMovies(allMovies, moviesWithDetails);
           
         } catch (error) {
           console.error("Error fetching movies from TMDB API:", error);
@@ -127,9 +129,10 @@ const HomeScreen = () => {
     const getMoviesWithDetails = async (movies: tmdbMovie[]) => {
       return Promise.all(
         movies.map(async (movie) => {
-          const [credits, reviews] = await Promise.all([
+          const [credits, reviews, contentRating] = await Promise.all([
             getMovieCredits(movie.id),
             getMovieReviews(movie.id),
+            getMovieContentRating(movie.id, "US"), // Get content rating for the US (replace with Country Code for more countries)
           ]);
 
           return {
@@ -142,17 +145,37 @@ const HomeScreen = () => {
             cast: credits.cast.slice(0, 10),
             crew: credits.crew.slice(0, 10),
             reviews: reviews.slice(0, 5),
+            contentRating: contentRating,
           };
         })
       );
     };
 
-    const getUniqueMovies = (movies1: MovieCardProps[], movies2:MovieCardProps[]) => {
+    const filterMovies = (movies1: MovieCardProps[], movies2:MovieCardProps[]) => {
       const movieMap = new Map();
 
       // Combine allMovies and moviesWithDetails, ensuring unique IDs
       [...movies1, ...movies2].forEach((movie) => {
         movieMap.set(movie.id, movie); // Map uses 'id' as the key to ensure uniqueness
+      });
+
+
+      // get list of all contentRating values from my movies
+      const contentRatingList: string[] = movies1.map((movie) => movie.contentRating);
+      console.log("Content Rating List: ", contentRatingList);
+      // Filter out movies with unwanted contentRating
+      // remove movies whose value contains "R" or "NC-17"
+      const filteredMovies = Array.from(movieMap.values()).filter(
+        (movie) => movie.contentRating !== "R" && movie.contentRating !== "NC-17"
+      );
+
+      const removedMovies = Array.from(movieMap.values()).filter(
+        (movie) => movie.contentRating === "R" || movie.contentRating === "NC-17"
+      );
+
+      // print the content rating for each movie
+      removedMovies.forEach((movie) => {
+        console.log(movie.name, " --> ",movie.contentRating);
       });
 
       return Array.from(movieMap.values()); // Convert the Map back to an array
@@ -175,8 +198,16 @@ const HomeScreen = () => {
   });
 
   // Handle swipe actions (left for nope, right for like)
-  const handleSwipe = (direction: string) => {
+  const handleSwipe = async (direction: string) => {
     if (currentMovie) {
+      console.log(currentMovie.name + " --> " + currentMovie.contentRating);
+      //  TESTING
+      const tempRating = await getMovieContentRating(currentMovie.id, "US")
+      console.log("Temp Content Rating: ", tempRating);
+
+
+
+
       if (direction === "right") {
         onSwipeRight(currentMovie); // Trigger the right swipe action
       } else if (direction === "left") {
@@ -191,23 +222,10 @@ const HomeScreen = () => {
   const updateCurrentMovie = () => {
     const shiftedMovies = movies.slice(1); // Remove the current movie from the queue
     setMovies(shiftedMovies); // Update the movies queue
-
-    // this can be deleted, the movies are already filtered for uniqueness in the fetchAndCompileMovies function
-    // setMovies(() => {
-    //   const movieMap = new Map();
-
-    //   // Populate the Map, using movie IDs as keys to ensure uniqueness
-    //   shiftedMovies.forEach((movie) => {
-    //     movieMap.set(movie.id, movie); // Map uses 'id' as the key to ensure uniqueness
-    //   });
-
-    //   return Array.from(movieMap.values()); // Convert the Map back to an array
-    // });
      
     setCurrentMovie(shiftedMovies[0]); // Update the current movie card
     setNextMovie(shiftedMovies[1]); // Update the next movie card
     setCurrentIndex(currentIndex + 1); // Increment the index -- this is used to track the current movie card / swiper
-    printMovies(shiftedMovies);
   }   
   
   // Print the movie IDs to the console -- for testing purposes only

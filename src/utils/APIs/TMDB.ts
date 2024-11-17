@@ -1,5 +1,5 @@
 import axios from "axios";
-import { tmdbCredits, tmdbMovie, tmdbReview } from "../types/types";
+import { tmdbCredits, tmdbMovie, tmdbReview, tmdbContentRating } from "../types/types";
 
 // API endpoint to get popular movies from TMDB
 const API_URL_POPULAR_MOVIES = "https://api.themoviedb.org/3/movie/popular";
@@ -169,3 +169,81 @@ export const getMovieReviews = async (
     return []; // Return an empty array in case of an error
   }
 };
+
+/**
+ * DBL-17: Fetch the content rating (e.g., PG, PG-13, R, etc.) for a movie from The Movie Database (TMDB).
+ * 
+ * @param {number} movieId - The ID of the movie to fetch the content rating for.
+ * @param {string} country - The ISO 3166-1 country code for the country to fetch the content rating from.
+ * @returns {Promise<string>} - A promise that resolves to the content rating for the movie in the specified country.
+ */
+export const getMovieContentRating = async (
+  movieId: number,
+  country: string
+): Promise<string> => {
+  
+/**
+ * TMDB Release Types
+ * Type Value	Description
+ * 1	Premiere
+ * 2	Theatrical (Limited)
+ * 3	Theatrical
+ * 4	Digital
+ * 5	Physical (e.g., DVD, Blu-ray)
+ * 6	TV
+ *  */ 
+  const releaseTypeList: number[] = [2, 3,4,5,6]; // Specify the release type for theatrical release. Ignore Premieres.
+  let contentRating: string = "";
+
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}/release_dates`,
+      {
+        headers: {
+          accept: "application/json", // Specify that the response should be JSON
+          Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`, // Use the API token for authentication
+        },
+      }
+    );
+    // filter the response based on the selected country code. Only show the release dates for the selected country
+    const filteredResponse = response.data.results.find(item => item.iso_3166_1 === country);
+    
+    if (filteredResponse?.release_dates?.length > 0 && contentRating === "") {
+      // Find the first release_date that matches the criteria
+      const matchingRelease = filteredResponse.release_dates.find(
+          (item) => releaseTypeList.includes(item.type) && item.certification
+      );
+  
+      // If a match is found, set the contentRating
+      if (matchingRelease) {
+          contentRating = matchingRelease.certification;
+          console.log("contentRating to return: ", contentRating);
+      }
+  }
+
+  // original version of code below is the same as the optimized version above. keeping this while testing refactored code
+    // if (filteredResponse) {
+    //   if (filteredResponse.release_dates.length > 0) {
+    //     // if the content rating is not specified, find the first accurate content rating found
+    //     if (contentRating == "") {
+    //       // for each release_date in filteredResponse, check the type and certification
+    //       filteredResponse.release_dates.forEach((item) => {
+    //         console.log("releaseDates: ", item);
+    //         if (releaseTypeList.includes(item.type)) {
+    //           if (item.certification) {
+    //             // if the content rating is found, set the content rating
+    //             contentRating = item.certification;
+    //             console.log("contentRating to return: ", item.certification);
+    //           }
+    //         }
+    //       });
+    //     }
+    //   }        
+    // }
+  } catch (error) {
+    console.error("Error fetching content rating:", error);
+  }
+  if (contentRating == "") console.log("No content rating found, returning empty string");
+  
+  return contentRating; // Return the content rating for the movie in the specified country, or an empty string if no content rating was found
+}

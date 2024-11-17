@@ -23,6 +23,7 @@ export interface MovieCardProps {
   cast: CastMember[];
   crew: CrewMember[];
   reviews: tmdbReview[];
+  contentRating: string;
 }
 
 /**
