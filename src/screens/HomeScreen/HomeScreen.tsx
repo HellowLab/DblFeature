@@ -44,7 +44,6 @@ const HomeScreen = () => {
   const [tmdbType, setTmdbType] = useState<tmdb_index_type>("popular"); // Type of movies to fetch from the TMDB API
 
   const REM_MOVIES_THRESHOLD = 15; // Threshold for fetching more movies when remaining movies are less than this value
-
   // Fetch movies on component mount or when fetchMoreMovies changes.
   useEffect(() => {
     const getMovies = async () => {
@@ -160,26 +159,17 @@ const HomeScreen = () => {
       });
 
 
-      // get list of all contentRating values from my movies
-      const contentRatingList: string[] = movies1.map((movie) => movie.contentRating);
-      console.log("Content Rating List: ", contentRatingList);
-      // Filter out movies with unwanted contentRating
-      // remove movies whose value contains "R" or "NC-17"
+      // Filter out movies with unwanted contentRating "" or "NC-17"
       const filteredMovies = Array.from(movieMap.values()).filter(
-        (movie) => movie.contentRating !== "R" && movie.contentRating !== "NC-17"
+        (movie) => movie.contentRating !== "" && movie.contentRating !== "NC-17"
       );
 
       const removedMovies = Array.from(movieMap.values()).filter(
-        (movie) => movie.contentRating === "R" || movie.contentRating === "NC-17"
+        (movie) => movie.contentRating === "" || movie.contentRating === "NC-17"
       );
-
-      // print the content rating for each movie
-      removedMovies.forEach((movie) => {
-        console.log(movie.name, " --> ",movie.contentRating);
-      });
-
-      return Array.from(movieMap.values()); // Convert the Map back to an array
-    }
+      
+      return filteredMovies;
+    };
 
     console.log("Movie Queue: ", movies.length); // Print the number of movies in the queue
       // Trigger the movie fetching if the queue is too low
@@ -200,14 +190,6 @@ const HomeScreen = () => {
   // Handle swipe actions (left for nope, right for like)
   const handleSwipe = async (direction: string) => {
     if (currentMovie) {
-      console.log(currentMovie.name + " --> " + currentMovie.contentRating);
-      //  TESTING
-      const tempRating = await getMovieContentRating(currentMovie.id, "US")
-      console.log("Temp Content Rating: ", tempRating);
-
-
-
-
       if (direction === "right") {
         onSwipeRight(currentMovie); // Trigger the right swipe action
       } else if (direction === "left") {
@@ -231,9 +213,8 @@ const HomeScreen = () => {
   // Print the movie IDs to the console -- for testing purposes only
   const printMovies = (movies: MovieCardProps[]) => {
     movies.forEach((movie) => {
-      console.log(movie.id);
+      console.log("ID: ", movie.id, ", Name: ", movie.name, ", Content Rating: ", movie.contentRating);
     });
-
   }
 
   // Show a loading indicator while fetching data
