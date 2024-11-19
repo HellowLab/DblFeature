@@ -14,6 +14,8 @@ import MyText from "@/src/components/TextOutput/TextOutput";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
 import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
+//@ts-ignore
+import TMDBLogo from "@/src/assets/images/TMDB/TMDBLogo.svg";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -52,7 +54,6 @@ function CustomDrawerContent(props: any) {
   const router = useRouter(); // Hook to control app routing
   const { colors } = useTheme(); // Access colors from the current theme
   const { user } = useUserStore(); // Access the user data from the global store
-
 
   // logout function
   const logout = () => {
@@ -116,6 +117,7 @@ function CustomDrawerContent(props: any) {
       {/* Bottom section of the drawer */}
       <View style={styles.bottomSection}>
         {/* Logout Button */}
+        {/*
         <DrawerItem
           label="Logout"
           labelStyle={{ fontSize: 16, color: colors.text }} // Apply theme text color
@@ -124,8 +126,20 @@ function CustomDrawerContent(props: any) {
           )}
           onPress={logout} // Navigate to the login screen
         />
+        */}
 
         {/* Display the app version from configuration */}
+        <View style={{ alignItems: "center", marginTop: 10 }}>
+          {/* TMDB Logo */}
+          <TMDBLogo width={"95%"} height={30} style={{ marginBottom: 5 }} />
+
+          {/* Attribution Text */}
+          <Text style={[styles.attributionText, { color: colors.text }]}>
+            This product uses the TMDB API but is not endorsed or certified by
+            TMDB.
+          </Text>
+        </View>
+
         <Text style={[styles.versionText, { color: colors.text }]}>
           Version {appConfig.version}
         </Text>

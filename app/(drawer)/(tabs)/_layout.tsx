@@ -5,7 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { MaterialIcons } from "@expo/vector-icons";
-import { View } from "react-native"; // Import View for padding
+import { View, TouchableOpacity } from "react-native"; // Import TouchableOpacity for navigation
+import { useRouter } from "expo-router"; // Import useRouter for navigation
 
 /**
  * Stack2Layout component renders a tab-based layout with customized
@@ -16,6 +17,7 @@ import { View } from "react-native"; // Import View for padding
  */
 export default function Stack2Layout() {
   const { colors } = useTheme(); // Access theme colors from navigation
+  const router = useRouter(); // Router for navigating to the AccountSettings screen
 
   return (
     // GestureHandlerRootView is used to wrap the layout and handle gestures properly
@@ -46,14 +48,15 @@ export default function Stack2Layout() {
 
           // Right side of the header contains a user icon with padding
           headerRight: () => (
-            <View style={{ paddingRight: 12 }}>
-              {/* Add padding to the right of the icon for spacing */}
-              <MaterialIcons
-                name="account-circle"
-                size={24}
-                color={colors.white} // Set icon color to inverted theme color
-              />
-            </View>
+            <TouchableOpacity onPress={() => router.push("/(accountsettings)")}>
+              <View style={{ paddingRight: 12 }}>
+                <MaterialIcons
+                  name="account-circle"
+                  size={24}
+                  color={colors.white}
+                />
+              </View>
+            </TouchableOpacity>
           ),
         }}
       >

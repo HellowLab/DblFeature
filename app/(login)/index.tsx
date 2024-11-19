@@ -25,6 +25,7 @@ import { useUserStore} from '@/src/utils/store/UserStore';
 
 // Import API
 import { login } from '@/src/utils/APIs/api';
+import LoadingIndicator from "@/src/components/LoadingIndicator";
 
 export default function Index() {
   const router = useRouter();
@@ -104,6 +105,9 @@ export default function Index() {
         {errorText != '' ? (
           <MyText color='error'> {errorText} </MyText>
         ) : null}
+        {loading && 
+          <LoadingIndicator/>
+        }
       </ScrollView>
     </KeyboardAvoidingView>
   );

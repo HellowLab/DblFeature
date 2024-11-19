@@ -85,11 +85,13 @@ export const myfetch = async (
       return res;
     } catch (error) {
       retry += 1; // increment retry count
-      console.log("Error in myfetch function in api.tsx: ", error);
+      console.log("Error in myfetch function in api.tsx: ", error, ". With error type: ", typeof error);
+    
 
       // handle any errors that occur
       // if the error is an Axios error caused by the api response.status
       if (axios.isAxiosError(error)) {
+        console.log("Axios error in myfetch function in api.tsx");
         // if error is caused by user not being authenticated, try to refresh the users token
         if (error.response?.status == 401) {
           // if retry count is <= max retries, try to refresh token
@@ -105,7 +107,9 @@ export const myfetch = async (
             }
           } else {
             // if retry count is > max retries, redirect to login
+            console.log("Max retries reached. Redirecting to login.");
             router.replace("/(login)");
+            return error;
           }
         } else {
           // Axios error
@@ -116,7 +120,7 @@ export const myfetch = async (
         }
       } else {
         // Non-Axios error
-        console.error("Error:", error);
+        console.error("Non-Axios Error:", error);
         return error;
       }
     }
@@ -180,6 +184,32 @@ export const login = async (username: string, password: string) => {
   const data = { username: username, password: password };
   try {
     const response = await myfetch("auth/login/", "POST", data);
+    console.log("response: ", response?.data);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios error
+      const errorResponse = handleAxiosError(
+        error as AxiosError<ErrorResponse>
+      );
+      return errorResponse;
+    } else {
+      // Non-Axios error
+      console.error("Error:", error);
+      // setError('Error: An unexpected error occurred.');
+    }
+  }
+};
+
+/**
+ *
+ * @param username username for user to be logged in
+ * @param password password for user to be logged in
+ * @returns api response
+ */
+export const deleteUserAccount = async () => {
+  try {
+    const response = await myfetch("auth/delete-account/", "POST");
     console.log("response: ", response?.data);
     return response;
   } catch (error) {
@@ -271,7 +301,6 @@ export const isTokenValid = async () => {
  */
 export const getMyUserInfo = async () => {
   const response = await myfetch("auth/myuser/", "GET");
-
   if (response.status == 200) {
     const apiRes: APIResponse = {
       data: response.data,
@@ -280,6 +309,7 @@ export const getMyUserInfo = async () => {
     };
     return apiRes;
   }
+  console.log("getMyUserInfo response.data: ", response.data);
   return response;
 };
 

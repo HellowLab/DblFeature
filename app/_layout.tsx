@@ -81,7 +81,12 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={myTheme === "dark" ? darkTheme : lightTheme}>
       {/* Stack Navigator without headers */}
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          gestureEnabled: false, // Disables swipe-back gestures
+          headerShown: false,
+        }}
+      >
         {/* Define screen routes */}
         <Stack.Screen name="(login)" />
         <Stack.Screen name="(drawer)" />
