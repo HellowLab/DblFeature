@@ -1,4 +1,3 @@
-// MovieCardOne.tsx
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -14,9 +13,9 @@ import MyText from "../TextOutput/TextOutput";
 import { createMovieResult, updateMovieResult } from "@/src/utils/APIs/api";
 import AutoScroll from "../AutoScroll"; // Import the AutoScroll component
 import { useTheme } from "@react-navigation/native";
-import { createStyles } from "./MovieFlipCard.styles";
+import { createStyles } from "./MovieDetailsCard.styles";
 
-interface MovieCardProps {
+interface MovieDetailsProps {
   movie: tmdbMovie;
   movieResult?: DjangoMovie | null;
 }
@@ -30,7 +29,10 @@ interface MovieCardProps {
  * @param {DjangoMovie | null} movieResult - Optional movie result object from Django API.
  * @returns {JSX.Element} The rendered movie card component.
  */
-const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
+const MovieDetailsCard: React.FC<MovieDetailsProps> = ({
+  movie,
+  movieResult,
+}) => {
   const { colors } = useTheme(); // Theme colors for consistent styling
   const styles = createStyles(colors); // Dynamic styles based on theme colors
   // State variables to track user interactions
@@ -246,4 +248,4 @@ const MovieCardOne: React.FC<MovieCardProps> = ({ movie, movieResult }) => {
   );
 };
 
-export default MovieCardOne;
+export default MovieDetailsCard;

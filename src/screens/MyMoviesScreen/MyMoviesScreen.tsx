@@ -18,7 +18,7 @@ import { DjangoMovie, tmdbMovie } from "@/src/utils/types/types";
 import { useTheme } from "@react-navigation/native";
 import LoadingIndicator from "@/src/components/LoadingIndicator"; // Loading spinner component
 import MyText from "@/src/components/TextOutput/TextOutput"; // Custom text component
-import MovieGridItem from "@/src/components/MovieGrid"; // Component for displaying movies in a grid layout
+import MovieGridItem from "@/src/components/MovieGridItem"; // Component for displaying movies in a grid layout
 import MovieModal from "@/src/components/Modals/MovieModal"; // Modal for viewing detailed movie info
 import AddListModal from "@/src/components/Modals/AddListModal"; // Modal for adding movies to lists
 import CreateListModal from "@/src/components/Modals/CreateListModal"; // Modal for creating a new movie list

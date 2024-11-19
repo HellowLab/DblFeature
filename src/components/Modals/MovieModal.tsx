@@ -3,7 +3,7 @@ import { Modal, TouchableWithoutFeedback, View } from "react-native";
 import { createStyles } from "../../screens/MyMoviesScreen/MyMoviesScreen.styles";
 import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
 import { useTheme } from "@react-navigation/native";
-import MovieCardOne from "../MovieFlipCard/MovieCardOne";
+import MovieDetailsCard from "../MovieDetailsCard/MovieDetailsCard";
 
 // Interface for MovieModal props to define required properties and their types
 interface MovieModalProps {
@@ -36,8 +36,8 @@ const MovieModal: React.FC<MovieModalProps> = ({
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               {/* Display a movie card with details of the selected movie */}
-              <MovieCardOne
-                movie={selectedMovie} // Passing the selected movie details to MovieCardOne
+              <MovieDetailsCard
+                movie={selectedMovie} // Passing the selected movie details to MovieDetailsCard
                 movieResult={selectedMovieResult} // Passing additional information about the movie, if available
               />
             </View>
