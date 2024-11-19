@@ -10,12 +10,12 @@ import {
 import { useTheme } from "@react-navigation/native";
 import { styles } from "./SearchScreen.styles";
 import SearchBar from "@/src/components/SearchBar";
-import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
 
 import { searchMovies, getMovieDetails } from "@/src/utils/APIs/TMDB";
 import SearchItem from "@/src/components/SearchItem";
 import { tmdbMovie, DjangoMovie } from "@/src/utils/types/types";
 import { getMyMovie } from "@/src/utils/APIs/api";
+import MovieCardOne from "@/src/components/MovieFlipCard/MovieCardOne";
 
 const SearchScreen = () => {
   // Get the current theme colors from the navigation context
