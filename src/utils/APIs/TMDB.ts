@@ -1,5 +1,5 @@
 import axios from "axios";
-import { tmdbCredits, tmdbMovie, tmdbReview } from "../types/types";
+import { tmdbCredits, tmdbMovie, tmdbReview} from "../types/types";
 
 // API endpoint to get popular movies from TMDB
 const API_URL_POPULAR_MOVIES = "https://api.themoviedb.org/3/movie/popular";
@@ -169,3 +169,94 @@ export const getMovieReviews = async (
     return []; // Return an empty array in case of an error
   }
 };
+
+/**
+ * DBL-17: Fetch the content rating (e.g., PG, PG-13, R, etc.) for a movie from The Movie Database (TMDB).
+ * 
+ * @param {number} movieId - The ID of the movie to fetch the content rating for.
+ * @param {string} country - The ISO 3166-1 country code for the country to fetch the content rating from.
+ * @returns {Promise<string>} - A promise that resolves to the content rating for the movie in the specified country.
+ */
+export const getMovieContentRating = async (
+  movieId: number,
+  country: string
+): Promise<string> => {
+  
+  /**
+   * TMDB Release Types
+   * Type Value	Description
+   * 1	Premiere
+   * 2	Theatrical (Limited)
+   * 3	Theatrical
+   * 4	Digital
+   * 5	Physical (e.g., DVD, Blu-ray)
+   * 6	TV
+   *  */ 
+  const releaseTypeList: number[] = [1, 2, 3, 4, 5, 6]; // Specify the release types for theatrical release. 
+
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}/release_dates`,
+      {
+        headers: {
+          Accept: "application/json", // Specify JSON response
+          Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`, // Use the API token for authentication
+        },
+      }
+    );
+
+    // Filter the response by the selected country
+    const filteredResponse = response.data.results.find(
+      (item: { iso_3166_1: string }) => item.iso_3166_1 === country
+    );
+
+    if (filteredResponse?.release_dates?.length) {
+      // Find the first matching release with certification
+      const matchingRelease = filteredResponse.release_dates.find(
+        (item: { type: number; certification?: string }) =>
+          releaseTypeList.includes(item.type) && item.certification
+      );
+
+      if (matchingRelease) {
+        // console.log("Content rating found: ", matchingRelease.certification);
+        return matchingRelease.certification; // Return the content rating if found
+      }
+    }
+
+    // console.warn("No content rating found for movie in country:", country);
+  } catch (error) {
+    console.error(
+      "Error fetching content rating for movie ", movieId, " in country ",country, ": ",
+      error
+    );
+  }
+
+  // Return an empty string if no content rating was found
+  return "";
+};
+
+
+// TODO: DBL-45 Implement the function to fetch content rating for a movie in a specific country
+// `https://api.themoviedb.org/3/certification/movie/list?api_key=${apiKey}`;
+/**
+ * Expected response:
+ * {
+  "certifications": {
+    "US": [
+      { "certification": "G", "meaning": "General Audiences", "order": 1 },
+      { "certification": "PG", "meaning": "Parental Guidance Suggested", "order": 2 },
+      { "certification": "PG-13", "meaning": "Parents Strongly Cautioned", "order": 3 },
+      { "certification": "R", "meaning": "Restricted", "order": 4 },
+      { "certification": "NC-17", "meaning": "No One 17 and Under Admitted", "order": 5 }
+    ],
+    "GB": [
+      { "certification": "U", "meaning": "Universal", "order": 1 },
+      { "certification": "PG", "meaning": "Parental Guidance", "order": 2 },
+      { "certification": "12A", "meaning": "12 Accompanied", "order": 3 },
+      { "certification": "15", "meaning": "Suitable for 15 years and older", "order": 4 },
+      { "certification": "18", "meaning": "Adults only", "order": 5 }
+    ]
+  }
+}
+
+ */
