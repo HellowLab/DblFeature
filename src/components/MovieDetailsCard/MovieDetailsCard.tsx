@@ -33,6 +33,7 @@ const MovieDetailsCard: React.FC<MovieDetailsProps> = ({
   movie,
   movieResult,
 }) => {
+  console.log(movie);
   const { colors } = useTheme(); // Theme colors for consistent styling
   const styles = createStyles(colors); // Dynamic styles based on theme colors
   // State variables to track user interactions

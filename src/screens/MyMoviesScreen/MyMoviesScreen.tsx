@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -53,6 +53,10 @@ const MovieResultsScreen = (): JSX.Element => {
     null
   ); // Holds the movie selected for adding to a list
   const [isAutoAddingToNewList, setIsAutoAddingToNewList] = useState(false); // Tracks if a movie should auto-add to a new list
+
+  // State variables for managing selected list and its movies
+  const [selectedList, setSelectedList] = useState<any | null>(null); // Holds the selected list when a list is clicked
+  const [selectedListMovies, setSelectedListMovies] = useState<any[]>([]); // Stores movies in the selected list
 
   /**
    * Fetch movie results from the backend.
@@ -110,7 +114,7 @@ const MovieResultsScreen = (): JSX.Element => {
         console.log("Movie already in list, skipping addition.");
         return;
       }
-      const response = await addMovieToList(list.id, longPressedMovie.id); // Add movie to list
+      const response = await addMovieToList(list.id, longPressedMovie.tmdb_id); // Add movie to list
       if (response && (response.status === 200 || response.status === 201)) {
         console.log(`Movie added to ${list.name}`);
         if (isNewList) setNewListModalVisible(false); // Close modal for new lists
@@ -184,6 +188,50 @@ const MovieResultsScreen = (): JSX.Element => {
   );
 
   /**
+   * Fetch movies when a list is selected.
+   */
+  useEffect(() => {
+    const fetchSelectedListMovies = async () => {
+      if (selectedList) {
+        const moviesInList = selectedList.movies;
+
+        const movieDetailsPromises = moviesInList.map(async (movie: any) => {
+          const tmdbId = movie.tmdb_id;
+          const tmdbMovieDetails = await getMovieDetails(tmdbId);
+          const djangoMovie = movieResults.find(
+            (djangoMovie) => djangoMovie.tmdb_id == tmdbId
+          );
+
+          // Merge djangoMovie and tmdbMovieDetails into a single object
+          const mergedMovie = {
+            ...(djangoMovie || {}),
+            ...tmdbMovieDetails,
+            image_url:
+              djangoMovie?.poster ||
+              (tmdbMovieDetails.poster_path
+                ? `https://image.tmdb.org/t/p/w500${tmdbMovieDetails.poster_path}`
+                : null),
+            tmdb_id: tmdbId,
+          };
+
+          // Return both mergedMovie and djangoMovie
+          return {
+            mergedMovie,
+            djangoMovie: djangoMovie || null,
+          };
+        });
+
+        const moviesWithDetails = await Promise.all(movieDetailsPromises);
+        setSelectedListMovies(moviesWithDetails);
+      } else {
+        setSelectedListMovies([]);
+      }
+    };
+
+    fetchSelectedListMovies();
+  }, [selectedList, movieResults]);
+
+  /**
    * Refresh movie data manually using pull-to-refresh.
    */
   const handleRefresh = async () => {
@@ -205,6 +253,25 @@ const MovieResultsScreen = (): JSX.Element => {
     } catch (error) {
       console.error("Error fetching movie details:", error);
     }
+  };
+
+  /**
+   * Handle a list item press to display its movies.
+   */
+  const handleListPress = (listItem: any) => {
+    setSelectedList(listItem); // Set the selected list
+  };
+
+  /**
+   * Handle movie press in selected list.
+   */
+  const handleMoviePressInList = (
+    movieItem: any,
+    djangoMovieItem: DjangoMovie | null
+  ) => {
+    setSelectedMovie(movieItem); // The merged movie object
+    setSelectedMovieResult(djangoMovieItem); // Set the DjangoMovie object
+    setModalVisible(true);
   };
 
   // Render a loading indicator if data is still loading
@@ -250,65 +317,116 @@ const MovieResultsScreen = (): JSX.Element => {
         </TouchableOpacity>
       </View>
 
-      {/* Conditional rendering based on selected category */}
-      {selectedCategory === MovieLists && movieLists.length === 0 ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <MyText size="large" style={{ color: colors.text, fontSize: 16 }}>
-            You have no movie lists.
-          </MyText>
+      {/* Conditional rendering based on selected list and selected category */}
+      {selectedList ? (
+        // Display movies in the selected list
+        <View style={styles.container}>
+          <View /*style={styles.header}*/>
+            {/* Back button to return to the list of lists */}
+            <TouchableOpacity onPress={() => setSelectedList(null)}>
+              <Ionicons name="arrow-back" size={30} color={colors.text} />
+            </TouchableOpacity>
+            {/* Display the name of the selected list */}
+            <MyText size="large" style={{ color: colors.text, fontSize: 16 }}>
+              {selectedList.name}
+            </MyText>
+          </View>
+          {/* Grid of movies in the selected list */}
+          <FlatList
+            data={selectedListMovies}
+            keyExtractor={(item) => item.mergedMovie.id.toString()}
+            renderItem={({ item }) => (
+              <MovieGridItem
+                item={item.mergedMovie}
+                handleMoviePress={() =>
+                  handleMoviePressInList(item.mergedMovie, item.djangoMovie)
+                }
+                setLongPressedMovie={setLongPressedMovie}
+                setLongPressModalVisible={setLongPressModalVisible}
+              />
+            )}
+            numColumns={3}
+            key={"grid"}
+            contentContainerStyle={styles.listContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+          />
         </View>
       ) : (
-        <FlatList
-          data={
-            selectedCategory === LikedMovies
-              ? movieResults.filter((movie) => movie.liked === 1) // Filter liked movies
-              : selectedCategory === DislikedMovies
-                ? movieResults.filter((movie) => movie.liked === 0) // Filter disliked movies
-                : movieLists // Use movie lists
-          }
-          keyExtractor={(item) => item.id.toString()} // Unique key for each item
-          renderItem={
-            selectedCategory === MovieLists
-              ? ({ item }) => (
-                  <MovieList
-                    item={item}
-                    setSelectedListItem={setSelectedListItem}
-                    setPopupVisible={setPopupVisible}
-                  />
-                )
-              : ({ item }) => (
-                  <MovieGridItem
-                    item={item}
-                    handleMoviePress={handleMoviePress}
-                    setLongPressedMovie={setLongPressedMovie}
-                    setLongPressModalVisible={setLongPressModalVisible}
-                  />
-                )
-          }
-          numColumns={selectedCategory === MovieLists ? 1 : 3}
-          key={selectedCategory === MovieLists ? "list" : "grid"}
-          contentContainerStyle={styles.listContainer}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-        />
-      )}
+        // Display liked/disliked movies or movie lists
+        <>
+          {selectedCategory === MovieLists && movieLists.length === 0 ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <MyText size="large" style={{ color: colors.text, fontSize: 16 }}>
+                You have no movie lists.
+              </MyText>
+            </View>
+          ) : (
+            <FlatList
+              data={
+                selectedCategory === LikedMovies
+                  ? movieResults.filter((movie) => movie.liked === 1) // Filter liked movies
+                  : selectedCategory === DislikedMovies
+                    ? movieResults.filter((movie) => movie.liked === 0) // Filter disliked movies
+                    : movieLists // Use movie lists
+              }
+              keyExtractor={(item) => item.id.toString()} // Unique key for each item
+              renderItem={
+                selectedCategory === MovieLists
+                  ? ({ item }) => (
+                      <MovieList
+                        item={item}
+                        onPress={handleListPress} // Pass the handleListPress function
+                        setSelectedListItem={setSelectedListItem}
+                        setPopupVisible={setPopupVisible}
+                      />
+                    )
+                  : ({ item }) => (
+                      <MovieGridItem
+                        item={item}
+                        handleMoviePress={handleMoviePress}
+                        setLongPressedMovie={setLongPressedMovie}
+                        setLongPressModalVisible={setLongPressModalVisible}
+                      />
+                    )
+              }
+              numColumns={selectedCategory === MovieLists ? 1 : 3}
+              key={selectedCategory === MovieLists ? "list" : "grid"}
+              contentContainerStyle={styles.listContainer}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                />
+              }
+            />
+          )}
 
-      {/* Add new list button */}
-      {selectedCategory === MovieLists && (
-        <View style={styles.addButtonContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              setIsAutoAddingToNewList(false);
-              setNewListModalVisible(true);
-            }}
-            style={styles.addButton}
-          >
-            <Ionicons name="add-circle" size={50} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
+          {/* Add new list button */}
+          {selectedCategory === MovieLists && (
+            <View style={styles.addButtonContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsAutoAddingToNewList(false);
+                  setNewListModalVisible(true);
+                }}
+                style={styles.addButton}
+              >
+                <Ionicons name="add-circle" size={50} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
       )}
 
       {/* Movie detail modal */}
