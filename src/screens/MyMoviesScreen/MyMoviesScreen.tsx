@@ -197,10 +197,16 @@ const MovieResultsScreen = (): JSX.Element => {
     }
 
     try {
+      console.log(
+        `Deleting movie with tmdb_id=${longPressedMovie.tmdb_id} from list_id=${list.id}`
+      );
+
+      // API call to remove movie from list
       const response = await removeMovieFromList(
         list.id,
         longPressedMovie.tmdb_id
-      ); // Remove movie from list via API
+      );
+
       if (response && (response.status === 200 || response.status === 204)) {
         // Show a success message upon successful removal
         showMessage({
@@ -211,10 +217,35 @@ const MovieResultsScreen = (): JSX.Element => {
           duration: 3000,
           animationDuration: 300,
         });
-        await fetchMovieLists(); // Refresh lists to reflect changes
+
+        // Immediately remove the movie from the list state
+        const updatedMovies = selectedListMovies.filter(
+          (item) => item.mergedMovie.tmdb_id !== longPressedMovie.tmdb_id
+        );
+
+        setSelectedListMovies(updatedMovies); // Update the selected list state
+        if (selectedList) {
+          setSelectedList({
+            ...selectedList,
+            movies: updatedMovies.map((item) => item.mergedMovie),
+          });
+        }
+
+        // Also update the `movieLists` state to reflect the removal
+        setMovieLists((prevLists) =>
+          prevLists.map((l) =>
+            l.id === list.id
+              ? {
+                  ...l,
+                  movies: l.movies.filter(
+                    (m: any) => m.tmdb_id !== longPressedMovie.tmdb_id
+                  ),
+                }
+              : l
+          )
+        );
       } else {
-        console.error("Failed to remove movie from list:", response); // Log unsuccessful responses
-        // Show an error message when the deletion fails
+        console.error("Failed to remove movie from list:", response);
         showMessage({
           message: `Failed to remove movie from ${list.name}`,
           type: "danger",
@@ -225,8 +256,7 @@ const MovieResultsScreen = (): JSX.Element => {
         });
       }
     } catch (error) {
-      console.error("Error removing movie from list:", error); // Log any errors during the API call
-      // Show an error message for unexpected exceptions
+      console.error("Error removing movie from list:", error);
       showMessage({
         message: "Error removing movie from list",
         type: "danger",
@@ -404,9 +434,60 @@ const MovieResultsScreen = (): JSX.Element => {
    */
   const handleRefresh = async () => {
     setRefreshing(true); // Show refreshing indicator
-    await fetchMovieResults(); // Fetch latest movie results
-    await fetchMovieLists(); // Fetch latest movie lists
-    setRefreshing(false); // Hide refreshing indicator
+
+    try {
+      // Store the current selected list, if any, to retain after refresh
+      const currentSelectedList = selectedList;
+
+      // Fetch the latest lists and movie results
+      await fetchMovieResults();
+      await fetchMovieLists();
+
+      // Re-sync the selected list state if still valid
+      if (currentSelectedList) {
+        // Find the updated version of the selected list from the refreshed `movieLists`
+        const refreshedList = movieLists.find(
+          (list) => list.id === currentSelectedList.id
+        );
+
+        if (refreshedList) {
+          const moviesInList = refreshedList.movies;
+
+          // Fetch the latest details for each movie in the refreshed list
+          const movieDetailsPromises = moviesInList.map(async (movie: any) => {
+            const tmdbId = movie.tmdb_id;
+            const tmdbMovieDetails = await getMovieDetails(tmdbId);
+            const djangoMovie = movieResults.find(
+              (djangoMovie) => djangoMovie.tmdb_id === tmdbId
+            );
+
+            return {
+              mergedMovie: {
+                ...(djangoMovie || {}),
+                ...tmdbMovieDetails,
+                image_url:
+                  djangoMovie?.poster ||
+                  (tmdbMovieDetails.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${tmdbMovieDetails.poster_path}`
+                    : null),
+                tmdb_id: tmdbId,
+              },
+              djangoMovie: djangoMovie || null,
+            };
+          });
+
+          const updatedMovies = await Promise.all(movieDetailsPromises);
+
+          // Update the selected list and its movies with the refreshed data
+          setSelectedList(refreshedList);
+          setSelectedListMovies(updatedMovies);
+        }
+      }
+    } catch (error) {
+      console.error("Error during refresh:", error);
+    } finally {
+      setRefreshing(false); // Hide refreshing indicator
+    }
   };
 
   /**
