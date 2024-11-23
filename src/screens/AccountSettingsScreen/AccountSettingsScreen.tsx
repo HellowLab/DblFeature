@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -12,6 +12,14 @@ export default function AccountSettingsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors); // Pass colors to the styles function
   const router = useRouter();
+  const { user } = useUserStore(); // Access the user data from the global store
+
+  // Initialize the state variables with the user data
+  const [profilePicture, setProfilePicture] = useState(user?.profile_picture || "");
+  const [firstName, setFirstName] = useState(user?.first_name || "");
+  const [lastName, setLastName] = useState(user?.last_name || "");
+  const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "")
 
   const logout = () => {
     // Clear the user data from the global store
@@ -95,22 +103,22 @@ export default function AccountSettingsScreen() {
         <View style={styles.halfInputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Change First Name"
+            placeholder={user?.first_name || "No First Name"}
             placeholderTextColor={colors.text}
-            editable={false}
+            editable={true}
             textAlign="center"
           />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
+          {/* <Text style={styles.comingSoonText}>Coming Soon</Text> */}
         </View>
         <View style={styles.halfInputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Change Last Name"
+            placeholder={user?.last_name || "No Last Name"}
             placeholderTextColor={colors.text}
             editable={false}
             textAlign="center"
           />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
+          {/* <Text style={styles.comingSoonText}>Coming Soon</Text> */}
         </View>
       </View>
 
@@ -119,22 +127,22 @@ export default function AccountSettingsScreen() {
         <View style={styles.halfInputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Change Username"
+            placeholder={user?.username}
             placeholderTextColor={colors.text}
             editable={false}
             textAlign="center"
           />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
+          {/* <Text style={styles.comingSoonText}>Coming Soon</Text> */}
         </View>
         <View style={styles.halfInputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Change Email"
+            placeholder={user?.email || "Enter Email"} 
             placeholderTextColor={colors.text}
             editable={false}
             textAlign="center"
           />
-          <Text style={styles.comingSoonText}>Coming Soon</Text>
+          {/* <Text style={styles.comingSoonText}>Coming Soon</Text> */}
         </View>
       </View>
 
