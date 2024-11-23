@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, ViewStyle } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 const numColumns = 3;
@@ -18,12 +18,36 @@ export const createStyles = (colors: any) =>
       paddingTop: 5,
       marginVertical: 5,
     },
+    listNameContainer: {
+      marginVertical: 10,
+    },
     listContainer: {
       paddingHorizontal: 12,
       paddingVertical: 10,
     },
+    centeredContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    listName: {
+      color: colors.text,
+      fontSize: 16,
+      textAlign: "center",
+      marginVertical: 10,
+    },
     listContent: {
       flex: 1,
+    },
+    disabledButton: {
+      opacity: 0.5,
+    },
+    deleteFromListButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 5,
+      backgroundColor: "transparent", // Optional: Change to desired background
+      alignItems: "center",
     },
     movieCount: {
       fontStyle: "italic",
@@ -163,3 +187,31 @@ export const createStyles = (colors: any) =>
       alignItems: "center",
     },
   });
+
+// Define reusable styles for flash messages
+export const flashMessageStyles: { [key: string]: ViewStyle } = {
+  success: {
+    height: 50,
+    margin: 5,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "green",
+  },
+  danger: {
+    height: 50,
+    margin: 5,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "red",
+  },
+  warning: {
+    height: 50,
+    margin: 5,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "orange",
+  },
+};

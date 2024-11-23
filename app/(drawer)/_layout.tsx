@@ -16,6 +16,7 @@ import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 //@ts-ignore
 import TMDBLogo from "@/src/assets/images/TMDB/TMDBLogo.svg";
+import FlashMessage from "react-native-flash-message";
 
 /**
  * Layout component responsible for rendering the app's main navigation drawer.
@@ -38,6 +39,7 @@ export default function Layout() {
         {/* The drawer screen for the tab navigator */}
         <Drawer.Screen name="(tabs)" options={{ title: "Home" }} />
       </Drawer>
+      <FlashMessage position="bottom" />
     </GestureHandlerRootView>
   );
 }
