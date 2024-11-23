@@ -124,11 +124,15 @@ const MovieDetailsCard: React.FC<MovieDetailsProps> = ({
     const oldRating = rating; // Save current rating to restore in case of error
     setRating(newRating); // Update UI with new rating immediately
     if (movieResult) {
-      res = await updateMovieResult(
-        movieResult?.id,
-        movieResult.liked,
-        newRating
-      );
+      if (newRating == rating) {
+        res = await updateMovieResult(movieResult?.id, movieResult.liked, 0);
+      } else {
+        res = await updateMovieResult(
+          movieResult?.id,
+          movieResult.liked,
+          newRating
+        );
+      }
     } else {
       res = await createMovieResult(
         movie.id,
