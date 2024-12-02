@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  Pressable,
 } from "react-native";
 
 import { useTheme } from "@react-navigation/native";
@@ -16,6 +17,10 @@ import { deleteToken } from "@/src/utils/store/TokenStore";
 import { getStyles } from "./AccountSettingsScreenStyles";
 import { deleteUserAccount } from "@/src/utils/APIs/api";
 
+import MyText from "@/src/components/TextOutput/TextOutput";
+import MyButton from "@/src/components/Buttons/Button";
+import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
+
 export default function AccountSettingsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors); // Pass colors to the styles function
@@ -23,11 +28,17 @@ export default function AccountSettingsScreen() {
   const { user } = useUserStore(); // Access the user data from the global store
 
   // Initialize the state variables with the user data
-  const [profilePicture, setProfilePicture] = useState(user?.profile_picture || "");
+  const [updatedUser, setUpdatedUser] = useState(false);
+  const [bio, setBio] = useState(user?.bio || "");
+  const [profilePicture, setProfilePicture] = useState(
+    user?.profile_picture || ""
+  );
   const [firstName, setFirstName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "")
+  const [email, setEmail] = useState(user?.email || "");
+
+  const [showThemeSwitcher, setShowThemeSwitcher] = useState(false);
 
   const logout = () => {
     // Clear the user data from the global store
@@ -81,114 +92,101 @@ export default function AccountSettingsScreen() {
     );
   };
 
-  const updateUserInfo = async () => {
-
-  }
-
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {/* Profile Picture Placeholder */}
-        <View style={styles.profilePictureContainer}>
-          <MaterialIcons
-            name="account-circle"
-            size={100}
-            color={colors.primary}
-          />
-        </View>
-
-        {/* Add Bio */}
-        <View style={styles.bioContainer}>
-          <TextInput
-            style={styles.bioInput}
-            placeholder={user?.bio || "No Bio..."}
-            placeholderTextColor={colors.text}
-            editable={false}
-            multiline={true}
-            textAlign="center"
-          />
-        </View>
-
-        {/* First Name and Last Name */}
-        <View style={styles.rowContainer}>
-          <View style={styles.halfInputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={user?.first_name || "First Name"}
-              placeholderTextColor={colors.text}
-              editable={false}
-              textAlign="center"
-            />
-          </View>
-          <View style={styles.halfInputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={user?.last_name || "Last Name"}
-              placeholderTextColor={colors.text}
-              editable={false}
-              textAlign="center"
-            />
-          </View>
-        </View>
-
-        {/* Username and Email */}
-        <View style={styles.rowContainer}>
-          <View style={styles.halfInputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={user?.username || "Username"}
-              placeholderTextColor={colors.text}
-              editable={false}
-              textAlign="center"
-            />
-          </View>
-          <View style={styles.halfInputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={user?.email || "Email"}
-              placeholderTextColor={colors.text}
-              editable={false}
-              textAlign="center"
-            />
-          </View>
-        </View>
-
-        {/* Password Fields */}
-        <View style={styles.optionContainer}>
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Change Password"
-            placeholderTextColor={colors.text}
-            editable={true}
-            textAlign="center"
-          />
-        </View>
-        <View style={styles.optionContainer}>
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Confirm Change Password"
-            placeholderTextColor={colors.text}
-            editable={false}
-            textAlign="center"
-          />
-        </View>
-
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-
-        {/* Delete Account Button */}
-        <TouchableOpacity
-          style={[
-            styles.logoutButton,
-            { backgroundColor: colors.error, marginTop: 10 },
-          ]}
-          onPress={deleteAccount}
+    <View style={{ flex: 1, width: "100%" }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        style={{ width: "100%" }}
+      >
+        {/* Wrapper to entire screen */}
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: 16,
+            gap: 8,
+          }}
         >
-          <Text style={styles.logoutText}>Delete Account</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          {/* View for items at top of screen */}
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              gap: 8,
+            }}
+          >
+            {/* Account overview card with touchable wrapper */}
+            <TouchableOpacity
+              onPress={() => console.log("Account Overview")}
+              activeOpacity={0.5}
+            >
+              <View
+                style={{
+                  flexDirection: "column",
+                  padding: 8,
+                  gap: 16,
+                  backgroundColor: colors.card,
+                  borderRadius: 8,
+                }}
+              >
+                {/* View for profile picture and user info */}
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    gap: 16,
+                    backgroundColor: colors.card,
+                  }}
+                >
+                  {/* User Icon / Profile Image */}
+                  <MaterialIcons
+                    name="account-circle"
+                    size={100}
+                    color={colors.primary}
+                  />
+                  {/* User info */}
+                  <View
+                    style={{
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <MyText size="large">{user?.username}</MyText>
+                    <MyText>{user?.first_name + " " + user?.last_name}</MyText>
+                    <MyText>{user?.email}</MyText>
+                  </View>
+                </View>
+                {/* User Bio */}
+                {user?.bio && <MyText>{user?.bio}</MyText>}
+              </View>
+            </TouchableOpacity>
+            {/* Change theme */}
+            <MyButton
+              width="full"
+              color="card"
+              textcolor="primary"
+              onPress={() => setShowThemeSwitcher(true)}
+            >
+              Change Theme
+            </MyButton>
+          </View>
+
+          <MyButton width="full" onPress={logout}>
+            Logout
+          </MyButton>
+        </View>
+      </ScrollView>
+      {/* Bottom sheet modal for theme selection */}
+      <ThemeBottomsheet
+        isVisible={showThemeSwitcher}
+        setIsVisible={setShowThemeSwitcher}
+      />
+    </View>
   );
 }
