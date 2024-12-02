@@ -7,6 +7,7 @@ import { createStyles } from "../../screens/MyMoviesScreen/MyMoviesScreen.styles
 // Define the interface for the props accepted by the MovieList component
 export interface MovieListProps {
   item: any; // Represents the movie list object; replace `any` with a specific type if possible
+  onPress: (item: any) => void;
   setSelectedListItem: (item: any) => void; // Function to set the currently selected list item
   setPopupVisible: (visible: boolean) => void; // Function to toggle the visibility of a popup
 }
@@ -14,6 +15,7 @@ export interface MovieListProps {
 // Functional component for rendering an individual movie list item
 const MovieList: React.FC<MovieListProps> = ({
   item, // The movie list data
+  onPress,
   setSelectedListItem, // Callback to update the selected list item
   setPopupVisible, // Callback to toggle popup visibility
 }) => {
@@ -32,7 +34,7 @@ const MovieList: React.FC<MovieListProps> = ({
   // Render the movie list item
   return (
     <TouchableOpacity
-      onPress={() => console.log("List pressed:", item)} // Log item details on press
+      onPress={() => onPress(item)} // Log item details on press
       onLongPress={handleLongPress} // Trigger long press handler
       style={styles.listItem} // Apply styles for the list item
     >

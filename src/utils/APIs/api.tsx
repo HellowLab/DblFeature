@@ -543,7 +543,32 @@ export const addMovieToList = async (listId: number, tmdbId: number) => {
     }
     return response; // Pass through other response cases
   } catch (error) {
-    return handleAxiosError(error as AxiosError<ErrorResponse>); // Use your existing error handling
+    return handleAxiosError(error as AxiosError<ErrorResponse>);
+  }
+};
+
+/**
+ * Removes a movie from an existing list.
+ *
+ * @param listId The ID of the list.
+ * @param tmdbId The ID of the TMDB movie to remove.
+ * @returns API response.
+ */
+export const removeMovieFromList = async (listId: number, tmdbId: number) => {
+  try {
+    const response = await myfetch(
+      `dblfeature/movielists/${listId}/items/${tmdbId}/`,
+      "DELETE"
+    );
+    if (response.status === 204) {
+      return {
+        status: response.status,
+        message: "Movie removed from list successfully.",
+      };
+    }
+    return response; // Pass through other response cases
+  } catch (error) {
+    return handleAxiosError(error as AxiosError<ErrorResponse>);
   }
 };
 

@@ -7,6 +7,7 @@ import { DrawerToggleButton } from "@react-navigation/drawer";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, TouchableOpacity } from "react-native"; // Import TouchableOpacity for navigation
 import { useRouter } from "expo-router"; // Import useRouter for navigation
+import FlashMessage from "react-native-flash-message";
 
 /**
  * Stack2Layout component renders a tab-based layout with customized
@@ -93,6 +94,7 @@ export default function Stack2Layout() {
           }}
         />
       </Tabs>
+      <FlashMessage position="bottom" />
     </GestureHandlerRootView>
   );
 }

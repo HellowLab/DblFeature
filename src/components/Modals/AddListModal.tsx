@@ -21,6 +21,8 @@ interface AddListModalProps {
   addMovieToList: (list: any, isNewList?: boolean) => void; // Function to add the movie to a selected list
   setNewListModalVisible: (visible: boolean) => void; // Function to toggle visibility of the 'Create New List' modal
   setIsAutoAddingToNewList: (value: boolean) => void; // Function to set whether a movie is automatically added to a newly created list
+  currentList: any | null; // The currently selected list, if any
+  removeMovieFromList: (list: any) => void; // Function to remove the movie from the current list
 }
 
 // Modal to add a long-pressed movie to a list or create a new list
@@ -32,6 +34,8 @@ const AddListModal: React.FC<AddListModalProps> = ({
   addMovieToList,
   setNewListModalVisible,
   setIsAutoAddingToNewList,
+  currentList,
+  removeMovieFromList,
 }) => {
   const { colors } = useTheme(); // Get current theme colors for styling
   const styles = createStyles(colors); // Create styles based on theme
@@ -42,6 +46,19 @@ const AddListModal: React.FC<AddListModalProps> = ({
     setNewListModalVisible(true); // Open the 'Create New List' modal
     setLongPressModalVisible(false); // Close the current modal
   };
+
+  // Handler for removing the movie from the current list
+  const handleRemoveFromCurrentList = () => {
+    if (currentList) {
+      removeMovieFromList(currentList); // Call the remove function
+      setLongPressModalVisible(false); // Close the modal
+    }
+  };
+
+  // Determine if the delete option should be shown
+  const isDeleteEnabled = currentList?.movies?.some(
+    (movie: { tmdb_id: number }) => movie.tmdb_id === longPressedMovie.tmdb_id
+  );
 
   return (
     <Modal
@@ -72,15 +89,18 @@ const AddListModal: React.FC<AddListModalProps> = ({
                   {movieLists.map((list) => {
                     // Check if the long-pressed movie is already in the list
                     const isInList = list.movies.some(
-                      (movie: { id: number }) =>
-                        movie.id === longPressedMovie.id
+                      (movie: { tmdb_id: number }) =>
+                        movie.tmdb_id === longPressedMovie.tmdb_id
                     );
                     return (
                       <TouchableOpacity
                         key={list.id}
                         style={[
                           styles.listItem,
-                          isInList && { backgroundColor: colors.primary }, // Highlight list items that already contain the movie
+                          isInList && {
+                            borderColor: colors.border,
+                            borderWidth: 3,
+                          }, // Highlight list items that already contain the movie
                         ]}
                         onPress={() => addMovieToList(list)} // Add movie to list when clicked
                       >
@@ -112,6 +132,23 @@ const AddListModal: React.FC<AddListModalProps> = ({
                     + Add to New List
                   </MyText>
                 </TouchableOpacity>
+
+                {/* Only show the delete button if delete is enabled */}
+                {isDeleteEnabled && (
+                  <TouchableOpacity
+                    style={styles.deleteFromListButton}
+                    onPress={handleRemoveFromCurrentList}
+                  >
+                    <MyText
+                      size="large"
+                      style={{
+                        color: "red",
+                      }}
+                    >
+                      - Remove from Current List
+                    </MyText>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </TouchableWithoutFeedback>
