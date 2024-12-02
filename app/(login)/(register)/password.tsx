@@ -18,14 +18,18 @@ export default function PasswordScreen() {
 
   // Get the current theme colors from the navigation context
   const { colors } = useTheme();
-  
+
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [password, setPassword] = useState("");
-  const { username, email } = useLocalSearchParams<{
+  const { username, email, firstName, lastName } = useLocalSearchParams<{
     username: string;
     email: string;
+    firstName: string;
+    lastName: string;
   }>();
+
+  console.log(username, email, firstName, lastName);
 
   const handleSubmit = async () => {
     setErrorText("");
@@ -39,18 +43,40 @@ export default function PasswordScreen() {
       return;
     }
     // password must contain at least 1 letter, 1 number, and 1 special character
-    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
-      setErrorText("Password must contain at least 1 letter, 1 number, and 1 special character");
+    if (
+      !/[a-zA-Z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^a-zA-Z0-9]/.test(password)
+    ) {
+      setErrorText(
+        "Password must contain at least 1 letter, 1 number, and 1 special character"
+      );
       return;
     }
 
     //Show Loader
     setLoading(true);
-    const formData: RegistrationData = { username, email, password };
+    const formData: RegistrationData = {
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+    };
+
+    console.log(formData);
     try {
       // if any data is null return
-      if (!formData.email || !formData.password || !formData.username) {
-        setErrorText("Email, password, and username are required. Please go back and ensure all fields are filled out.");
+      if (
+        !formData.email ||
+        !formData.password ||
+        !formData.username ||
+        !firstName ||
+        !lastName
+      ) {
+        setErrorText(
+          "Email, password, Name, and username are required. Please go back and ensure all fields are filled out."
+        );
         setLoading(false);
         return;
       }
@@ -59,7 +85,9 @@ export default function PasswordScreen() {
         formData.email,
         formData.password,
         formData.password,
-        formData.username
+        formData.username,
+        formData.firstName,
+        formData.lastName
       );
       // if the login is successful
       if (res?.status == 201) {
@@ -77,14 +105,13 @@ export default function PasswordScreen() {
         const firstKey = keys[0];
 
         // Access the first item in the list associated with the first key - this is our error code
-        if(res.data[firstKey]){
+        if (res.data[firstKey]) {
           setErrorText(res.data[firstKey][0]);
-        }
-        else{
+        } else {
           // If the error code is not found, display a generic error message
           setErrorText("Unable to create new account, please try again");
         }
-          setLoading(false);
+        setLoading(false);
       }
     } catch (error) {
       console.error(error);

@@ -119,8 +119,7 @@ export default function Index() {
           textcolor="white"
           onPress={() => handleLogin()}
         >
-          {" "}
-          Login{" "}
+          Login
         </MyButton>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <MyText onPress={selectRegister}>New User?</MyText>

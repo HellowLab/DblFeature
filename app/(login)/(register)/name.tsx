@@ -6,26 +6,26 @@ import MyTextInput from "@/src/components/TextInput/TextInput";
 import MyText from "@/src/components/TextOutput/TextOutput";
 
 export default function EmailScreen() {
-  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const router = useRouter();
-  const { username } = useLocalSearchParams<{ username: string }>();
+  const { username, email } = useLocalSearchParams<{
+    username: string;
+    email: string;
+  }>();
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
 
   const handleNext = () => {
     setErrorText(""); // reset error text
-    if (!email) {
-      setErrorText("Please enter a valid email");
+    if (!firstName || !lastName) {
+      setErrorText("Please enter a valid first and last name");
       return;
     }
-    // check that the email is the correct format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrorText("Please enter a valid email address");
-      return;
-    }
+
     router.push({
-      pathname: "/name",
-      params: { username, email },
+      pathname: "/password",
+      params: { username, email, firstName, lastName },
     });
   };
 
@@ -49,17 +49,19 @@ export default function EmailScreen() {
         }}
       >
         <MyText align="left" size="xlarge" bold>
-          Enter your Email
-        </MyText>
-        <MyText align="left" size="medium">
-          Your email will be used for password reset functionality and account
-          communication. It will not be shared with other users.
+          Enter your First and Last Name
         </MyText>
         <MyTextInput
           width="nearfull"
-          placeholder="Enter email"
-          onChangeText={setEmail}
-          autoCapitalize="none"
+          placeholder="Enter first name"
+          onChangeText={setFirstName}
+          autoCapitalize="words"
+        />
+        <MyTextInput
+          width="nearfull"
+          placeholder="Enter last name"
+          onChangeText={setLastName}
+          autoCapitalize="words"
         />
         <MyButton width="nearfull" onPress={handleNext}>
           Next
@@ -76,6 +78,7 @@ export default function EmailScreen() {
         width="nearfull"
         rounded="full"
         color="card"
+        textcolor="primary"
         onPress={() => router.replace("/")}
       >
         Return to Login Page

@@ -307,7 +307,8 @@ export const isTokenValid = async () => {
  * @returns api response
  */
 export const getMyUserInfo = async () => {
-  const response = await myfetch("auth/myuser/", "GET");
+  // const response = await myfetch("auth/myuser/", "GET");
+  const response = await myfetch("auth/user-detail/", "GET");
   if (response.status == 200) {
     const apiRes: APIResponse = {
       data: response.data,
@@ -326,19 +327,25 @@ export const getMyUserInfo = async () => {
  * @param password1 password for new user
  * @param password2 password again for new user
  * @param username username for new user
+ * @param firstName first name for new user
+ * @param lastName last name for new user
  * @returns api response
  */
 export const registerUser = async (
   email: string,
   password1: string,
   password2: string,
-  username: string
+  username: string,
+  firstName: string,
+  lastName: string
 ) => {
   const data = {
     email: email,
     password1: password1,
     password2: password2,
     username: username,
+    first_name: firstName,
+    last_name: lastName,
   };
   try {
     // use axios instead of api/myfetch because we don't want to send the token with this request

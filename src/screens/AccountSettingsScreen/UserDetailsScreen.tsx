@@ -21,7 +21,7 @@ import MyText from "@/src/components/TextOutput/TextOutput";
 import MyButton from "@/src/components/Buttons/Button";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
 
-export default function AccountSettingsScreen() {
+export default function UserDetailsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors); // Pass colors to the styles function
   const router = useRouter();
@@ -120,7 +120,7 @@ export default function AccountSettingsScreen() {
           >
             {/* Account overview card with touchable wrapper */}
             <TouchableOpacity
-              onPress={() => router.push("./UserDetails")}
+              onPress={() => console.log("on user details screen")}
               activeOpacity={0.5}
             >
               <View
@@ -129,9 +129,7 @@ export default function AccountSettingsScreen() {
                   padding: 8,
                   gap: 16,
                   backgroundColor: colors.card,
-                  borderRadius: 3,
-                  borderWidth: 1,
-                  borderColor: colors.border,
+                  borderRadius: 8,
                 }}
               >
                 {/* View for profile picture and user info */}
@@ -142,6 +140,7 @@ export default function AccountSettingsScreen() {
                     justifyContent: "flex-start",
                     alignItems: "center",
                     gap: 16,
+                    backgroundColor: colors.card,
                   }}
                 >
                   {/* User Icon / Profile Image */}
@@ -178,16 +177,11 @@ export default function AccountSettingsScreen() {
             </MyButton>
           </View>
 
-          <MyButton width="full" onPress={logout}>
-            Logout
+          <MyButton width="full" onPress={deleteAccount} color="error">
+            Delete Account
           </MyButton>
         </View>
       </ScrollView>
-      {/* Bottom sheet modal for theme selection */}
-      <ThemeBottomsheet
-        isVisible={showThemeSwitcher}
-        setIsVisible={setShowThemeSwitcher}
-      />
     </View>
   );
 }

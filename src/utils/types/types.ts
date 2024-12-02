@@ -3,9 +3,11 @@ export type ColorSchemeName = "light" | "dark" | "system" | null | undefined;
 
 // User Registration Data
 export interface RegistrationData {
-  username: string | undefined;
-  email: string | undefined;
-  password: string | undefined;
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
 }
 
 // Define the Movie interface to type the movie data
@@ -41,7 +43,12 @@ export interface APIResponse {
 }
 
 // Define the type for the TMDB index
-export type tmdb_index_type = "popular" | "top_rated" | "upcoming" | "now_playing" | "none";
+export type tmdb_index_type =
+  | "popular"
+  | "top_rated"
+  | "upcoming"
+  | "now_playing"
+  | "none";
 
 // Define the structure for a Cast member
 export interface CastMember {
