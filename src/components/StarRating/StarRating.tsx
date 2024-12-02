@@ -29,7 +29,13 @@ const StarRating: React.FC<StarRatingProps> = ({
     const isHalfStar = locationX < 32 / 2;
 
     // TODO -- this is a temporary solution to handle half stars, the size should be dynamice
-    const newRating = isHalfStar ? starNumber - 0.5 : starNumber;
+    let newRating = isHalfStar ? starNumber - 0.5 : starNumber;
+
+    // Check if the new rating is the same as the current rating
+    if (Math.abs(newRating - rating) < 0.01) {
+      newRating = 0;
+    }
+
     setRating(newRating);
     if (onRatingChange) {
       onRatingChange(newRating);

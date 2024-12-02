@@ -31,6 +31,7 @@ export default function Layout() {
       <Drawer
         screenOptions={{
           headerShown: false, // Disable the Drawer header
+          swipeEnabled: false,
         }}
         drawerContent={(props) => {
           return <CustomDrawerContent {...props} />;
