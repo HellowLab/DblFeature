@@ -146,7 +146,7 @@ export default function AccountSettingsScreen() {
               <View
                 style={{
                   flexDirection: "column",
-                  padding: 8,
+                  padding: 16,
                   gap: 16,
                   backgroundColor: colors.card,
                   borderRadius: BORDERRADIUS,
@@ -180,7 +180,10 @@ export default function AccountSettingsScreen() {
                   </View>
                 </View>
                 {/* User Bio */}
-                {user?.bio && <MyText>{user?.bio}</MyText>}
+                <View style={{ flexDirection: "column", gap: 4 }}>
+                  {user?.bio && <MyText bold={true}>ABOUT ME:</MyText>}
+                  {user?.bio && <MyText>{user?.bio}</MyText>}
+                </View>
               </View>
             </TouchableOpacity>
             {/* Change theme */}

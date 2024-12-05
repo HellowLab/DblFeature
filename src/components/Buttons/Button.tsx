@@ -1,7 +1,8 @@
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-import React from 'react';
-import sv, { VariantProps } from 'style-variants';
-import { useTheme } from '@react-navigation/native';
+import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
+import React from "react";
+import sv, { VariantProps } from "style-variants";
+import { useTheme } from "@react-navigation/native";
+import { BORDERRADIUS } from "@/src/utils/constants";
 
 type ButtonVariantsProps = {
   color?: "primary" | "card" | "error";
@@ -14,17 +15,16 @@ type ButtonVariantsProps = {
   textcolor?: "primary" | "white" | "black" | "error";
 };
 
-
 type ButtonProps = ButtonVariantsProps &
   TouchableOpacityProps & {
-    children: string,
+    children: string;
   };
 
 const MyButton = ({
   style,
   children,
-  color, 
-  width, 
+  color,
+  width,
   height,
   disabled,
   textsize,
@@ -32,24 +32,23 @@ const MyButton = ({
   rounded,
   ...props
 }: ButtonProps) => {
-
   const { colors } = useTheme();
-    
+
   const button = sv({
     base: {
-      alignItems: 'center',
-      justifyContent: 'center', 
+      alignItems: "center",
+      justifyContent: "center",
     },
     variants: {
       width: {
         full: {
-          width: '100%',
+          width: "100%",
         },
         nearfull: {
-          width: '95%',
+          width: "95%",
         },
         auto: {
-          width: 'auto',
+          width: "auto",
         },
         small: {
           width: 180,
@@ -88,8 +87,8 @@ const MyButton = ({
         },
         error: {
           backgroundColor: colors.error,
-          borderColor: 'lightpink',
-          borderWidth:1,
+          borderColor: "lightpink",
+          borderWidth: 1,
         },
       },
       disabled: {
@@ -105,7 +104,7 @@ const MyButton = ({
           borderRadius: 3,
         },
         medium: {
-          borderRadius: 6,
+          borderRadius: BORDERRADIUS,
         },
         large: {
           borderRadius: 12,
@@ -116,11 +115,11 @@ const MyButton = ({
       },
     },
     defaultVariants: {
-      width: 'medium',
-      height: 'medium',
-      color: 'primary',
+      width: "medium",
+      height: "medium",
+      color: "primary",
       disabled: false,
-      rounded: 'small',
+      rounded: "medium",
     },
   });
 
@@ -144,17 +143,17 @@ const MyButton = ({
         },
         xxlarge: {
           fontSize: 24,
-        }, 
+        },
       },
       textcolor: {
         primary: {
           color: colors.text,
         },
         white: {
-          color: colors.white
+          color: colors.white,
         },
         black: {
-          color: colors.black
+          color: colors.black,
         },
         error: {
           color: colors.error,
@@ -162,14 +161,14 @@ const MyButton = ({
       },
     },
     defaultVariants: {
-      textsize: 'medium',
-      textcolor: 'white',
+      textsize: "medium",
+      textcolor: "white",
     },
   });
 
   const textStyles = text({ textsize, textcolor });
   const buttonStyles = button({
-    width, 
+    width,
     height,
     color,
     disabled,

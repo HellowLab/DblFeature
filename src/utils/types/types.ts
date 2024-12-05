@@ -21,6 +21,12 @@ export interface User {
   bio: string;
 }
 
+export interface SelectedImage {
+  uri: string;
+  name: string;
+  type: string;
+}
+
 // Define the Movie interface to type the movie data
 export interface tmdbMovie {
   id: number;

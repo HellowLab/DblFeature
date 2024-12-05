@@ -8,6 +8,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { View, TouchableOpacity } from "react-native"; // Import TouchableOpacity for navigation
 import { useRouter } from "expo-router"; // Import useRouter for navigation
 import FlashMessage from "react-native-flash-message";
+import ProfilePicture from "@/src/components/images/ProfilePicture";
 
 /**
  * Stack2Layout component renders a tab-based layout with customized
@@ -49,15 +50,12 @@ export default function Stack2Layout() {
 
           // Right side of the header contains a user icon with padding
           headerRight: () => (
-            <TouchableOpacity onPress={() => router.push("/(accountsettings)")}>
-              <View style={{ paddingRight: 12 }}>
-                <MaterialIcons
-                  name="account-circle"
-                  size={24}
-                  color={colors.white}
-                />
-              </View>
-            </TouchableOpacity>
+            <View style={{ paddingRight: 12 }}>
+              <ProfilePicture
+                size={40}
+                onPress={() => router.push("/(accountsettings)")}
+              />
+            </View>
           ),
         }}
       >

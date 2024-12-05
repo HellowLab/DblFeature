@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { launchImageLibrary } from "react-native-image-picker";
 
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import { getStyles } from "./AccountSettingsScreenStyles";
@@ -11,12 +11,16 @@ import {
   deleteUserAccount,
   editMyUserInfo,
   getMyUserInfo,
+  updateProfilePicture,
 } from "@/src/utils/APIs/api";
 import { BORDERRADIUS } from "@/src/utils/constants";
+import {
+  selectImage,
+  resizeImage,
+} from "@/src/utils/callbacks/selectImageCallback";
 
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyButton from "@/src/components/Buttons/Button";
-import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
 import MyTextInput from "@/src/components/TextInput/TextInput";
 import ProfilePicture from "@/src/components/images/ProfilePicture";
 
@@ -28,6 +32,9 @@ export default function UserDetailsScreen() {
 
   // Initialize the state variables with the user data
   const [showUpdateButton, setShowUpdateButton] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [errorText, setErrorText] = useState<string>("");
+
   const [bio, setBio] = useState(user?.bio || "");
   const [profilePicture, setProfilePicture] = useState(
     user?.profile_picture || ""
@@ -36,7 +43,6 @@ export default function UserDetailsScreen() {
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
-  console.log("user profile picture: ", user?.profile_picture);
 
   useEffect(() => {
     if (
@@ -113,6 +119,41 @@ export default function UserDetailsScreen() {
     }
   };
 
+  const clickProfilePicture = async () => {
+    console.log("Change profile picture");
+
+    // Select an image from the device and upload it to the backend
+    try {
+      // Get the image URI from the image picker
+      const image = await selectImage();
+      console.log("Selected image URI: ", image);
+
+      // Resize the image to reduce upload size
+      const resizedImage = await resizeImage(image, 200, 200, 0.8);
+
+      if (resizedImage) {
+        // Upload the selected image to the server
+        const response = await updateProfilePicture(resizedImage);
+
+        if (response.status == 200) {
+          // Update the user data and profile picture on successful upload
+          console.log("Profile picture updated successfully");
+          setUser(response.data);
+          setProfilePicture(response.data.profile_picture);
+        } else {
+          // Display an error message on failed upload
+          console.log("Failed to update profile picture");
+          Alert.alert("Error", "Failed to update profile picture");
+        }
+      } else {
+        console.log("No image selected");
+      }
+    } catch (error) {
+      // Display an error message on image picker failure
+      Alert.alert("Error", error?.toString() || "An unknown error occurred.");
+    }
+  };
+
   return (
     <View style={{ flex: 1, width: "100%" }}>
       <ScrollView
@@ -163,7 +204,7 @@ export default function UserDetailsScreen() {
                 }}
               >
                 {/* User Icon / Profile Image */}
-                <ProfilePicture size={100} />
+                <ProfilePicture size={100} onPress={clickProfilePicture} />
                 {/* User info */}
                 <View
                   style={{
