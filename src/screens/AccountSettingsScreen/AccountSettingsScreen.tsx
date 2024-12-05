@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,17 +15,19 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import { getStyles } from "./AccountSettingsScreenStyles";
-import { deleteUserAccount } from "@/src/utils/APIs/api";
+import { deleteUserAccount, getMyUserInfo } from "@/src/utils/APIs/api";
 
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyButton from "@/src/components/Buttons/Button";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
+import ProfilePicture from "@/src/components/images/ProfilePicture";
+import { BORDERRADIUS } from "@/src/utils/constants";
 
 export default function AccountSettingsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors); // Pass colors to the styles function
   const router = useRouter();
-  const { user } = useUserStore(); // Access the user data from the global store
+  const { user, setUser } = useUserStore(); // Access the user data from the global store
 
   // Initialize the state variables with the user data
   const [updatedUser, setUpdatedUser] = useState(false);
@@ -39,6 +41,24 @@ export default function AccountSettingsScreen() {
   const [email, setEmail] = useState(user?.email || "");
 
   const [showThemeSwitcher, setShowThemeSwitcher] = useState(false);
+
+  useEffect(() => {
+    // on mount pull user data from backend
+    const fetchUserData = async () => {
+      try {
+        const response = await getMyUserInfo();
+        if (response.status == 200) {
+          console.log("User data fetched successfully");
+          setUser(response.data);
+        } else {
+          console.log("Failed to fetch user data");
+        }
+      } catch (error) {
+        console.log("Failed to fetch user data");
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const logout = () => {
     // Clear the user data from the global store
@@ -129,7 +149,7 @@ export default function AccountSettingsScreen() {
                   padding: 8,
                   gap: 16,
                   backgroundColor: colors.card,
-                  borderRadius: 3,
+                  borderRadius: BORDERRADIUS,
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
@@ -145,11 +165,7 @@ export default function AccountSettingsScreen() {
                   }}
                 >
                   {/* User Icon / Profile Image */}
-                  <MaterialIcons
-                    name="account-circle"
-                    size={100}
-                    color={colors.primary}
-                  />
+                  <ProfilePicture size={100} />
                   {/* User info */}
                   <View
                     style={{

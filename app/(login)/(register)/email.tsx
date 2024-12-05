@@ -76,6 +76,7 @@ export default function EmailScreen() {
         width="nearfull"
         rounded="full"
         color="card"
+        textcolor="primary"
         onPress={() => router.replace("/")}
       >
         Return to Login Page

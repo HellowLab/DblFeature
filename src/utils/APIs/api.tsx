@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 import { getToken, getRefreshToken, saveToken } from "../store/TokenStore";
 import { router } from "expo-router";
-import { APIResponse } from "../types/types";
+import { APIResponse, User, RegistrationData } from "../types/types";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -322,6 +322,23 @@ export const getMyUserInfo = async () => {
 };
 
 /**
+ * edit current user's information in the backend
+ * @returns api response
+ */
+export const editMyUserInfo = async (userData: Partial<User>) => {
+  const response = await myfetch("auth/user-detail/", "PATCH", userData);
+  if (response.status == 200) {
+    const apiRes: APIResponse = {
+      data: response.data,
+      status: response.status,
+      message: "User Info Updated",
+    };
+    return apiRes;
+  }
+  return response;
+};
+
+/**
  *
  * @param email email for new user
  * @param password1 password for new user
@@ -331,22 +348,16 @@ export const getMyUserInfo = async () => {
  * @param lastName last name for new user
  * @returns api response
  */
-export const registerUser = async (
-  email: string,
-  password1: string,
-  password2: string,
-  username: string,
-  firstName: string,
-  lastName: string
-) => {
-  const data = {
-    email: email,
-    password1: password1,
-    password2: password2,
-    username: username,
-    first_name: firstName,
-    last_name: lastName,
-  };
+export const registerUser = async (data: RegistrationData) => {
+  // const data = {
+  //   email: email,
+  //   password1: password1,
+  //   password2: password2,
+  //   username: username,
+  //   first_name: firstName,
+  //   last_name: lastName,
+  // };
+
   try {
     // use axios instead of api/myfetch because we don't want to send the token with this request
     const response = await axios.post(API_BASE_URL + "auth/register/", data);

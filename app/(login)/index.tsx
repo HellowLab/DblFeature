@@ -58,6 +58,7 @@ export default function Index() {
       // if the login is successful
       if (res.status == 200) {
         saveToken(res.data.access, res.data.refresh);
+        console.log("User: ", res.data.user);
         setUser(res.data.user);
         setLoading(false);
         router.replace("/(drawer)");

@@ -10,7 +10,7 @@ import { RegistrationData } from "@/src/utils/types/types";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyTextInput from "@/src/components/TextInput/TextInput";
 import MyButton from "@/src/components/Buttons/Button";
-import { registerUser } from "@/src/utils/APIs/api";
+import { getMyUserInfo, registerUser } from "@/src/utils/APIs/api";
 
 export default function PasswordScreen() {
   const router = useRouter();
@@ -28,8 +28,6 @@ export default function PasswordScreen() {
     firstName: string;
     lastName: string;
   }>();
-
-  console.log(username, email, firstName, lastName);
 
   const handleSubmit = async () => {
     setErrorText("");
@@ -59,17 +57,18 @@ export default function PasswordScreen() {
     const formData: RegistrationData = {
       username,
       email,
-      password,
-      firstName,
-      lastName,
+      password1: password,
+      password2: password,
+      first_name: firstName,
+      last_name: lastName,
     };
 
-    console.log(formData);
     try {
       // if any data is null return
       if (
         !formData.email ||
-        !formData.password ||
+        !formData.password1 ||
+        !formData.password2 ||
         !formData.username ||
         !firstName ||
         !lastName
@@ -81,22 +80,20 @@ export default function PasswordScreen() {
         return;
       }
       // send api request to register new user
-      const res = await registerUser(
-        formData.email,
-        formData.password,
-        formData.password,
-        formData.username,
-        formData.firstName,
-        formData.lastName
-      );
+      const res = await registerUser(formData);
       // if the login is successful
       if (res?.status == 201) {
         console.log("registration success");
         saveToken(res.data.access, res.data.refresh);
-        setUser(res.data.user);
-        setLoading(false);
-        router.replace("/(drawer)");
-        return;
+        const res2 = await getMyUserInfo();
+        if (res2?.status == 200) {
+          console.log("User: ", res2.data);
+          setUser(res2.data);
+          setLoading(false);
+          router.replace("/(drawer)");
+          return;
+        }
+        setErrorText("Unable to create new account, please try again");
       } else {
         // handle failed registration
         // Get the keys of the object
@@ -170,6 +167,7 @@ export default function PasswordScreen() {
         width="nearfull"
         rounded="full"
         color="card"
+        textcolor="primary"
         onPress={() => router.replace("/")}
       >
         Return to Login Page

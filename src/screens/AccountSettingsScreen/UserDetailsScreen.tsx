@@ -1,13 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, TouchableOpacity, Alert, ScrollView } from "react-native";
 
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -15,20 +7,27 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useUserStore } from "@/src/utils/store/UserStore";
 import { deleteToken } from "@/src/utils/store/TokenStore";
 import { getStyles } from "./AccountSettingsScreenStyles";
-import { deleteUserAccount } from "@/src/utils/APIs/api";
+import {
+  deleteUserAccount,
+  editMyUserInfo,
+  getMyUserInfo,
+} from "@/src/utils/APIs/api";
+import { BORDERRADIUS } from "@/src/utils/constants";
 
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyButton from "@/src/components/Buttons/Button";
 import ThemeBottomsheet from "@/src/components/Modals/ThemeBottomSheet";
+import MyTextInput from "@/src/components/TextInput/TextInput";
+import ProfilePicture from "@/src/components/images/ProfilePicture";
 
 export default function UserDetailsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors); // Pass colors to the styles function
   const router = useRouter();
-  const { user } = useUserStore(); // Access the user data from the global store
+  const { user, setUser } = useUserStore(); // Access the user data from the global store
 
   // Initialize the state variables with the user data
-  const [updatedUser, setUpdatedUser] = useState(false);
+  const [showUpdateButton, setShowUpdateButton] = useState(false);
   const [bio, setBio] = useState(user?.bio || "");
   const [profilePicture, setProfilePicture] = useState(
     user?.profile_picture || ""
@@ -37,19 +36,20 @@ export default function UserDetailsScreen() {
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
+  console.log("user profile picture: ", user?.profile_picture);
 
-  const [showThemeSwitcher, setShowThemeSwitcher] = useState(false);
-
-  const logout = () => {
-    // Clear the user data from the global store
-    useUserStore.setState({ user: null });
-
-    // Clear the user token from the secure store
-    deleteToken();
-
-    // Navigate to the login screen
-    router.replace("/(login)");
-  };
+  useEffect(() => {
+    if (
+      firstName == user?.first_name &&
+      lastName == user?.last_name &&
+      email == user?.email &&
+      bio == user?.bio
+    ) {
+      setShowUpdateButton(false);
+    } else {
+      setShowUpdateButton(true);
+    }
+  }, [firstName, lastName, email, bio, user]);
 
   const deleteAccount = async () => {
     Alert.alert(
@@ -92,6 +92,27 @@ export default function UserDetailsScreen() {
     );
   };
 
+  const updateAccount = async () => {
+    if (!showUpdateButton) {
+      console.log("No changes to update");
+      return;
+    }
+    //   auth/update-account
+    const response = await editMyUserInfo({
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      bio: bio,
+    });
+    if (response.status == 200) {
+      console.log("Account updated successfully");
+      setUser(response.data);
+      return;
+    } else {
+      console.log("Failed to update account");
+    }
+  };
+
   return (
     <View style={{ flex: 1, width: "100%" }}>
       <ScrollView
@@ -118,63 +139,127 @@ export default function UserDetailsScreen() {
               gap: 8,
             }}
           >
-            {/* Account overview card with touchable wrapper */}
-            <TouchableOpacity
-              onPress={() => console.log("on user details screen")}
-              activeOpacity={0.5}
+            {/* Account overview card (not touchable) */}
+            <View
+              style={{
+                flexDirection: "column",
+                padding: 8,
+                gap: 16,
+                backgroundColor: colors.card,
+                borderRadius: BORDERRADIUS,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
             >
+              {/* View for profile picture and user info */}
               <View
                 style={{
-                  flexDirection: "column",
-                  padding: 8,
+                  flex: 1,
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
                   gap: 16,
                   backgroundColor: colors.card,
-                  borderRadius: 8,
                 }}
               >
-                {/* View for profile picture and user info */}
+                {/* User Icon / Profile Image */}
+                <ProfilePicture size={100} />
+                {/* User info */}
                 <View
                   style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    gap: 16,
-                    backgroundColor: colors.card,
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    gap: 4,
                   }}
                 >
-                  {/* User Icon / Profile Image */}
-                  <MaterialIcons
-                    name="account-circle"
-                    size={100}
-                    color={colors.primary}
-                  />
-                  {/* User info */}
-                  <View
-                    style={{
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <MyText size="large">{user?.username}</MyText>
-                    <MyText>{user?.first_name + " " + user?.last_name}</MyText>
-                    <MyText>{user?.email}</MyText>
-                  </View>
+                  <MyText size="large">{user?.username}</MyText>
+                  <MyText>{user?.first_name + " " + user?.last_name}</MyText>
+                  <MyText>{user?.email}</MyText>
                 </View>
-                {/* User Bio */}
-                {user?.bio && <MyText>{user?.bio}</MyText>}
               </View>
-            </TouchableOpacity>
-            {/* Change theme */}
-            <MyButton
-              width="full"
-              color="card"
-              textcolor="primary"
-              onPress={() => setShowThemeSwitcher(true)}
+            </View>
+            {/* Email */}
+            <View style={{ flex: 1, gap: 2 }}>
+              <MyText size="small">Email</MyText>
+              <MyTextInput
+                width="full"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+              />
+            </View>
+            {/* First Name */}
+            <View style={{ flex: 1, gap: 2 }}>
+              <MyText size="small">First Name</MyText>
+              <MyTextInput
+                width="full"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="none"
+              />
+            </View>
+            {/* Last Name */}
+            <View style={{ flex: 1, gap: 2 }}>
+              <MyText size="small">Last Name</MyText>
+              <MyTextInput
+                width="full"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="none"
+              />
+            </View>
+            {/* Use Bio */}
+            <View style={{ flex: 1, gap: 2 }}>
+              <MyText size="small">
+                Bio (Tell your friends about yourself)
+              </MyText>
+              <MyTextInput
+                width="full"
+                value={bio}
+                multiline={true}
+                numberOfLines={4}
+                height="fourlines"
+                onChangeText={(text) => {
+                  setBio(text);
+                }}
+                textAlign="left"
+                textAlignVertical="top"
+              />
+            </View>
+            {/* Cancel and Submit button for user info changes */}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                gap: 8,
+              }}
             >
-              Change Theme
-            </MyButton>
+              <MyButton
+                width="small"
+                onPress={() => {
+                  setBio(user?.bio || "");
+                  setProfilePicture(user?.profile_picture || "");
+                  setFirstName(user?.first_name || "");
+                  setLastName(user?.last_name || "");
+                  setUsername(user?.username || "");
+                  setEmail(user?.email || "");
+                }}
+                color="card"
+                textcolor="primary"
+              >
+                Cancel
+              </MyButton>
+              <MyButton
+                width="small"
+                onPress={updateAccount}
+                color="primary"
+                textcolor="white"
+                disabled={!showUpdateButton}
+              >
+                Submit Changes
+              </MyButton>
+            </View>
           </View>
 
           <MyButton width="full" onPress={deleteAccount} color="error">

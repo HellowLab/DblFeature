@@ -23,10 +23,12 @@ export default function UsernameScreen() {
     }
     if (username.length > 20) {
       setErrorText("Username must be at most 20 characters long");
-      return
+      return;
     }
     if (!/^[a-zA-Z0-9_]*$/.test(username)) {
-      setErrorText("Username must contain only alphanumeric characters and underscores");
+      setErrorText(
+        "Username must contain only alphanumeric characters and underscores"
+      );
       return;
     }
 
@@ -37,24 +39,49 @@ export default function UsernameScreen() {
   };
 
   return (
-    <View style={{flex: 1, alignContent: "space-between", marginVertical: 20, margin:8}}>
+    <View
+      style={{
+        flex: 1,
+        alignContent: "space-between",
+        marginVertical: 20,
+        margin: 8,
+      }}
+    >
       {/* Detail at top of screen to enter user info */}
-      <View style={{flex:1, alignItems: "center", gap:16}}>
-        <MyText align="left" size="xlarge" bold>Enter your desired username</MyText>
-        <MyText align="left" size="medium">This username will be your default login and the name other users will use to communicate with you</MyText>
+      <View style={{ flex: 1, alignItems: "center", gap: 16 }}>
+        <MyText align="left" size="xlarge" bold>
+          Enter your desired username
+        </MyText>
+        <MyText align="left" size="medium">
+          This username will be your default login and the name other users will
+          use to communicate with you
+        </MyText>
         <MyTextInput
           width="nearfull"
           placeholder="Enter username"
           onChangeText={setUsername}
           autoCapitalize="none"
         />
-        <MyButton width="nearfull" onPress={handleNext}>Next</MyButton>
-        {errorText != '' ? (
-            <MyText align="center" color='error'> {errorText} </MyText>
-          ) : null}
+        <MyButton width="nearfull" onPress={handleNext}>
+          Next
+        </MyButton>
+        {errorText != "" ? (
+          <MyText align="center" color="error">
+            {" "}
+            {errorText}{" "}
+          </MyText>
+        ) : null}
       </View>
       {/* Button to return to login page */}
-      <MyButton width="nearfull" rounded="full" color="card" onPress={() => router.replace("/")}>Return to Login Page</MyButton>
+      <MyButton
+        width="nearfull"
+        rounded="full"
+        color="card"
+        textcolor="primary"
+        onPress={() => router.replace("/")}
+      >
+        Return to Login Page
+      </MyButton>
     </View>
   );
 }

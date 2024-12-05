@@ -1,15 +1,6 @@
 // UserStore.tsx
-import { create } from 'zustand';
-
-interface User {
-  pk: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string; 
-  profile_picture: string;
-  bio: string;
-}
+import { create } from "zustand";
+import { User } from "../types/types";
 
 interface UserState {
   user: User | null;
