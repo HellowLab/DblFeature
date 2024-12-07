@@ -1,24 +1,34 @@
 // CustomTextInput.tsx
-import React, {useState} from 'react';
-import { View, TextInput, StyleSheet, TextInputProps, Pressable } from 'react-native';
-import { useTheme } from '@react-navigation/native';
-import sv from 'style-variants';
-import { EyeIcon, EyeOffIcon } from '@/src/components/SVG/svg'; 
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TextInputProps,
+  Pressable,
+} from "react-native";
+import { useTheme } from "@react-navigation/native";
+import sv from "style-variants";
+import { EyeIcon, EyeOffIcon } from "@/src/components/SVG/svg";
 
-import { BORDERRADIUS } from '@/src/utils/constants';
-
+import { BORDERRADIUS } from "@/src/utils/constants";
 
 type TextInputVariantsProps = {
-  color?: 'card';
-  width?: 'full' | "nearfull" | 'auto' | 'small' | 'medium' | 'large';
-  height?: 'small' | 'medium' | 'large' | 'xlarge';
-  intent?: 'normal' | 'password'
-}
+  color?: "card";
+  width?: "full" | "nearfull" | "auto" | "small" | "medium" | "large";
+  height?: "small" | "medium" | "large" | "xlarge" | "fourlines" | "sixlines";
+  intent?: "normal" | "password";
+};
 
 type MyTextInputProps = TextInputVariantsProps & TextInputProps;
 
-
-const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent, ...props }) => {
+const MyTextInput: React.FC<MyTextInputProps> = ({
+  color,
+  width,
+  height,
+  intent,
+  ...props
+}) => {
   const { colors } = useTheme();
 
   const containerSV = sv({
@@ -67,6 +77,12 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
         xlarge: {
           height: 64,
         },
+        fourlines: {
+          height: 160,
+        },
+        sixlines: {
+          height: 240,
+        },
       },
       intent: {
         normal: {},
@@ -103,11 +119,15 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
         xlarge: {
           fontSize: 22,
         },
+        fourlines: {
+          fontSize: 18,
+        },
+        sixlines: {
+          fontSize: 18,
+        },
       },
       intent: {
-        normal: {
-          
-        },
+        normal: {},
         password: {
           flex: 1,
         },
@@ -125,10 +145,10 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
   });
 
   const containerStyles = containerSV({
-    width, 
+    width,
     height,
     color,
-    intent
+    intent,
   });
 
   if (intent == "password") {
@@ -138,8 +158,7 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
     };
 
     return (
-      <View
-        style={containerStyles}>
+      <View style={containerStyles}>
         <TextInput
           style={textStyle}
           placeholderTextColor={colors.text}
@@ -154,11 +173,11 @@ const MyTextInput: React.FC<MyTextInputProps> = ({ color, width, height, intent,
   }
 
   return (
-      <TextInput
-        style={[containerStyles, textStyle]}
-        placeholderTextColor={colors.text}
-        {...props}
-      />
+    <TextInput
+      style={[containerStyles, textStyle]}
+      placeholderTextColor={colors.text}
+      {...props}
+    />
   );
 };
 

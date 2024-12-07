@@ -15,6 +15,7 @@ export default function HomeLayout() {
     <Stack initialRouteName="username" screenOptions={{}}>
       <Stack.Screen name="username" options={{ title: "Username" }} />
       <Stack.Screen name="email" options={{ title: "Email" }} />
+      <Stack.Screen name="name" options={{ title: "Name" }} />
       <Stack.Screen name="password" options={{ title: "Password" }} />
     </Stack>
   );

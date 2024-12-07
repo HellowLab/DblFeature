@@ -10,7 +10,7 @@ import { RegistrationData } from "@/src/utils/types/types";
 import MyText from "@/src/components/TextOutput/TextOutput";
 import MyTextInput from "@/src/components/TextInput/TextInput";
 import MyButton from "@/src/components/Buttons/Button";
-import { registerUser } from "@/src/utils/APIs/api";
+import { getMyUserInfo, registerUser } from "@/src/utils/APIs/api";
 
 export default function PasswordScreen() {
   const router = useRouter();
@@ -18,13 +18,15 @@ export default function PasswordScreen() {
 
   // Get the current theme colors from the navigation context
   const { colors } = useTheme();
-  
+
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [password, setPassword] = useState("");
-  const { username, email } = useLocalSearchParams<{
+  const { username, email, firstName, lastName } = useLocalSearchParams<{
     username: string;
     email: string;
+    firstName: string;
+    lastName: string;
   }>();
 
   const handleSubmit = async () => {
@@ -39,36 +41,59 @@ export default function PasswordScreen() {
       return;
     }
     // password must contain at least 1 letter, 1 number, and 1 special character
-    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
-      setErrorText("Password must contain at least 1 letter, 1 number, and 1 special character");
+    if (
+      !/[a-zA-Z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^a-zA-Z0-9]/.test(password)
+    ) {
+      setErrorText(
+        "Password must contain at least 1 letter, 1 number, and 1 special character"
+      );
       return;
     }
 
     //Show Loader
     setLoading(true);
-    const formData: RegistrationData = { username, email, password };
+    const formData: RegistrationData = {
+      username,
+      email,
+      password1: password,
+      password2: password,
+      first_name: firstName,
+      last_name: lastName,
+    };
+
     try {
       // if any data is null return
-      if (!formData.email || !formData.password || !formData.username) {
-        setErrorText("Email, password, and username are required. Please go back and ensure all fields are filled out.");
+      if (
+        !formData.email ||
+        !formData.password1 ||
+        !formData.password2 ||
+        !formData.username ||
+        !firstName ||
+        !lastName
+      ) {
+        setErrorText(
+          "Email, password, Name, and username are required. Please go back and ensure all fields are filled out."
+        );
         setLoading(false);
         return;
       }
       // send api request to register new user
-      const res = await registerUser(
-        formData.email,
-        formData.password,
-        formData.password,
-        formData.username
-      );
+      const res = await registerUser(formData);
       // if the login is successful
       if (res?.status == 201) {
         console.log("registration success");
         saveToken(res.data.access, res.data.refresh);
-        setUser(res.data.user);
-        setLoading(false);
-        router.replace("/(drawer)");
-        return;
+        const res2 = await getMyUserInfo();
+        if (res2?.status == 200) {
+          console.log("User: ", res2.data);
+          setUser(res2.data);
+          setLoading(false);
+          router.replace("/(drawer)");
+          return;
+        }
+        setErrorText("Unable to create new account, please try again");
       } else {
         // handle failed registration
         // Get the keys of the object
@@ -77,14 +102,13 @@ export default function PasswordScreen() {
         const firstKey = keys[0];
 
         // Access the first item in the list associated with the first key - this is our error code
-        if(res.data[firstKey]){
+        if (res.data[firstKey]) {
           setErrorText(res.data[firstKey][0]);
-        }
-        else{
+        } else {
           // If the error code is not found, display a generic error message
           setErrorText("Unable to create new account, please try again");
         }
-          setLoading(false);
+        setLoading(false);
       }
     } catch (error) {
       console.error(error);
@@ -143,6 +167,7 @@ export default function PasswordScreen() {
         width="nearfull"
         rounded="full"
         color="card"
+        textcolor="primary"
         onPress={() => router.replace("/")}
       >
         Return to Login Page

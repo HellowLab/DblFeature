@@ -1,6 +1,6 @@
 // Constants used for styling
-export const BORDERRADIUS = 3;
-
+// export const BORDERRADIUS = 3;
+export const BORDERRADIUS = 8;
 // backend API route
 import Constants from "expo-constants";
 // export const API_BASE_URL = "http://" + Constants.expoConfig?.hostUri?.slice(0, -5) + ":8000/"; // this is used for android emulator accessing the localhost IP

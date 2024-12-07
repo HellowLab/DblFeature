@@ -11,7 +11,7 @@ export default function EmailScreen() {
   const { username } = useLocalSearchParams<{ username: string }>();
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-  
+
   const handleNext = () => {
     setErrorText(""); // reset error text
     if (!email) {
@@ -21,10 +21,10 @@ export default function EmailScreen() {
     // check that the email is the correct format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setErrorText("Please enter a valid email address");
-      return
+      return;
     }
     router.push({
-      pathname: "/password",
+      pathname: "/name",
       params: { username, email },
     });
   };
@@ -76,6 +76,7 @@ export default function EmailScreen() {
         width="nearfull"
         rounded="full"
         color="card"
+        textcolor="primary"
         onPress={() => router.replace("/")}
       >
         Return to Login Page

@@ -5,7 +5,12 @@ import axios, {
 } from "axios";
 import { getToken, getRefreshToken, saveToken } from "../store/TokenStore";
 import { router } from "expo-router";
-import { APIResponse } from "../types/types";
+import {
+  APIResponse,
+  User,
+  RegistrationData,
+  SelectedImage,
+} from "../types/types";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -55,7 +60,8 @@ export const myfetch = async (
   url: string,
   fetchtype: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
   data?: object,
-  params?: object
+  params?: object,
+  headers?: object
 ) => {
   console.log(fetchtype + ": " + (API_BASE_URL + url));
 
@@ -73,14 +79,14 @@ export const myfetch = async (
       }
 
       if (fetchtype == "PATCH") {
-        res = await api.patch(url, data, { params });
+        res = await api.patch(url, data, { params, headers });
       }
 
       if (fetchtype == "GET") {
-        res = await api.get(url, { params });
+        res = await api.get(url, { params, headers });
       }
       if (fetchtype == "PUT") {
-        res = await api.put(url, data, { params });
+        res = await api.put(url, data, { params, headers });
       }
       if (fetchtype == "DELETE") {
         res = await api.delete(url, { params });
@@ -181,6 +187,7 @@ const handle401Error = async () => {
 
   // if refresh token is successful, retry api call
 };
+
 /**
  *
  * @param username username for user to be logged in
@@ -307,7 +314,8 @@ export const isTokenValid = async () => {
  * @returns api response
  */
 export const getMyUserInfo = async () => {
-  const response = await myfetch("auth/myuser/", "GET");
+  // const response = await myfetch("auth/myuser/", "GET");
+  const response = await myfetch("auth/user-detail/", "GET");
   if (response.status == 200) {
     const apiRes: APIResponse = {
       data: response.data,
@@ -321,25 +329,81 @@ export const getMyUserInfo = async () => {
 };
 
 /**
+ * edit current user's information in the backend
+ * @returns api response
+ */
+export const editMyUserInfo = async (userData: Partial<User>) => {
+  const response = await myfetch("auth/user-detail/", "PATCH", userData);
+  if (response.status == 200) {
+    const apiRes: APIResponse = {
+      data: response.data,
+      status: response.status,
+      message: "User Info Updated",
+    };
+    return apiRes;
+  }
+  return response;
+};
+
+/**
+ * update the current user's profile picture
+ * @param image image to be uploaded
+ */
+export const updateProfilePicture = async (image: SelectedImage) => {
+  const formData = new FormData();
+  formData.append("profile_picture", {
+    uri: image.uri,
+    name: image.name ?? "profile_picture.jpg",
+    type: image.type ?? "image/jpeg",
+  });
+
+  const headers = { "Content-Type": "multipart/form-data" };
+
+  try {
+    // Make the request to the backend
+    const response = await myfetch(
+      "auth/user-detail/",
+      "PATCH",
+      formData,
+      {},
+      headers
+    );
+
+    if (response.status == 200) {
+      const apiRes: APIResponse = {
+        data: response.data,
+        status: response.status,
+        message: "User Profile Picture Updated",
+      };
+      return apiRes;
+    }
+    return response;
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    throw new Error("Failed to update profile picture");
+  }
+};
+
+/**
  *
  * @param email email for new user
  * @param password1 password for new user
  * @param password2 password again for new user
  * @param username username for new user
+ * @param firstName first name for new user
+ * @param lastName last name for new user
  * @returns api response
  */
-export const registerUser = async (
-  email: string,
-  password1: string,
-  password2: string,
-  username: string
-) => {
-  const data = {
-    email: email,
-    password1: password1,
-    password2: password2,
-    username: username,
-  };
+export const registerUser = async (data: RegistrationData) => {
+  // const data = {
+  //   email: email,
+  //   password1: password1,
+  //   password2: password2,
+  //   username: username,
+  //   first_name: firstName,
+  //   last_name: lastName,
+  // };
+
   try {
     // use axios instead of api/myfetch because we don't want to send the token with this request
     const response = await axios.post(API_BASE_URL + "auth/register/", data);
