@@ -7,7 +7,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://dblfeature.mgbcengineering.com/"
+        "EXPO_PUBLIC_API_BASE_URL": "https://integration.hellowlab.com/"
       }
     },
     "preview": {
