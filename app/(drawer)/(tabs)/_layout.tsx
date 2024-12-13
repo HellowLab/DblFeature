@@ -54,6 +54,7 @@ export default function Stack2Layout() {
               <ProfilePicture
                 size={40}
                 onPress={() => router.push("/(accountsettings)")}
+                color={colors.white}
               />
             </View>
           ),

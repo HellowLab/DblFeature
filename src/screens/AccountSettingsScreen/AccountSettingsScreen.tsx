@@ -127,6 +127,7 @@ export default function AccountSettingsScreen() {
             flexDirection: "column",
             justifyContent: "space-between",
             padding: 16,
+            paddingBottom: 24,
             gap: 8,
           }}
         >
@@ -165,7 +166,7 @@ export default function AccountSettingsScreen() {
                   }}
                 >
                   {/* User Icon / Profile Image */}
-                  <ProfilePicture size={100} />
+                  <ProfilePicture size={100} color={colors.primary} />
                   {/* User info */}
                   <View
                     style={{

@@ -169,6 +169,7 @@ export default function UserDetailsScreen() {
             flexDirection: "column",
             justifyContent: "space-between",
             padding: 16,
+            paddingBottom: 24,
             gap: 8,
           }}
         >
@@ -204,7 +205,11 @@ export default function UserDetailsScreen() {
                 }}
               >
                 {/* User Icon / Profile Image */}
-                <ProfilePicture size={100} onPress={clickProfilePicture} />
+                <ProfilePicture
+                  size={100}
+                  onPress={clickProfilePicture}
+                  color={colors.primary}
+                />
                 {/* User info */}
                 <View
                   style={{
