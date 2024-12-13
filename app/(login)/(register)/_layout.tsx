@@ -12,7 +12,10 @@ export default function HomeLayout() {
   });
 
   return (
-    <Stack initialRouteName="username" screenOptions={{}}>
+    <Stack
+      initialRouteName="username"
+      screenOptions={{ animation: "slide_from_right" }}
+    >
       <Stack.Screen name="username" options={{ title: "Username" }} />
       <Stack.Screen name="email" options={{ title: "Email" }} />
       <Stack.Screen name="name" options={{ title: "Name" }} />
