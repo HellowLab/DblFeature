@@ -14,11 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hellowlab.dblfeature"
+      "bundleIdentifier": "com.hellowlab.dblfeature",
+      "buildNumber": "6"
     },
     "android": {
       "package": "com.hellowlab.dblfeature",
-      "versionCode": 3,
+      "versionCode": 7,
       "newArchEnabled": true,
       "usesClearTextTraffic": true
     },

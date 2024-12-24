@@ -9,7 +9,10 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "eas-build-all": "node scripts/incrementAndroidVersionCode.js && node scripts/incrementiOSVersionCode.js &&  eas build --platform all --profile production",
+    "eas-build-android": "node scripts/incrementAndroidVersionCode.js &&  eas build --platform android --profile production",
+    "eas-build-ios": "node scripts/incrementiOSVersionCode.js &&  eas build --platform ios --profile production"
   },
   "jest": {
     "preset": "jest-expo"
