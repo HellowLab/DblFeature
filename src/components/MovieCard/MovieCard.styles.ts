@@ -1,8 +1,13 @@
 import { StyleSheet } from "react-native";
+// use dimensions ot get device width
+import { Dimensions } from "react-native";
+// get width
+const deviceWidth = Dimensions.get("window").width;
+
 
 export const styles = StyleSheet.create({
   cardWrapper: {
-    width: "100%",
+    width: deviceWidth - 20 ,
     height: "95%",
     justifyContent: "center",
     alignItems: "center",
@@ -20,7 +25,6 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 6.68,
     elevation: 15,
-    position: "relative",
     overflow: "hidden",
   },
   image: {
@@ -67,18 +71,18 @@ export const styles = StyleSheet.create({
   },
   reviewsContainer: {
     flex: 1,
-    width: "93%",
+    width: "100%",
     borderRadius: 20, // Rounded corners for the container
     overflow: "hidden", // Clip overflowing content
     marginBottom: 10,
   },
   autoScrollContainer: {
-    flex: 1,
     width: "100%",
     // Do not set overflow or borderRadius here
   },
   reviewsContent: {
     alignItems: "center",
+    padding: 10
   },
   reviewCard: {
     width: "100%",

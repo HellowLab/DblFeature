@@ -9,6 +9,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Dimensions,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import AutoScroll from "../AutoScroll";
@@ -142,7 +143,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
             isHorizontal
             delay={100}
             duration={20000}
-            style={{ height: 100 }}
+            style={{ height: Dimensions.get("window").height / 8 }}
             isRTL={invertDirection}
           >
             <View style={styles.horizontalList}>
@@ -176,7 +177,7 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
             isHorizontal
             delay={100}
             duration={20000}
-            style={{ height: 100 }}
+            style={{ height: 120 }}
             isRTL={invertDirection}
           >
             <View style={styles.horizontalList}>
