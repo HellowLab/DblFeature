@@ -223,7 +223,13 @@ const HomeScreen = () => {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ 
+      flex: 1, 
+      justifyContent: "center", 
+      alignItems: "center",
+      height: "100%", // Add fixed height
+      width: "100%", // Add fixed width
+    }}>
       {nextMovie && (
         <Animated.View
           style={[

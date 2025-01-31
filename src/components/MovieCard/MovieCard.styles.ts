@@ -3,13 +3,13 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   cardWrapper: {
     width: "100%",
-    height: "95%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
   card: {
-    width: "100%",
-    height: "100%",
+    width: "90%",
+    height: "85%",
     borderRadius: 20,
     backgroundColor: "transparent",
     shadowColor: "#000",
@@ -46,6 +46,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: 20,
+    position: "absolute", // Add absolute positioning
+    bottom: 0, // Stick to bottom
+    left: 0,
+    right: 0,
   },
   name: {
     fontSize: 30,
@@ -61,6 +65,13 @@ export const styles = StyleSheet.create({
     color: "white",
     lineHeight: 24,
     textAlign: "left",
+  },
+  scrollContainer: {
+    flex: 1,
+    width: "100%",
+  },
+  bioScrollContainer: {
+    maxHeight: 100, // Fixed height for bio
   },
   fadedBio: {
     opacity: 0.75,

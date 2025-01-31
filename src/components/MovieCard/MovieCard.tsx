@@ -9,6 +9,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  ScrollView,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import AutoScroll from "../AutoScroll";
@@ -285,35 +286,37 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
    *
    * @returns {JSX.Element|null} - Rendered content for the current page.
    */
-  const renderMainContent = () => {
-    switch (currentPage) {
-      case 1:
-        return (
-          <View style={styles.centeredContent}>
-            <Text style={styles.title}>Cast & Crew</Text>
-            <View style={styles.castCrewContainer}>
-              <View>
-                <Text style={styles.sectionTitle}>Cast:</Text>
-                {renderMembersWithAutoScroll(cast, true, true)}
-              </View>
-              <View>
-                <Text style={styles.sectionTitle}>Crew:</Text>
-                {renderMembersWithAutoScroll(crew, false, false)}
-              </View>
+// Update renderMainContent function
+const renderMainContent = () => {
+  return (
+    <ScrollView 
+      style={styles.scrollContainer}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      {currentPage === 1 && (
+        <View style={styles.centeredContent}>
+          <Text style={styles.title}>Cast & Crew</Text>
+          <View style={styles.castCrewContainer}>
+            <View>
+              <Text style={styles.sectionTitle}>Cast:</Text>
+              {renderMembersWithAutoScroll(cast, true, true)}
+            </View>
+            <View>
+              <Text style={styles.sectionTitle}>Crew:</Text>
+              {renderMembersWithAutoScroll(crew, false, false)}
             </View>
           </View>
-        );
-      case 2:
-        return (
-          <View style={styles.centeredContent}>
-            <Text style={styles.title}>Reviews</Text>
-            {renderReviews()}
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
+        </View>
+      )}
+      {currentPage === 2 && (
+        <View style={styles.centeredContent}>
+          <Text style={styles.title}>Reviews</Text>
+          {renderReviews()}
+        </View>
+      )}
+    </ScrollView>
+  );
+};
 
   /**
    * Toggles the bio expansion using LayoutAnimation for smooth transitions.
@@ -370,21 +373,21 @@ const MovieCard: React.FC<{ movie: MovieCardProps }> = (props) => {
             />
 
             {renderMainContent()}
+            // Update bio section in return statement
             <TouchableOpacity
               style={styles.contentContainer}
               onPress={toggleExpand}
               activeOpacity={0.8}
             >
               <Text style={styles.name}>{name}</Text>
-              {/* Bio Section */}
-              <View>
+              <ScrollView style={styles.bioScrollContainer}>
                 <Text
                   style={styles.bio}
                   numberOfLines={isExpanded ? undefined : 2}
                 >
                   {bio}
                 </Text>
-              </View>
+              </ScrollView>
             </TouchableOpacity>
 
             {/* Swipe areas for pagination */}
