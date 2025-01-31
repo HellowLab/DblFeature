@@ -7,7 +7,7 @@ const deviceWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
   cardWrapper: {
-    width: deviceWidth - 20 ,
+    width: deviceWidth - 20 , // Using 100% results in unexpected scaling
     height: "95%",
     justifyContent: "center",
     alignItems: "center",
