@@ -385,6 +385,37 @@ export const updateProfilePicture = async (image: SelectedImage) => {
 };
 
 /**
+ * Search for users by username
+ */
+export const searchUsers = async (query: string) => {
+  const response = await myfetch(`auth/search_users/?q=${query}`, "GET");
+  if (response.status === 200) {
+    return {
+      data: response.data.users, // Extract the 'users' array from the response
+      status: response.status,
+      message: "Users found",
+    };
+  }
+  return response;
+};
+
+/**
+ * Send friend request
+ */
+export const sendFriendRequest = async (userId: string) => {
+  const response = await myfetch(`auth/friend-request/${userId}/`, "POST");
+  return response;
+};
+
+/**
+ * Remove friend or cancel friend request
+ */
+export const removeFriendRequest = async (userId: string) => {
+  const response = await myfetch(`auth/remove-friend/${userId}/`, "POST"); // Adjusted to match RemoveFriendView
+  return response;
+};
+
+/**
  *
  * @param email email for new user
  * @param password1 password for new user
